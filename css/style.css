@@ -1,0 +1,532 @@
+/* ==========================================================================
+   测测你适不适合在中国做企业主
+   Pixel UI. Mobile first — the desktop view is just the phone in a frame.
+   ========================================================================== */
+
+:root {
+  --ink:        #241f31;
+  --ink-soft:   #4a4361;
+  --paper:      #fbf3df;
+  --paper-2:    #f2e6c9;
+  --panel:      #ffffff;
+  --green:      #4fae5c;
+  --green-dk:   #2f7d3c;
+  --red:        #e2574c;
+  --gold:       #f7d94f;
+  --blue:       #3f86cf;
+  --purple:     #8d5fd3;
+  --slate:      #6b7a99;
+
+  --px:  4px;                 /* one "pixel" of chrome */
+  --pad: 14px;
+
+  --font: "Silkscreen", "Press Start 2P", ui-monospace, "SFMono-Regular",
+          "DejaVu Sans Mono", Menlo, Consolas, monospace;
+  --font-cjk: "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei",
+              "Noto Sans SC", "Source Han Sans SC", sans-serif;
+}
+
+/* The palette flips wholesale at night; every colour has a light definition
+   first so nothing depends on the media query existing. */
+@media (prefers-color-scheme: dark) {
+  :root {
+    --ink:      #e9e3f5;
+    --ink-soft: #b3aacb;
+    --paper:    #1c1830;
+    --paper-2:  #141126;
+    --panel:    #2a2440;
+  }
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+html, body {
+  height: 100%;
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  background: var(--paper-2);
+  color: var(--ink);
+  font-family: var(--font-cjk);
+  font-size: 15px;
+  line-height: 1.65;
+  overflow-x: hidden;
+  overscroll-behavior-y: none;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Latin-only bits get the monospace treatment so they read as UI chrome. */
+.mono, .stat-num, .kbd, .grade { font-family: var(--font); }
+
+img, canvas { display: block; max-width: 100%; }
+canvas.sprite { image-rendering: pixelated; image-rendering: crisp-edges; }
+
+/* --- shell ---------------------------------------------------------------- */
+
+#app {
+  position: relative;
+  width: 100%;
+  max-width: 460px;
+  min-height: 100dvh;
+  margin: 0 auto;
+  background: var(--paper);
+  display: flex;
+  flex-direction: column;
+  padding-bottom: env(safe-area-inset-bottom);
+  /* Faint scanline-ish paper texture. */
+  background-image: repeating-linear-gradient(
+    0deg, rgba(0, 0, 0, 0.022) 0 1px, transparent 1px 3px);
+}
+
+@media (min-width: 520px) {
+  body { padding: 20px 0; }
+  #app {
+    min-height: calc(100dvh - 40px);
+    box-shadow: 0 0 0 var(--px) var(--ink), 0 12px 0 0 rgba(36, 31, 49, 0.25);
+  }
+}
+
+.screen {
+  flex: 1;
+  display: none;
+  flex-direction: column;
+  padding: var(--pad);
+  gap: 12px;
+  animation: fadein 0.18s steps(3) both;
+}
+.screen.active { display: flex; }
+
+@keyframes fadein { from { opacity: 0; } to { opacity: 1; } }
+
+/* --- pixel panel ---------------------------------------------------------- */
+
+.panel {
+  position: relative;
+  background: var(--panel);
+  padding: 14px;
+  box-shadow:
+     0 calc(-1 * var(--px)) 0 0 var(--ink),
+     0 var(--px) 0 0 var(--ink),
+     calc(-1 * var(--px)) 0 0 0 var(--ink),
+     var(--px) 0 0 0 var(--ink);
+  margin: var(--px);
+}
+
+/* The inner hairline that makes Pokémon text boxes look like text boxes. */
+.panel.double::after {
+  content: "";
+  position: absolute;
+  inset: 4px;
+  border: 2px solid var(--ink);
+  opacity: 0.28;
+  pointer-events: none;
+}
+
+.panel.tint  { background: color-mix(in srgb, var(--gold) 16%, var(--panel)); }
+.panel.good  { background: color-mix(in srgb, var(--green) 16%, var(--panel)); }
+.panel.bad   { background: color-mix(in srgb, var(--red) 14%, var(--panel)); }
+
+/* --- topbar --------------------------------------------------------------- */
+
+.topbar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px var(--pad) 0;
+}
+.topbar .spacer { flex: 1; }
+
+.chip {
+  font-family: var(--font);
+  font-size: 11px;
+  letter-spacing: 0.5px;
+  padding: 6px 9px;
+  background: var(--panel);
+  color: var(--ink);
+  cursor: pointer;
+  user-select: none;
+  box-shadow:
+     0 -2px 0 0 var(--ink), 0 2px 0 0 var(--ink),
+     -2px 0 0 0 var(--ink), 2px 0 0 0 var(--ink);
+}
+.chip:active { transform: translateY(2px); }
+
+/* --- buttons -------------------------------------------------------------- */
+
+.btn {
+  display: block;
+  width: 100%;
+  text-align: left;
+  font: inherit;
+  color: var(--ink);
+  background: var(--panel);
+  border: 0;
+  padding: 13px 14px;
+  margin: var(--px) var(--px) calc(var(--px) + 6px);
+  cursor: pointer;
+  position: relative;
+  box-shadow:
+     0 calc(-1 * var(--px)) 0 0 var(--ink),
+     0 var(--px) 0 0 var(--ink),
+     calc(-1 * var(--px)) 0 0 0 var(--ink),
+     var(--px) 0 0 0 var(--ink),
+     0 8px 0 0 rgba(36, 31, 49, 0.22);
+  transition: transform 0.05s steps(2), box-shadow 0.05s steps(2);
+}
+.btn:active, .btn.pressed {
+  transform: translateY(4px);
+  box-shadow:
+     0 calc(-1 * var(--px)) 0 0 var(--ink),
+     0 var(--px) 0 0 var(--ink),
+     calc(-1 * var(--px)) 0 0 0 var(--ink),
+     var(--px) 0 0 0 var(--ink);
+}
+.btn:disabled { opacity: 0.5; cursor: default; }
+.btn:focus-visible { outline: 3px dashed var(--blue); outline-offset: 6px; }
+
+.btn.primary { background: var(--green); color: #fff; }
+.btn.primary .sub { color: rgba(255, 255, 255, 0.85); }
+.btn.center { text-align: center; }
+.btn .sub {
+  display: block;
+  font-size: 12px;
+  color: var(--ink-soft);
+  margin-top: 3px;
+  line-height: 1.45;
+}
+
+/* Answer buttons carry a little index badge, like a menu cursor. */
+.btn.choice { padding-left: 42px; }
+.btn.choice .idx {
+  position: absolute;
+  left: 12px; top: 12px;
+  font-family: var(--font);
+  font-size: 12px;
+  width: 20px; height: 20px;
+  line-height: 20px;
+  text-align: center;
+  background: var(--ink);
+  color: var(--paper);
+}
+.btn.choice.correct { background: color-mix(in srgb, var(--green) 26%, var(--panel)); }
+.btn.choice.wrong   { background: color-mix(in srgb, var(--red) 22%, var(--panel)); }
+.btn.choice.dim     { opacity: 0.55; }
+
+/* --- typography ----------------------------------------------------------- */
+
+h1, h2, h3 { font-weight: 800; line-height: 1.3; }
+
+.logo {
+  text-align: center;
+  padding: 8px 0 0;
+}
+.logo .l1, .logo .l2 {
+  display: block;
+  font-size: clamp(21px, 6.8vw, 29px);
+  line-height: 1.72;      /* leading has to clear the 6px drop shadow */
+  letter-spacing: 2px;
+  font-weight: 900;
+  color: var(--ink);
+  /* One tight offset only. A second, wider shadow layer reads as a duplicate
+     of the text once the glyphs are as dense as 测测你适不适合. */
+  text-shadow: 3px 3px 0 var(--gold);
+}
+.logo .l2 {
+  color: var(--red);
+  text-shadow: 3px 3px 0 var(--ink);
+  margin-top: 2px;
+}
+/* Latin runs long — shrink it so the title still reads as one block. */
+.logo[data-lang="en"] .l1, .logo[data-lang="en"] .l2 { font-size: clamp(19px, 6vw, 25px); }
+.logo .tag {
+  display: block;
+  margin-top: 12px;
+  font-size: 12px;
+  color: var(--ink-soft);
+  letter-spacing: 0.5px;
+}
+
+.eyebrow {
+  font-family: var(--font);
+  font-size: 11px;
+  letter-spacing: 1.5px;
+  color: var(--ink-soft);
+  text-transform: uppercase;
+}
+.h-title { font-size: 20px; margin-top: 2px; }
+.h-sub   { font-size: 13px; color: var(--ink-soft); }
+
+.prose { font-size: 14.5px; }
+.prose + .prose { margin-top: 9px; }
+.small { font-size: 12.5px; color: var(--ink-soft); line-height: 1.6; }
+
+.label {
+  display: inline-block;
+  font-family: var(--font);
+  font-size: 10px;
+  letter-spacing: 1px;
+  padding: 4px 7px;
+  background: var(--ink);
+  color: var(--paper);
+  margin-bottom: 8px;
+}
+.label.law { background: var(--blue); }
+.label.tip { background: var(--green-dk); }
+
+/* --- sprite stage --------------------------------------------------------- */
+
+.stage {
+  display: flex;
+  justify-content: center;
+  align-items: flex-end;
+  min-height: 128px;
+  padding: 6px 0;
+}
+.stage canvas { animation: bob 1.1s steps(2, end) infinite; }
+@keyframes bob { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-6px); } }
+
+.stage.shake canvas { animation: shake 0.32s steps(2) 2; }
+@keyframes shake {
+  0%   { transform: translateX(-5px); }
+  50%  { transform: translateX(5px); }
+  100% { transform: translateX(0); }
+}
+
+/* The ground shadow keeps creatures from floating in a void. */
+.stage-wrap {
+  position: relative;
+  text-align: center;
+}
+.stage-wrap .ground {
+  width: 92px; height: 10px;
+  margin: -2px auto 0;
+  background: rgba(36, 31, 49, 0.16);
+  border-radius: 50%;
+}
+
+/* --- stat bars ------------------------------------------------------------ */
+
+.stats {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 7px 12px;
+  padding: 11px 12px;
+}
+.stat { display: flex; align-items: center; gap: 7px; }
+.stat canvas { flex: none; }
+.stat .body { flex: 1; min-width: 0; }
+.stat .name {
+  font-size: 10.5px;
+  letter-spacing: 0.5px;
+  color: var(--ink-soft);
+  display: flex;
+  justify-content: space-between;
+  gap: 6px;
+}
+.stat-num { font-size: 11px; color: var(--ink); }
+
+.bar {
+  height: 8px;
+  margin-top: 3px;
+  background: var(--paper-2);
+  box-shadow: 0 0 0 2px var(--ink);
+  overflow: hidden;
+}
+.bar > i {
+  display: block;
+  height: 100%;
+  width: 0;
+  background: var(--green);
+  transition: width 0.45s steps(8);
+}
+.bar.warn > i { background: var(--gold); }
+.bar.dead > i { background: var(--red); }
+
+.delta {
+  font-family: var(--font);
+  font-size: 11px;
+  margin-left: 5px;
+}
+.delta.up   { color: var(--green-dk); }
+.delta.down { color: var(--red); }
+
+/* --- map ------------------------------------------------------------------ */
+
+.map { display: flex; flex-direction: column; gap: 0; }
+
+.node {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  padding: 10px 12px;
+  margin: var(--px) var(--px) 0;
+  background: var(--panel);
+  cursor: pointer;
+  position: relative;
+  box-shadow:
+     0 -3px 0 0 var(--ink), 0 3px 0 0 var(--ink),
+     -3px 0 0 0 var(--ink), 3px 0 0 0 var(--ink);
+}
+.node + .node { margin-top: 12px; }
+/* The dotted route between chapters, Pokémon-map style. */
+.node + .node::before {
+  content: "";
+  position: absolute;
+  left: 34px; top: -13px;
+  width: 4px; height: 10px;
+  background: repeating-linear-gradient(
+    180deg, var(--ink) 0 2px, transparent 2px 4px);
+}
+.node.locked { opacity: 0.45; cursor: default; }
+.node.done   { background: color-mix(in srgb, var(--green) 15%, var(--panel)); }
+.node:not(.locked):active { transform: translateY(2px); }
+
+.node .art { flex: none; width: 48px; display: flex; justify-content: center; }
+.node .txt { flex: 1; min-width: 0; }
+.node .n-title { font-size: 15px; font-weight: 700; }
+.node .n-sub { font-size: 11.5px; color: var(--ink-soft); }
+.node .n-badge { font-family: var(--font); font-size: 10px; }
+
+/* --- boss ----------------------------------------------------------------- */
+
+.hpbar {
+  height: 14px;
+  background: var(--paper-2);
+  box-shadow: 0 0 0 3px var(--ink);
+  margin: 6px 4px 0;
+  overflow: hidden;
+}
+.hpbar > i {
+  display: block;
+  height: 100%;
+  width: 100%;
+  background: var(--red);
+  transition: width 0.5s steps(10);
+}
+
+.flash { animation: flash 0.4s steps(2) 2; }
+@keyframes flash { 0%, 100% { filter: none; } 50% { filter: invert(1); } }
+
+/* --- dex ------------------------------------------------------------------ */
+
+.dexgrid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+}
+.dexcell {
+  background: var(--panel);
+  padding: 9px 4px 7px;
+  text-align: center;
+  cursor: pointer;
+  margin: 3px;
+  box-shadow:
+     0 -3px 0 0 var(--ink), 0 3px 0 0 var(--ink),
+     -3px 0 0 0 var(--ink), 3px 0 0 0 var(--ink);
+}
+.dexcell .nm { font-family: var(--font); font-size: 9px; margin-top: 5px; letter-spacing: 0.5px; }
+.dexcell .st { font-size: 9.5px; color: var(--ink-soft); }
+.dexcell.unseen { opacity: 0.4; }
+.dexcell.unseen canvas { filter: brightness(0) opacity(0.55); }
+.dexcell.caught { background: color-mix(in srgb, var(--gold) 22%, var(--panel)); }
+.dexcell canvas { margin: 0 auto; }
+
+/* --- hero picker ---------------------------------------------------------- */
+
+.heroes { display: flex; gap: 8px; justify-content: center; }
+.hero {
+  flex: 1;
+  padding: 10px 2px;
+  background: var(--panel);
+  cursor: pointer;
+  margin: 3px;
+  box-shadow:
+     0 -3px 0 0 var(--ink), 0 3px 0 0 var(--ink),
+     -3px 0 0 0 var(--ink), 3px 0 0 0 var(--ink);
+}
+.hero canvas { margin: 0 auto; }
+.hero.sel { background: color-mix(in srgb, var(--gold) 30%, var(--panel)); }
+
+/* --- result --------------------------------------------------------------- */
+
+.grade {
+  font-size: 62px;
+  line-height: 1;
+  font-weight: 900;
+  text-align: center;
+  color: var(--gold);
+  text-shadow: 4px 4px 0 var(--ink);
+  padding: 6px 0 2px;
+}
+
+/* Capture / escape headline — loud, but still readable at a glance. */
+.bigmsg {
+  font-size: 27px;
+  font-weight: 900;
+  letter-spacing: 1px;
+  line-height: 1.4;
+  padding: 4px 0 6px;
+  color: var(--ink);
+  text-shadow: 3px 3px 0 var(--gold);
+}
+.bigmsg.miss { color: var(--ink-soft); text-shadow: 3px 3px 0 var(--paper-2); }
+
+.scoreline {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  font-size: 12px;
+  color: var(--ink-soft);
+  padding: 0 2px;
+}
+
+.breakdown { display: grid; gap: 6px; margin-top: 4px; }
+.breakdown .row {
+  display: flex;
+  justify-content: space-between;
+  font-size: 12.5px;
+  padding: 4px 0;
+  border-bottom: 2px dotted color-mix(in srgb, var(--ink) 25%, transparent);
+}
+
+/* --- misc ----------------------------------------------------------------- */
+
+.center { text-align: center; }
+.gap { height: 4px; }
+.hr {
+  height: 0;
+  border-top: 3px dotted color-mix(in srgb, var(--ink) 30%, transparent);
+  margin: 4px 0;
+}
+
+.toast {
+  position: fixed;
+  left: 50%;
+  bottom: calc(22px + env(safe-area-inset-bottom));
+  transform: translateX(-50%);
+  background: var(--ink);
+  color: var(--paper);
+  font-size: 12.5px;
+  padding: 9px 15px;
+  z-index: 50;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.2s steps(3);
+}
+.toast.show { opacity: 1; }
+
+/* Typewriter caret on the narration line. */
+.type::after {
+  content: "▌";
+  animation: caret 0.7s steps(1) infinite;
+  color: var(--ink-soft);
+}
+.type.done::after { content: ""; }
+@keyframes caret { 0%, 49% { opacity: 1; } 50%, 100% { opacity: 0; } }
+
+@media (prefers-reduced-motion: reduce) {
+  .stage canvas, .type::after { animation: none; }
+  .screen { animation: none; }
+  .bar > i, .hpbar > i { transition: none; }
+}
