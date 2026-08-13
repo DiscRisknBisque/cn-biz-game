@@ -117,6 +117,14 @@
     toastTimer = setTimeout(function () { el.classList.remove('show'); }, 1800);
   }
 
+  /* Points needed to catch a unit's creature. Chapters differ in length — the
+     visa chapter is twice the size of the rest — so the allowance is one
+     half-right answer per three scenes rather than a flat one per chapter. */
+  function catchThreshold(unit) {
+    var max = unit.scenes.length * 2;
+    return max - Math.ceil(unit.scenes.length / 3);
+  }
+
   function totalPoints() {
     var n = 0;
     Object.keys(state.cleared).forEach(function (k) { n += state.cleared[k]; });
@@ -220,9 +228,15 @@
     return bar;
   }
 
-  /* Reveal text one character at a time; tapping anywhere finishes it early. */
+  /* Reveal text one character at a time; tapping anywhere finishes it early.
+     The box is sized to the finished text up front: without that, revealing the
+     last line grows the paragraph and shoves the button under the tap that was
+     meant for it, so the first tap gets swallowed. */
   function typewriter(el, text) {
     var i = 0;
+    el.textContent = text;
+    var full = el.getBoundingClientRect().height;
+    if (full) el.style.minHeight = full + 'px';
     el.textContent = '';
     el.classList.add('type');
     var timer = setInterval(step, 18);
@@ -732,7 +746,7 @@
     /* Replaying a chapter keeps your best run rather than punishing curiosity. */
     state.cleared[ch.id] = prev == null ? view.runPoints : Math.max(prev, view.runPoints);
 
-    var caught = view.runPoints >= max - 1;
+    var caught = view.runPoints >= catchThreshold(ch);
     if (caught) state.dex[ch.id] = 'caught';
     else if (!state.dex[ch.id]) state.dex[ch.id] = 'seen';
 
@@ -762,11 +776,12 @@
     var prev = state.cleared.boss;
     state.cleared.boss = prev == null ? view.runPoints : Math.max(prev, view.runPoints);
 
-    if (view.runPoints >= max - 2) state.dex.boss = 'caught';
+    var beat = view.runPoints >= catchThreshold(C.BOSS);
+    if (beat) state.dex.boss = 'caught';
     else if (!state.dex.boss) state.dex.boss = 'seen';
 
     /* Everyone who reaches the end meets the deregistration ghost. */
-    state.dex.exit = view.runPoints >= max - 2 ? 'caught' : 'seen';
+    state.dex.exit = beat ? 'caught' : 'seen';
 
     B.settle(state.stats, view.runPoints, max);
 

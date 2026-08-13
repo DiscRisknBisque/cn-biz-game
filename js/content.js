@@ -89,20 +89,113 @@
       monster: 'visa',
       name: { zh: '签证兽', en: 'VISAMON' },
       title: { zh: '落地', en: 'Landing' },
-      subtitle: { zh: '签证与工作许可', en: 'Visas & work permits' },
+      subtitle: { zh: '签证身份与工作许可', en: 'Visa status & work permits' },
       dexNote: {
         zh: '看起来人畜无害，实则决定你能不能合法待在这里。惹怒它的人通常在机场才发现问题。',
         en: 'Looks harmless. Decides whether you may legally be here at all. Most people who anger it find out at the airport.'
       },
       intro: {
-        zh: '你拖着行李落地了。手机里躺着一份商业计划书，护照里躺着一张 M 字签证。',
-        en: 'You land with a suitcase, a business plan on your phone, and an M visa in your passport.'
+        zh: '你拖着行李落地了。手机里是一份商业计划书——而护照里那张签证，可能是旅游签、留学签，也可能是商务签。它决定了你接下来能做什么。',
+        en: 'You land with a suitcase and a business plan. The visa in your passport might be a tourist visa, a student visa or a business visa — and which one it is decides what you may do next.'
       },
       scenes: [
         {
           prompt: {
-            zh: '你持 M 字（商务访问）签证入境，打算下周就在自己筹备的公司里正式上班、领工资。怎么办？',
-            en: 'You entered on an M (business visit) visa and plan to start working — and drawing a salary — at your new company next week. What do you do?'
+            zh: '你还在犹豫来中国用什么签证。有人告诉你："必须先拿到工作签证，才能注册公司当股东。"',
+            en: 'You are still deciding which visa to come in on. Someone tells you: "You need a work visa before you can register a company and be a shareholder."'
+          },
+          choices: [
+            {
+              text: { zh: '不对——投资和就业是两件事。做股东不看签证类型，但要在境内实际上班就要工作许可', en: 'Wrong — investing and working are two different things. Shareholding does not turn on your visa; actually working here does' },
+              score: 2, fx: { cash: 0, comp: 14, rep: 4, energy: -2 },
+              verdict: { zh: '正确。分清这两件事，能省下大量无用的焦虑和中介费。', en: 'Correct. Separating the two saves a great deal of pointless anxiety and agent fees.' }
+            },
+            {
+              text: { zh: '对，先办 Z 字签证和工作许可，再去注册公司', en: 'Right — get the Z visa and work permit first, then register the company' },
+              score: 1, fx: { cash: -6, comp: 2, rep: 0, energy: -8 },
+              verdict: { zh: '顺序反了。工作许可要由已经存在的用人单位来申请。', en: 'Backwards. The work permit is applied for by an employer that already exists.' }
+            },
+            {
+              text: { zh: '签证类型无所谓，注册完就能上班', en: 'The visa does not matter — once it is registered you can start working' },
+              score: 0, fx: { cash: 2, comp: -20, rep: -8, energy: -2 },
+              verdict: { zh: '前半句对，后半句会让你构成非法就业。', en: 'The first half is right. The second half is illegal employment.' }
+            }
+          ],
+          tip: {
+            zh: '外国自然人可以直接作为外商投资企业的股东，法律没有要求你持哪一类签证，甚至没有要求你人在中国——设立时提交经公证认证的护照身份证明即可。签证管的是"你能不能在中国做事"，不是"你能不能拥有股权"。但只要你在境内实际到岗、履职、领薪，无论你是不是老板，都需要工作许可和工作类居留许可。顺序通常是：先设立公司 → 公司作为用人单位为你申请《外国人工作许可通知》→ 你办 Z 字签证。',
+            en: 'A foreign individual can be a shareholder of a foreign-invested enterprise directly. No particular visa class is required, and you need not even be in China — notarised and legalised passport identification is what the registration needs. A visa governs what you may *do* in China, not what you may *own*. But the moment you actually take up a post, carry duties and draw pay here — owner or not — you need a work permit and a work-type residence permit. The usual order is: incorporate first, then the company applies for your Work Permit Notice as your employer, then you get the Z visa.'
+          },
+          law: {
+            zh: '《外商投资法》第2条；《市场主体登记管理条例》；《外国人在中国就业管理规定》第2条、第5条',
+            en: 'Foreign Investment Law, art. 2; Regulations on Registration of Market Entities; Rules on the Administration of Employment of Foreigners in China, arts. 2 & 5'
+          }
+        },
+        {
+          prompt: {
+            zh: '你是在华留学生，持 X1 签证和学习类居留许可。你和同学做的项目开始有收入了，你想在自己参与创办的公司里干活并领报酬。',
+            en: 'You are an international student in China on an X1 visa with a study residence permit. The project you built with classmates is earning money, and you want to work at the company you co-founded and be paid for it.'
+          },
+          choices: [
+            {
+              text: { zh: '不行。留学生校外勤工助学或实习须经学校同意并在居留证件上加注；真要创业得另走留学生创业或工作许可路径', en: 'Not like that. Off-campus work or internships need the school\'s consent and an endorsement on your residence permit; actually founding a company needs the student-entrepreneur or work-permit route' },
+              score: 2, fx: { cash: -4, comp: 16, rep: 6, energy: -8 },
+              verdict: { zh: '正确。留学生违反勤工助学规定工作，法律上明确列为非法就业。', en: 'Correct. A student working outside those rules is expressly listed as illegal employment.' }
+            },
+            {
+              text: { zh: '学生签证可以自由打工，只要不耽误学习', en: 'A student visa lets you work freely as long as your studies do not suffer' },
+              score: 0, fx: { cash: 4, comp: -22, rep: -10, energy: -2 },
+              verdict: { zh: '这是留学生最常见的误解，代价可能是学业和居留资格一起没了。', en: 'The most common misconception among students — and it can cost you both your place and your residence.' }
+            },
+            {
+              text: { zh: '先不领报酬，只干活，等毕业再说', en: 'Work now, take no money, sort it out after graduation' },
+              score: 1, fx: { cash: 0, comp: -6, rep: -2, energy: -6 },
+              verdict: { zh: '不领钱不等于不算工作，认定看的是有没有实际从事劳动。', en: 'Not being paid does not mean not working. What counts is whether you actually performed the work.' }
+            }
+          ],
+          tip: {
+            zh: '留学生在校外勤工助学或实习的，应当经所在学校同意，并向出入境管理机构申请在居留证件上加注勤工助学或实习的地点和期限；超出加注范围或时限工作的，法律直接定性为非法就业。想真正创业，路径有两条：① 不少城市（如北京中关村、上海、粤港澳大湾区等）对符合条件的外国留学生开放加注"创业"的私人事务类居留许可，凭创业计划书和学校推荐申请；② 毕业后走正规工作许可——《外国人来华工作分类标准》对具有硕士及以上学位的优秀外国高校和中国高校毕业生，可以豁免通常要求的 2 年工作经历。各地政策差异很大，先问当地出入境管理部门。',
+            en: 'A student doing off-campus paid work or an internship must have the school\'s consent and must apply to the exit-entry authority for an endorsement on the residence permit recording the place and period. Working beyond what the endorsement covers is classified as illegal employment outright. To actually found a company there are two routes: (1) a number of cities — Zhongguancun in Beijing, Shanghai and the Greater Bay Area among them — offer eligible international students a private-affairs residence permit endorsed for entrepreneurship, granted on a business plan and a recommendation from the school; (2) after graduating, take the ordinary work permit route — the classification standards waive the usual two years of experience for strong graduates holding a master\'s degree or above from a Chinese or overseas university. Local practice varies a great deal, so ask your local exit-entry bureau first.'
+          },
+          law: {
+            zh: '《出境入境管理法》第42条、第43条第(三)项；《学校招收和培养国际学生管理办法》第30条；《外国人来华工作分类标准（试行）》',
+            en: 'Exit and Entry Administration Law, arts. 42 & 43(3); Measures for the Administration of Enrolment and Education of International Students, art. 30; Classification Standards for Foreigners Working in China (Trial)'
+          }
+        },
+        {
+          prompt: {
+            zh: '你这次是持 L 字（旅游）签证入境的——或者干脆是免签入境。你打算顺便见几个客户、看看办公室、把合同签了。',
+            en: 'This time you came in on an L (tourist) visa — or visa-free. While you are here you plan to meet a few customers, view an office and sign the contract.'
+          },
+          choices: [
+            {
+              text: { zh: '商务活动应当持 M 字签证；用旅游或免签身份谈生意、签约属于与停留事由不符', en: 'Business calls for an M visa. Negotiating and signing while here as a tourist or visa-free does not match your stated purpose of stay' },
+              score: 2, fx: { cash: -6, comp: 16, rep: 6, energy: -6 },
+              verdict: { zh: '正确。免签方便的是入境，不是放宽了你能做的事。', en: 'Correct. Visa-free entry makes arriving easier; it does not widen what you may do once here.' }
+            },
+            {
+              text: { zh: '只要不在中国领工资，持旅游签谈生意没问题', en: 'As long as no Chinese salary is involved, doing business on a tourist visa is fine' },
+              score: 0, fx: { cash: 4, comp: -18, rep: -8, energy: -2 },
+              verdict: { zh: '"有没有领工资"是就业的判断标准之一，不是停留事由的判断标准。', en: 'Whether you were paid goes to employment. It is not the test for whether your activity matched your purpose of stay.' }
+            },
+            {
+              text: { zh: '先用 L 签进来，到了再在境内申请改成 M 签', en: 'Come in on the L visa and switch it to an M visa once you are here' },
+              score: 1, fx: { cash: -4, comp: -4, rep: 0, energy: -8 },
+              verdict: { zh: '境内一般只能延期，不能随意变更签证类别，别把行程压在这上面。', en: 'In-country you can generally extend, not freely change class. Do not build your itinerary on it.' }
+            }
+          ],
+          tip: {
+            zh: 'L 字签证发给入境旅游的人员，M 字签证发给入境进行商业贸易活动的人员。外国人在中国境内不得从事与停留居留事由不相符的活动，违反的可被处限期出境甚至罚款、拘留。近年中国对多国实行单方面免签和过境免签（如 240 小时过境免签），但免签解决的是"入境手续"，你入境后能做什么仍受停留事由约束——考察、参观通常没问题，正式洽谈、签约、参展应当持 M 字签证。签证类别在境内一般不予变更，需要换类别通常要出境重新申请。',
+            en: 'The L visa is issued for tourism, the M visa for commercial and trade activities. A foreigner in China may not engage in activities inconsistent with their stated purpose of stay; breaching that can bring an order to leave within a time limit, and in some cases a fine or detention. China has extended unilateral visa-free entry to many countries in recent years, along with transit exemptions of up to 240 hours — but visa-free entry solves the paperwork of arriving, not the limits on what you may do once inside. Looking around and visiting are generally fine; formal negotiation, signing and exhibiting call for an M visa. Visa classes are generally not changed in-country; switching normally means leaving and applying again.'
+          },
+          law: {
+            zh: '《出境入境管理法》第16条、第39条、第80条；《外国人入境出境管理条例》第6条',
+            en: 'Exit and Entry Administration Law, arts. 16, 39 & 80; Regulations on the Administration of Entry and Exit of Foreigners, art. 6'
+          }
+        },
+        {
+          prompt: {
+            zh: '公司注册好了。不管你现在持的是 M、L 还是 X 签证，你打算下周就到自己的公司正式上班、领工资。怎么办？',
+            en: 'The company is registered. Whatever you hold right now — M, L or X — you plan to start working at it next week, on payroll. What do you do?'
           },
           choices: [
             {
@@ -116,14 +209,14 @@
               verdict: { zh: '这叫非法就业，罚款、拘留、遣返、限期不得入境都可能。', en: 'That is illegal employment: fines, detention, deportation, and a re-entry ban are all on the table.' }
             },
             {
-              text: { zh: '在境内直接申请把 M 签转成工作类居留许可', en: 'Convert the M visa into a work residence permit without leaving' },
+              text: { zh: '不出境，直接在境内申请变更为工作类居留许可', en: 'Skip the trip out and apply to change status to a work residence permit from inside China' },
               score: 1, fx: { cash: -4, comp: 2, rep: 0, energy: -8 },
               verdict: { zh: '个别城市对高端人才确有境内变更政策，但不是通例，别默认自己可以。', en: 'A few cities do allow in-country conversion for high-end talent, but it is the exception. Never assume you qualify.' }
             }
           ],
           tip: {
-            zh: '合法工作的标准链条是：用人单位在网上申请《外国人工作许可通知》→ 你在境外使领馆凭通知办 Z 字签证 → 入境后 30 日内换领《外国人工作许可证》和工作类居留许可。持 L（旅游）、M（商务）签证在华工作属于非法就业，公司和个人都要挨罚。',
-            en: 'The clean chain is: your employer files online for a Work Permit Notice → you take that notice to a PRC consulate abroad and get a Z visa → within 30 days of entry you swap it for the Work Permit card and a work-type residence permit. Working on an L (tourist) or M (business) visa is illegal employment, and both you and the company are fined.'
+            zh: '合法工作的标准链条是：用人单位在网上申请《外国人工作许可通知》→ 你在境外使领馆凭通知办 Z 字签证 → 入境后 30 日内换领《外国人工作许可证》和工作类居留许可。持 L（旅游）、M（商务）、X（学习）签证在华工作，都属于非法就业，公司和个人都要挨罚——个人可处 5000 至 20000 元罚款，情节严重的处拘留并可限期出境；用人单位按每非法聘用一人 1 万元、总额不超过 10 万元处罚。',
+            en: 'The clean chain is: your employer files online for a Work Permit Notice → you take that notice to a PRC consulate abroad and get a Z visa → within 30 days of entry you swap it for the Work Permit card and a work-type residence permit. Working on an L (tourist), M (business) or X (study) visa is illegal employment in each case, and both you and the company are fined — the individual RMB 5,000 to 20,000, with detention and an order to leave in serious cases; the employer RMB 10,000 per person illegally engaged, capped at RMB 100,000.'
           },
           law: {
             zh: '《出境入境管理法》第41条、第80条；《外国人来华工作许可服务指南》',

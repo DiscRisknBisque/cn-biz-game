@@ -3,11 +3,12 @@
 **Can You Really Run a Business in China?** — a pixel-art mobile web game about
 the law a foreigner needs to know to start a company in China.
 
-You land in China with a business plan and an M visa. Eight chapters later you
-either have a company that survives its first annual audit, or you are on the
-judgment-defaulter list and cannot book a flight home. Every question is a real
-decision, every answer is followed by the rule that actually governs it and a
-citation you can go and read.
+You land in China with a business plan and whatever visa happens to be in your
+passport — tourist, student or business. Eight chapters later you either have a
+company that survives its first annual audit, or you are on the judgment-defaulter
+list and cannot book a flight home. Every question is a real decision, every
+answer is followed by the rule that actually governs it and a citation you can
+go and read.
 
 Chinese by default, English one tap away. No build step, no dependencies, no
 image or audio files — open `index.html` and play.
@@ -29,11 +30,13 @@ the middle of the window. Progress is saved to `localStorage`.
 
 ## What's in it
 
-Eight chapters, three scenarios each, then a four-question boss:
+Eight chapters, then a four-question boss. Chapter 1 runs to six scenarios
+because visa status is where most people go wrong before they start; the rest
+are three each:
 
 | # | Chapter | Ground covered |
 |---|---------|----------------|
-| 1 | 落地 Landing | M vs Z visas, the Work Permit Notice chain, A/B/C grading, when a legal rep needs a permit |
+| 1 | 落地 Landing | Owning vs working, students on X1 visas, tourist and visa-free entry, the Work Permit Notice chain, A/B/C grading, legal reps living abroad |
 | 2 | 立业 Setting Up | WFOE vs JV vs rep office, the negative list, registered capital under the 2024 Company Law |
 | 3 | 印章 The Chop | Chop custody, legal representative liability, business scope and invoicing |
 | 4 | 钱流 Money In, Money Out | Capital accounts, use restrictions on converted capital, profit repatriation and withholding tax |
@@ -102,7 +105,7 @@ citation. To add a scene, append to a chapter's `scenes` array; nothing else
 needs to change.
 
 The `fx` numbers are deliberately written by feel. `js/balance.js` damps them
-per stat so they survive 28 scenes on a 0–100 bar, which means you can write
+per stat so they survive 31 scenes on a 0–100 bar, which means you can write
 "this wrecks your compliance" without holding a spreadsheet in your head.
 
 ## Testing
@@ -117,10 +120,10 @@ npm run e2e     # drives the real game (expects `npm run serve` running)
 and has a right answer, then plays the whole game under four strategies:
 
 ```
-best      grade S  score 100  pts 56/56   cash 159  compliance 100  reputation 100  energy  79
-cheapest  grade D  score   8  pts  6/56   cash  34  compliance   0  reputation   0  energy  14
-worst     grade D  score   1  pts  1/56   cash   0  compliance   0  reputation   0  energy   4
-random    grade B:4% C:38% D:58%  score 34  pts 23/56  cash  92  compliance  13  reputation  12  energy  53
+best      grade S  score 100  pts 62/62   cash 154  compliance 100  reputation 100  energy  72
+cheapest  grade D  score   7  pts  6/62   cash   0  compliance   0  reputation   0  energy   0
+worst     grade D  score   1  pts  1/62   cash   0  compliance   0  reputation   0  energy   0
+random    grade B:4% C:33% D:63%  score 34  pts 26/62   cash  76  compliance  11  reputation  10  energy  43
 ```
 
 Run it after touching any `fx` value or anything in `balance.js` — it is much
