@@ -103,19 +103,101 @@ function checkContent() {
 
   Object.keys(C.UI).forEach(function (k) { bilingual('UI.' + k, C.UI[k]); });
 
+  /* --- dex ------------------------------------------------------------- */
+
+  var dexIds = {};
+
+  Object.keys(C.DEX_META).forEach(function (id) {
+    var m = C.DEX_META[id];
+    bilingual('DEX_META.' + id + '.type', m.type);
+    bilingual('DEX_META.' + id + '.weak', m.weak);
+    if (!(m.danger >= 0 && m.danger <= 5)) problems.push('DEX_META.' + id + ': danger must be 0-5');
+    if (!(m.rarity >= 1 && m.rarity <= 3)) problems.push('DEX_META.' + id + ': rarity must be 1-3');
+    dexIds[id] = true;
+  });
+
+  /* Every chapter, the boss and the bonus entry need metadata, or their dex
+     page renders with blank rows. */
+  UNITS.concat([C.BONUS_DEX]).forEach(function (u) {
+    if (!C.DEX_META[u.id]) problems.push('DEX_META is missing an entry for "' + u.id + '"');
+  });
+
+  C.RARES.concat([C.SECRET]).forEach(function (r) {
+    bilingual('rare.' + r.id + '.name', r.name);
+    bilingual('rare.' + r.id + '.type', r.type);
+    bilingual('rare.' + r.id + '.from', r.from);
+    bilingual('rare.' + r.id + '.note', r.note);
+    bilingual('rare.' + r.id + '.weak', r.weak);
+    if (dexIds[r.id]) problems.push('rare "' + r.id + '" collides with a chapter dex id');
+    dexIds[r.id] = true;
+  });
+
+  /* Every rare must be reachable: some scene has to point at it, and that
+     scene has to have a right answer to release it. */
+  var referenced = {};
+  UNITS.forEach(function (unit) {
+    unit.scenes.forEach(function (sc, i) {
+      if (!sc.rare) return;
+      var at = unit.id + '#' + (i + 1);
+      if (!C.RARES.some(function (r) { return r.id === sc.rare; })) {
+        problems.push(at + ': rare "' + sc.rare + '" is not in RARES');
+      }
+      if (referenced[sc.rare]) problems.push('rare "' + sc.rare + '" is triggered by more than one scene');
+      referenced[sc.rare] = at;
+    });
+  });
+  C.RARES.forEach(function (r) {
+    if (!referenced[r.id]) problems.push('rare "' + r.id + '" is unreachable — no scene triggers it');
+  });
+
+  return problems;
+}
+
+/* Sprites are authored as character grids; a mistyped row only shows up in the
+   browser console, so check the widths here too. */
+function checkSprites() {
+  var fs = require('fs');
+  var src = fs.readFileSync(path.join(__dirname, '..', 'js', 'pixel.js'), 'utf8');
+  var palette = {};
+  var palBlock = src.slice(src.indexOf('var PALETTE'), src.indexOf('var SPRITES'));
+  /* Keys are written both bare (K: '#...') and quoted ('.': null). */
+  palBlock.replace(/'?([.A-Za-z])'?\s*:\s*(null|'#[0-9a-fA-F]{6}')/g, function (_, ch) {
+    palette[ch] = true;
+    return '';
+  });
+
+  var problems = [];
+  var re = /(\w+):\s*\[([\s\S]*?)\]/g;
+  var m;
+  while ((m = re.exec(src))) {
+    var name = m[1];
+    var rows = (m[2].match(/'[^']*'/g) || []).map(function (r) { return r.slice(1, -1); });
+    if (rows.length < 8) continue;
+    var w = rows[0].length;
+    rows.forEach(function (row, i) {
+      if (row.length !== w) problems.push('sprite ' + name + ' row ' + i + ' is ' + row.length + ' wide, expected ' + w);
+      var bad = {};
+      for (var c = 0; c < row.length; c++) if (!palette[row[c]]) bad[row[c]] = true;
+      Object.keys(bad).forEach(function (ch) {
+        problems.push('sprite ' + name + ' row ' + i + ' uses unknown colour "' + ch + '"');
+      });
+    });
+  }
   return problems;
 }
 
 /* --- report ------------------------------------------------------------ */
 
-var problems = checkContent();
+var problems = checkContent().concat(checkSprites());
 if (problems.length) {
   console.log('CONTENT PROBLEMS (' + problems.length + '):');
-  problems.forEach(function (p) { console.log('  - ' + p); });
+  problems.slice(0, 40).forEach(function (p) { console.log('  - ' + p); });
+  if (problems.length > 40) console.log('  ... and ' + (problems.length - 40) + ' more');
 } else {
   console.log('Content OK — ' + UNITS.length + ' units, ' +
               UNITS.reduce(function (n, u) { return n + u.scenes.length; }, 0) +
-              ' scenes, ' + MAX_POINTS + ' points available.\n');
+              ' scenes, ' + MAX_POINTS + ' points available, ' +
+              (Object.keys(C.DEX_META).length + C.RARES.length + 1) + ' dex entries.\n');
 }
 
 function row(label, r) {

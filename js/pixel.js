@@ -248,6 +248,151 @@
       '................'
     ],
 
+    /* --- Rare encounters ----------------------------------------------- *
+     * These only appear when you get one specific question right, so each one
+     * is a single named risk rather than a whole area of law.
+     * -------------------------------------------------------------------- */
+
+    /* 双倍工资鬼 — the unsigned employment contract, torn and unhappy. */
+    doublewage: [
+      '................',
+      '..KKKKKKKKKKKK..',
+      '..KWWWWWWWWWWK..',
+      '..KWKKKKKKKKWK..',
+      '..KWWWWWWWWWWK..',
+      '..KWSSKWWKSSWK..',
+      '..KWSKKWWKKSWK..',
+      '..KWWWWWWWWWWK..',
+      '..KWKRKWWKRKWK..',
+      '..KWKKRKKRKKWK..',
+      '..KWWKKRRKKWWK..',
+      '..KWKKRKKRKKWK..',
+      '..KWKRKWWKRKWK..',
+      '..KWWWWWWWWWWK..',
+      '..KKWKKWKKWKKK..',
+      '...K.K..K.K.....'
+    ],
+
+    /* 抢注鸦 — got to the trademark office before you did. */
+    squatter: [
+      '................',
+      '.......KKKK.....',
+      '......KXXXXK....',
+      '.....KXXXXXXK...',
+      '....KXWWKXXXKK..',
+      '....KXWKKXXXKOK.',
+      '....KXXXXXXXKKK.',
+      '..KKXXXXXXXXXK..',
+      '.KXXXXXXXXXXXK..',
+      '.KXXKRRRRKXXXK..',
+      '.KXXKRWWRKXXXK..',
+      '.KXXKRRRRKXXXK..',
+      '.KXXXXXXXXXXK...',
+      '..KXXXXXXXXK....',
+      '...KK.KK.KK.....',
+      '....K...K.K.....'
+    ],
+
+    /* 虚开鬼 — the fake invoice. The X eyes are the point. */
+    falsebill: [
+      '................',
+      '..KKKKKKKKKKKK..',
+      '..KRRRRRRRRRRK..',
+      '..KRKKKKKKKKRK..',
+      '..KRRRRRRRRRRK..',
+      '..KRKWKRRKWKRK..',
+      '..KRRKWKKWKRRK..',
+      '..KRRKWKKWKRRK..',
+      '..KRKWKRRKWKRK..',
+      '..KRRRRRRRRRRK..',
+      '..KRRKXXXXKRRK..',
+      '..KRKXXXXXXKRK..',
+      '..KRRRRRRRRRRK..',
+      '..KRKRKRKRKRRK..',
+      '..K.K.K.K.K..K..',
+      '................'
+    ],
+
+    /* 限高锁 — the travel ban on a legal representative. */
+    travelban: [
+      '................',
+      '.....KKKKKK.....',
+      '....KSSSSSSK....',
+      '...KSSKKKKSSK...',
+      '...KSKK..KKSK...',
+      '..KKSK....KSKK..',
+      '.KOOOOOOOOOOOOK.',
+      'KOOOOOOOOOOOOOOK',
+      'KOOWWKOOKWWOOOK.',
+      'KOOWKKOOKKWOOK..',
+      'KOOOOOOOOOOOOK..',
+      'KOOOKKKKKKOOOK..',
+      'KOOOOKXXKOOOOK..',
+      '.KOOOOKXKOOOOK..',
+      '..KKKKKKKKKKK...',
+      '................'
+    ],
+
+    /* 负面清单蛇 — coiled around the sectors you may not enter. */
+    neglist: [
+      '................',
+      '....KKKK........',
+      '...KGGGGK.......',
+      '..KGWWKGGK......',
+      '..KGWKKGGK......',
+      '..KGGGGGGKK.....',
+      '..KGGKRRKGGKK...',
+      '...KGGGGGGGGK...',
+      '.....KKKGGGGGK..',
+      '...KKKK..KKGGGK.',
+      '..KGGGGKK..KGGK.',
+      '..KGKRRKGK.KGGK.',
+      '..KGKRRKGGKKGGK.',
+      '..KGGKKGGGGGGGK.',
+      '...KGGGGGGGGGK..',
+      '....KKKKKKKKK...'
+    ],
+
+    /* 出境门 — the gate personal data has to pass through. */
+    crossborder: [
+      '................',
+      '..KKKKKKKKKKKK..',
+      '..KPPPPPPPPPPK..',
+      '..KPKKKKKKKKPK..',
+      '..KPKccccccKPK..',
+      '..KPKcWccWcKPK..',
+      '..KPKcKccKcKPK..',
+      '..KPKccccccKPK..',
+      '..KPKccccKcKPK..',
+      '..KPKcKKKKcKPK..',
+      '..KPKccccKcKPK..',
+      '..KPKccccccKPK..',
+      '..KPKKKKKKKKPK..',
+      '..KPPPPPPPPPPK..',
+      '..KKPPPPPPPPKK..',
+      '...KK.KKKK.KK...'
+    ],
+
+    /* 律师 — the 100% reward. The one creature that is on your side. */
+    lawyer: [
+      '................',
+      '......KKKK......',
+      '.....KXXXXK.....',
+      '....KXEEEEXK....',
+      '....KEEEEEEK....',
+      '....KEKEEKEK....',
+      '....KEEEEEEK....',
+      '....KEEKKEEK....',
+      '.....KEEEEK.....',
+      '...KKKKWKKKKK...',
+      '..KNNNKWKNNNNK..',
+      '..KNNNKWKNNNNK..',
+      '..KNNNNNNNNNNK..',
+      '..KNNKYYYYKNNK..',
+      '..KKKKYKKYKKKK..',
+      '...KNNKKKKKNNK..'
+    ],
+
     /* --- Player avatars ------------------------------------------------ */
     hero1: [
       '................',
@@ -366,52 +511,115 @@
     return bad;
   }
 
+  /* --- shiny variants ------------------------------------------------- *
+   * A shiny is the same sprite under a rotated palette. Rotating hue in HSL
+   * rather than hand-picking swaps means every creature gets a variant that
+   * still reads as itself, and new creatures get one for free. Outline, white
+   * and the darkest shadow are left alone so shapes stay legible.
+   * -------------------------------------------------------------------- */
+
+  /* Only the outline stays put. White does not: several creatures are mostly
+     paper, and leaving white alone made their shiny form indistinguishable. */
+  var SHINY_FIXED = { K: 1, X: 1 };
+  var SHINY_HUE_SHIFT = 145;
+
+  function hexToRgb(hex) {
+    return [parseInt(hex.slice(1, 3), 16), parseInt(hex.slice(3, 5), 16), parseInt(hex.slice(5, 7), 16)];
+  }
+
+  function rgbToHsl(r, g, b) {
+    r /= 255; g /= 255; b /= 255;
+    var max = Math.max(r, g, b), min = Math.min(r, g, b);
+    var l = (max + min) / 2, h = 0, s = 0;
+    if (max !== min) {
+      var d = max - min;
+      s = l > 0.5 ? d / (2 - max - min) : d / (max + min);
+      if (max === r) h = ((g - b) / d + (g < b ? 6 : 0));
+      else if (max === g) h = (b - r) / d + 2;
+      else h = (r - g) / d + 4;
+      h *= 60;
+    }
+    return [h, s, l];
+  }
+
+  function hslToCss(h, s, l) {
+    return 'hsl(' + ((h % 360) + 360) % 360 + ',' + Math.round(s * 100) + '%,' + Math.round(l * 100) + '%)';
+  }
+
+  function shinyPalette() {
+    var out = {};
+    Object.keys(PALETTE).forEach(function (ch) {
+      var hex = PALETTE[ch];
+      if (!hex || SHINY_FIXED[ch]) { out[ch] = hex; return; }
+      var rgb = hexToRgb(hex);
+      var hsl = rgbToHsl(rgb[0], rgb[1], rgb[2]);
+      if (hsl[1] < 0.12) {
+        /* Greys and whites have no hue to rotate, so send them gold instead,
+           dimming near-white a little so the tint is actually visible. */
+        out[ch] = hslToCss(45, 0.62, hsl[2] > 0.92 ? 0.78 : hsl[2]);
+      } else {
+        out[ch] = hslToCss(hsl[0] + SHINY_HUE_SHIFT, Math.min(1, hsl[1] * 1.15), hsl[2]);
+      }
+    });
+    return out;
+  }
+
+  var PALETTES = { normal: PALETTE, shiny: null };
+
+  function paletteFor(variant) {
+    if (variant !== 'shiny') return PALETTE;
+    if (!PALETTES.shiny) PALETTES.shiny = shinyPalette();
+    return PALETTES.shiny;
+  }
+
   var cache = {};
 
   /* Render a sprite to an offscreen canvas at 1px-per-cell, then scale on draw.
      Caching the 1x canvas keeps repeated draws cheap. */
-  function base(name) {
-    if (cache[name]) return cache[name];
+  function base(name, variant) {
+    var key = name + ':' + (variant || 'normal');
+    if (cache[key]) return cache[key];
     var rows = SPRITES[name];
     if (!rows) throw new Error('unknown sprite: ' + name);
+    var pal = paletteFor(variant);
     var w = rows[0].length, h = rows.length;
     var cv = document.createElement('canvas');
     cv.width = w; cv.height = h;
     var ctx = cv.getContext('2d');
     for (var y = 0; y < h; y++) {
       for (var x = 0; x < w; x++) {
-        var col = PALETTE[rows[y][x]];
+        var col = pal[rows[y][x]];
         if (!col) continue;
         ctx.fillStyle = col;
         ctx.fillRect(x, y, 1, 1);
       }
     }
-    cache[name] = cv;
+    cache[key] = cv;
     return cv;
   }
 
-  /* Build an <canvas> element showing `name` scaled up by `scale`. */
-  function el(name, scale) {
+  /* Build a <canvas> element showing `name` scaled up by `scale`. */
+  function el(name, scale, variant) {
     scale = scale || 6;
-    var src = base(name);
+    var src = base(name, variant);
     var cv = document.createElement('canvas');
     cv.width = src.width * scale;
     cv.height = src.height * scale;
-    cv.className = 'sprite';
+    cv.className = 'sprite' + (variant === 'shiny' ? ' shiny' : '');
     var ctx = cv.getContext('2d');
     ctx.imageSmoothingEnabled = false;
     ctx.drawImage(src, 0, 0, cv.width, cv.height);
     return cv;
   }
 
-  function dataURL(name, scale) {
-    return el(name, scale).toDataURL();
+  function dataURL(name, scale, variant) {
+    return el(name, scale, variant).toDataURL();
   }
 
   /* Paint a sprite into an existing container, replacing whatever was there. */
-  function mount(container, name, scale) {
+  function mount(container, name, scale, variant) {
     container.innerHTML = '';
-    if (name) container.appendChild(el(name, scale));
+    if (name) container.appendChild(el(name, scale, variant));
     return container;
   }
 

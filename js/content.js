@@ -58,6 +58,25 @@
     seen:         { zh: '见过', en: 'SEEN' },
     owned:        { zh: '已捕获', en: 'CAUGHT' },
     notSeen:      { zh: '？？？', en: '???' },
+    dexNo:        { zh: '编号', en: 'No.' },
+    dexType:      { zh: '类型', en: 'TYPE' },
+    dexDanger:    { zh: '危险度', en: 'DANGER' },
+    dexRarity:    { zh: '稀有度', en: 'RARITY' },
+    dexFrom:      { zh: '出没', en: 'FOUND IN' },
+    dexWeak:      { zh: '弱点', en: 'WEAK TO' },
+    dexEntryLbl:  { zh: '图鉴说明', en: 'ENTRY' },
+    dexDone:      { zh: '完成度', en: 'COMPLETION' },
+    dexShiny:     { zh: '闪光', en: 'SHINY' },
+    dexRareTag:   { zh: '稀有', en: 'RARE' },
+    dexAll:       { zh: '全部', en: 'ALL' },
+    dexMissing:   { zh: '未收集', en: 'MISSING' },
+    dexShinyOnly: { zh: '闪光', en: 'SHINY' },
+    dexLocked:    { zh: '集齐前 16 只后出现', en: 'Appears once you hold all 16' },
+    rareAppear:   { zh: '★ 稀有精灵出现了！', en: '★ A RARE ONE APPEARED!' },
+    rareGot:      { zh: '答对了，它跟你走了', en: 'You got it right — it came with you' },
+    shinyGot:     { zh: '✦ 闪光个体！本章满分', en: '✦ SHINY! A perfect chapter' },
+    shinyHint:    { zh: '本章满分可获得闪光个体', en: 'A flawless chapter yields a shiny' },
+    secretGot:    { zh: '图鉴集齐了。有个人一直在等你。', en: 'The dex is complete. Someone has been waiting for you.' },
     bossWarn:     { zh: '糟糕！是年终大考！', en: 'Uh oh — annual review time!' },
     bossHp:       { zh: '稽查进度', en: 'AUDIT' },
     finalTitle:   { zh: '测评结果', en: 'YOUR RESULT' },
@@ -336,6 +355,7 @@
           }
         },
         {
+          rare: 'neglist',
           prompt: {
             zh: '你的项目是"面向中国用户的在线教育 App"。注册前第一件该查的事是什么？',
             en: 'Your project is an online education app for Chinese users. What is the very first thing to check before registering?'
@@ -448,6 +468,7 @@
           }
         },
         {
+          rare: 'travelban',
           prompt: {
             zh: '你被登记为法定代表人。这意味着什么？',
             en: 'You are registered as the legal representative. What does that actually mean?'
@@ -753,6 +774,7 @@
       },
       scenes: [
         {
+          rare: 'doublewage',
           prompt: {
             zh: '员工已经工作两个月了，书面劳动合同一直没签。会有什么后果？',
             en: 'Your employee has worked two months and still has no written contract. What happens?'
@@ -896,6 +918,7 @@
           }
         },
         {
+          rare: 'squatter',
           prompt: {
             zh: '坏消息：有人在你要用的类别上抢注了你的品牌，现在开价 30 万要卖给你。',
             en: 'Bad news: someone has registered your brand in the class you need and is offering to sell it back for RMB 300,000.'
@@ -1008,6 +1031,7 @@
           }
         },
         {
+          rare: 'crossborder',
           prompt: {
             zh: '你的 App 收集中国用户的手机号和位置，数据同步到新加坡的服务器分析。',
             en: 'Your app collects Chinese users\' phone numbers and location, and syncs it to Singapore for analysis.'
@@ -1090,6 +1114,7 @@
     },
     scenes: [
       {
+        rare: 'falsebill',
         prompt: {
           zh: '一个"朋友"提出：他给你开 200 万咨询费发票，你付款后返还 190 万现金，双方都能少交税。',
           en: 'A "friend" proposes: he invoices you RMB 2 million in consulting fees, you pay, he returns 1.9 million in cash, and you both pay less tax.'
@@ -1204,6 +1229,195 @@
     ]
   };
 
+  /* ===================================================================== *
+   * Dex metadata.
+   *
+   * Name and flavour for the chapter creatures already live on the chapters
+   * themselves, so only the collector-facing fields are here — kept in one
+   * map so the whole roster can be read at a glance.
+   *
+   * `weak` is the useful one: it is the practical countermeasure, which turns
+   * a completed dex into a checklist of everything that actually protects you.
+   * ===================================================================== */
+  var DEX_META = {
+    visa: {
+      type: { zh: '出入境', en: 'IMMIGRATION' }, danger: 4, rarity: 1,
+      weak: {
+        zh: '先由公司申请《外国人工作许可通知》，境外办 Z 签，入境 30 日内换领工作许可证和居留许可',
+        en: 'Company files the Work Permit Notice, Z visa abroad, swap for the permit card and residence permit within 30 days of entry'
+      }
+    },
+    entity: {
+      type: { zh: '市场准入', en: 'MARKET ACCESS' }, danger: 3, rarity: 1,
+      weak: {
+        zh: '注册前核对最新版负面清单，选对主体形式，注册资本按真实需要填并确保五年内实缴',
+        en: 'Check the current negative list before registering, pick the right vehicle, and set capital you can actually pay up within five years'
+      }
+    },
+    chop: {
+      type: { zh: '公司治理', en: 'GOVERNANCE' }, danger: 4, rarity: 1,
+      weak: {
+        zh: '用章登记制度：专人保管、用印审批、全程留痕；经营范围与开票项目保持一致',
+        en: 'A chop register: one custodian, written approval, a full paper trail — and keep your invoicing inside your registered scope'
+      }
+    },
+    fx: {
+      type: { zh: '跨境资金', en: 'CROSS-BORDER FUNDS' }, danger: 3, rarity: 1,
+      weak: {
+        zh: '出资走资本金账户，资金只用于真实自用支出；分红前先弥补亏损、提公积金、办税务备案',
+        en: 'Contribute through the capital account and spend only on genuine operating needs; before dividends, cover losses, fund the reserve and file with the tax authority'
+      }
+    },
+    tax: {
+      type: { zh: '税务', en: 'TAX' }, danger: 5, rarity: 1,
+      weak: {
+        zh: '付款必要发票，按期申报不做长期零申报，个税身份按 183 天和六年规则自己算清楚',
+        en: 'No fapiao, no payment; file on time and never sit on zero-returns; work out your own residence position from the 183-day and six-year rules'
+      }
+    },
+    labor: {
+      type: { zh: '劳动', en: 'LABOUR' }, danger: 4, rarity: 1,
+      weak: {
+        zh: '用工一个月内签书面合同，试用期按法定上限约定，社保足额依法缴纳',
+        en: 'Written contract within one month, probation inside the statutory caps, social insurance paid in full on the real base'
+      }
+    },
+    ip: {
+      type: { zh: '知识产权', en: 'IP' }, danger: 3, rarity: 1,
+      weak: {
+        zh: '进入市场前注册，中英文名和图形一并申请，核心类别之外做防御注册',
+        en: 'Register before you enter, file the Chinese name, the English name and the logo together, and add defensive classes around your core'
+      }
+    },
+    data: {
+      type: { zh: '网络合规', en: 'CYBER' }, danger: 4, rarity: 1,
+      weak: {
+        zh: 'ICP 备案到位；处理个人信息要有合法性基础，出境走单独同意 + 影响评估 + 法定通道',
+        en: 'ICP recordal in place; a lawful basis for every processing activity, and for transfers abroad: separate consent, an impact assessment and a statutory channel'
+      }
+    },
+    boss: {
+      type: { zh: '综合稽查', en: 'AUDIT' }, danger: 5, rarity: 2,
+      weak: {
+        zh: '账实相符，账簿凭证保存十年，配合检查如实说明；一年的干净记录就是最好的防御',
+        en: 'Books that match reality, kept ten years, and honest cooperation — a clean year is the whole defence'
+      }
+    },
+    exit: {
+      type: { zh: '退出', en: 'EXIT' }, danger: 4, rarity: 2,
+      weak: {
+        zh: '按顺序走：股东会决议 → 清算组备案 → 通知并公告债权人 → 清税注销 → 工商注销 → 银行海关外汇注销',
+        en: 'In order: shareholders\' resolution, file the liquidation committee, notify and publish to creditors, tax clearance, registry deregistration, then bank, customs and FX'
+      }
+    }
+  };
+
+  /* Rare encounters. Each is released by getting one specific question right,
+     which rewards precision rather than an aggregate chapter score. The `rare`
+     key on that scene points here. */
+  var RARES = [
+    {
+      id: 'doublewage', monster: 'doublewage',
+      name: { zh: '双倍工资鬼', en: 'DOUBLEWAGE' },
+      type: { zh: '劳动', en: 'LABOUR' }, danger: 4, rarity: 2,
+      from: { zh: '第六章 · 用人', en: 'Ch.6 · Hiring' },
+      note: {
+        zh: '诞生于用工满一个月的那一天。你没签书面合同，它就开始按月计数，最多数到十一。',
+        en: 'Born the day an employee passes one month without a written contract. It starts counting months, and it can count to eleven.'
+      },
+      weak: {
+        zh: '自用工之日起一个月内订立书面劳动合同',
+        en: 'A written contract within one month of the first day of work'
+      }
+    },
+    {
+      id: 'squatter', monster: 'squatter',
+      name: { zh: '抢注鸦', en: 'SQUATTERCROW' },
+      type: { zh: '知识产权', en: 'IP' }, danger: 4, rarity: 2,
+      from: { zh: '第七章 · 护城河', en: 'Ch.7 · The Moat' },
+      note: {
+        zh: '飞得比你快。你还在验证市场的时候，它已经在商标局排上队了。',
+        en: 'Faster than you are. While you were still validating the market, it was already queuing at the trademark office.'
+      },
+      weak: {
+        zh: '进入市场前完成注册，并保留全部在先使用证据',
+        en: 'Register before you enter the market, and keep every scrap of prior-use evidence'
+      }
+    },
+    {
+      id: 'falsebill', monster: 'falsebill',
+      name: { zh: '虚开鬼', en: 'FALSEBILL' },
+      type: { zh: '刑事', en: 'CRIMINAL' }, danger: 5, rarity: 3,
+      from: { zh: '年终大考', en: 'The Annual Review' },
+      note: {
+        zh: '总是伪装成朋友出现，开口就是替你省钱。它给的每一分钱，《刑法》第205条都已经标好了价格。',
+        en: 'It always turns up as a friend, opening with how much it can save you. Article 205 of the Criminal Law has already priced every yuan it offers.'
+      },
+      weak: {
+        zh: '只接受有真实业务对应的发票，其余一律拒绝并保留证据',
+        en: 'Accept only invoices with a real transaction behind them; refuse the rest and keep the evidence'
+      }
+    },
+    {
+      id: 'travelban', monster: 'travelban',
+      name: { zh: '限高锁', en: 'TRAVELBAN' },
+      type: { zh: '强制执行', en: 'ENFORCEMENT' }, danger: 5, rarity: 3,
+      from: { zh: '第三章 · 印章', en: 'Ch.3 · The Chop' },
+      note: {
+        zh: '挂在法定代表人身上，不锁公司只锁人：机票、高铁一等座，欠税未清时还有离境。',
+        en: 'It clamps onto the legal representative, not the company. Flights, first-class rail — and, with tax outstanding, the way out of the country.'
+      },
+      weak: {
+        zh: '出任法定代表人前确认你对公司有实际控制力；欠税、欠债及时了结',
+        en: 'Make sure you genuinely control the company before taking the seat, and clear tax and debts as they fall due'
+      }
+    },
+    {
+      id: 'neglist', monster: 'neglist',
+      name: { zh: '负面清单蛇', en: 'NEGLIST' },
+      type: { zh: '市场准入', en: 'MARKET ACCESS' }, danger: 3, rarity: 2,
+      from: { zh: '第二章 · 立业', en: 'Ch.2 · Setting Up' },
+      note: {
+        zh: '盘在你想进的那个行业门口。清单之外它看都不看你，清单之内它一寸不让。',
+        en: 'Coiled at the door of the sector you want. Outside the list it will not even look at you; inside it, it does not move an inch.'
+      },
+      weak: {
+        zh: '注册前核对最新版负面清单，必要时调整业务模式或引入中方股东',
+        en: 'Check the current negative list before registering, and be ready to reshape the business or bring in a Chinese shareholder'
+      }
+    },
+    {
+      id: 'crossborder', monster: 'crossborder',
+      name: { zh: '出境门', en: 'CROSSGATE' },
+      type: { zh: '网络合规', en: 'CYBER' }, danger: 4, rarity: 3,
+      from: { zh: '第八章 · 数据', en: 'Ch.8 · Data' },
+      note: {
+        zh: '个人信息要出境，只能从它这里过。它认三把钥匙：安全评估、专业认证、标准合同。',
+        en: 'Personal information leaves China through this gate and no other. It accepts three keys: a security assessment, certification, or a filed standard contract.'
+      },
+      weak: {
+        zh: '单独同意 + 个人信息保护影响评估 + 三条法定通道之一',
+        en: 'Separate consent, a protection impact assessment, and one of the three statutory channels'
+      }
+    }
+  ];
+
+  /* The completion reward, and the punchline of the whole game. */
+  var SECRET = {
+    id: 'lawyer', monster: 'lawyer',
+    name: { zh: '律师', en: 'THE LAWYER' },
+    type: { zh: '传说', en: 'LEGENDARY' }, danger: 0, rarity: 3,
+    from: { zh: '集齐前 16 只后出现', en: 'Appears once you hold all 16' },
+    note: {
+      zh: '传说中的存在。大多数人是在收到《税务事项通知书》那天第一次见到它的——而它本来在第一天就可以出现，收费还便宜得多。',
+      en: 'A legendary encounter. Most people first meet it the day the tax notice arrives — though it could have shown up on day one, for a great deal less money.'
+    },
+    weak: {
+      zh: '没有弱点。这是全书唯一站在你这边的。',
+      en: 'No weakness. This is the only one in the book that is on your side.'
+    }
+  };
+
   /* Bonus dex entry, awarded when you reach the ending. */
   var BONUS_DEX = {
     id: 'exit',
@@ -1265,6 +1479,9 @@
     CHAPTERS: CHAPTERS,
     BOSS: BOSS,
     BONUS_DEX: BONUS_DEX,
+    DEX_META: DEX_META,
+    RARES: RARES,
+    SECRET: SECRET,
     ENDINGS: ENDINGS
   };
 });

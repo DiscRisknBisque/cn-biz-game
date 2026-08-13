@@ -31,7 +31,8 @@
       started: false,
       unlocked: 0,          // index of the next chapter that may be played
       cleared: {},          // chapterId -> points scored
-      dex: {},              // monster id -> 'seen' | 'caught'
+      dex: {},              // dex id -> 'seen' | 'caught'
+      shiny: {},            // dex id -> true, earned by a flawless chapter
       bossHp: 100,
       bossDone: false,
       finished: false,
@@ -95,7 +96,12 @@
     return el;
   }
 
-  function sprite(name, scale) { return Pixel.el(name, scale || 6); }
+  function sprite(name, scale, variant) { return Pixel.el(name, scale || 6, variant); }
+
+  /* Draw a dex entry in whichever form the player has earned. */
+  function dexSprite(entry, scale) {
+    return sprite(entry.monster, scale, state.shiny[entry.id] ? 'shiny' : null);
+  }
 
   var clamp = B.clamp;
 
@@ -142,13 +148,60 @@
     return C.ENDINGS[C.ENDINGS.length - 1];
   }
 
-  function dexEntries() {
-    return C.CHAPTERS.map(function (ch) {
-      return { id: ch.id, monster: ch.monster, name: ch.name, note: ch.dexNote, title: ch.title };
-    }).concat([
-      { id: C.BOSS.id, monster: C.BOSS.monster, name: C.BOSS.name, note: C.BOSS.dexNote, title: C.BOSS.title },
-      { id: C.BONUS_DEX.id, monster: C.BONUS_DEX.monster, name: C.BONUS_DEX.name, note: C.BONUS_DEX.dexNote, title: C.BONUS_DEX.title }
-    ]);
+  /* The dex roster, in numbered order: the ten chapter creatures, then the six
+     rare encounters, then the secret. Chapter entries take their name and
+     flavour from the chapter itself so the two can never drift apart. */
+  var DEX = (function () {
+    function fromUnit(u, from) {
+      var meta = C.DEX_META[u.id] || {};
+      return {
+        id: u.id, monster: u.monster, name: u.name, note: u.dexNote,
+        from: from, type: meta.type, danger: meta.danger, rarity: meta.rarity, weak: meta.weak
+      };
+    }
+    var list = C.CHAPTERS.map(function (ch, i) {
+      return fromUnit(ch, {
+        zh: '第' + (i + 1) + '章 · ' + ch.title.zh,
+        en: 'Ch.' + (i + 1) + ' · ' + ch.title.en
+      });
+    });
+    list.push(fromUnit(C.BOSS, C.BOSS.title));
+    list.push(fromUnit(C.BONUS_DEX, C.BONUS_DEX.title));
+    C.RARES.forEach(function (r) { list.push(r); });
+    list.push(C.SECRET);
+    list.forEach(function (e, i) { e.no = i + 1; });
+    return list;
+  })();
+
+  /* Everything except the secret, which is the reward for completing them. */
+  var DEX_MAIN = DEX.filter(function (e) { return e.id !== C.SECRET.id; });
+
+  function dexEntries() { return DEX; }
+
+  function dexEntry(id) {
+    for (var i = 0; i < DEX.length; i++) if (DEX[i].id === id) return DEX[i];
+    return null;
+  }
+
+  function pad(n) { return n < 10 ? '00' + n : n < 100 ? '0' + n : String(n); }
+
+  function stars(n, max) {
+    var s = '';
+    for (var i = 0; i < max; i++) s += i < n ? '★' : '☆';
+    return s;
+  }
+
+  function caughtCount(list) {
+    return list.filter(function (e) { return state.dex[e.id] === 'caught'; }).length;
+  }
+
+  /* The secret unlocks the moment every other entry has been caught. Returns
+     true only on the transition, so the caller can celebrate it once. */
+  function checkSecret() {
+    if (state.dex[C.SECRET.id]) return false;
+    if (caughtCount(DEX_MAIN) < DEX_MAIN.length) return false;
+    state.dex[C.SECRET.id] = 'caught';
+    return true;
   }
 
   /* ------------------------------------------------------------ shared parts */
@@ -263,7 +316,8 @@
     function newGame() {
       Sound.play('select');
       state = Object.assign(freshState(), {
-        lang: state.lang, sound: state.sound, hero: state.hero, dex: state.dex
+        lang: state.lang, sound: state.sound, hero: state.hero,
+        dex: state.dex, shiny: state.shiny
       });
       save();
       go('hero');
@@ -481,6 +535,14 @@
     view.applied = B.applyFx(state.stats, choice.fx);
     view.runPoints += choice.score;
 
+    /* Rare encounters are released by nailing one specific question, so they
+       stay catchable on a replay if you missed them the first time round. */
+    view.rare = null;
+    if (sc.rare && choice.score === 2 && state.dex[sc.rare] !== 'caught') {
+      state.dex[sc.rare] = 'caught';
+      view.rare = dexEntry(sc.rare);
+    }
+
     if (ch.id === 'boss') {
       var dmg = choice.score === 2 ? 30 : choice.score === 1 ? 12 : 0;
       state.bossHp = Math.max(0, state.bossHp - dmg);
@@ -491,7 +553,7 @@
       }
     }
 
-    Sound.play(choice.score === 2 ? 'good' : choice.score === 1 ? 'blip' : 'hurt');
+    Sound.play(view.rare ? 'caught' : choice.score === 2 ? 'good' : choice.score === 1 ? 'blip' : 'hurt');
     save();
     view.screen = 'feedback';
     render();
@@ -517,7 +579,21 @@
 
     var last = view.sceneIdx >= ch.scenes.length - 1;
 
+    /* A rare encounter earns its own banner — it is the moment collectors
+       are playing for, and it should not be buried under the legal tip. */
+    var rareBanner = view.rare ? h('div', { class: 'panel double rare' }, [
+      h('div', { class: 'rare-row' }, [
+        dexSprite(view.rare, 4),
+        h('div', {}, [
+          h('div', { class: 'rare-title', text: ui('rareAppear') }),
+          h('div', { class: 'rare-name', text: 'No.' + pad(view.rare.no) + '  ' + T(view.rare.name) }),
+          h('div', { class: 'small', text: ui('rareGot') })
+        ])
+      ])
+    ]) : null;
+
     return [
+      rareBanner,
       h('div', { class: 'panel double ' + tone }, [
         h('div', {
           class: 'label',
@@ -550,23 +626,27 @@
     var ch = view.chapter;
     var max = ch.scenes.length * 2;
     var caught = state.dex[ch.id] === 'caught';
+    var entry = dexEntry(ch.id);
 
-    playOnce('capture:' + ch.id, caught ? 'caught' : 'bad');
+    playOnce('capture:' + ch.id + ':' + view.runPoints, view.shiny || caught ? 'caught' : 'bad');
 
     return [
       h('div', { class: 'stage-wrap' }, [
-        h('div', { class: 'stage' }, [sprite(ch.monster, 7)]),
+        h('div', { class: 'stage' + (view.shiny ? ' sparkle' : '') }, [dexSprite(entry, 7)]),
         h('div', { class: 'ground' })
       ]),
       h('div', { class: 'panel double ' + (caught ? 'good' : '') + ' center' }, [
         h('div', { class: 'bigmsg' + (caught ? '' : ' miss'), text: caught ? ui('caught') : ui('escaped') }),
         h('p', { class: 'small', text: caught ? ui('caughtDesc') : ui('escapedDesc') }),
+        view.shiny ? h('div', { class: 'shiny-flag', text: ui('shinyGot') }) : null,
+        !view.shiny && caught ? h('p', { class: 'small', style: 'margin-top:6px', text: ui('shinyHint') }) : null,
         h('div', { class: 'hr' }),
         h('div', { class: 'scoreline' }, [
           h('span', { text: T(ch.name) }),
           h('span', { class: 'stat-num', text: view.runPoints + ' / ' + max })
         ])
       ]),
+      view.secret ? secretPanel() : null,
       settlementPanel(),
       statsPanel(),
       h('button', {
@@ -575,36 +655,85 @@
     ];
   }
 
+  /* Shown once, the moment the last missing entry is filled in. */
+  function secretPanel() {
+    return h('div', { class: 'panel double tint' }, [
+      h('div', { class: 'rare-row' }, [
+        sprite(C.SECRET.monster, 4),
+        h('div', {}, [
+          h('div', { class: 'rare-title', text: ui('secretGot') }),
+          h('div', { class: 'rare-name', text: 'No.' + pad(DEX.length) + '  ' + T(C.SECRET.name) })
+        ])
+      ])
+    ]);
+  }
+
+  var DEX_FILTERS = {
+    all:     function () { return true; },
+    missing: function (e) { return state.dex[e.id] !== 'caught'; },
+    shiny:   function (e) { return !!state.shiny[e.id]; }
+  };
+
   function screenDex() {
-    var entries = dexEntries();
-    var cells = entries.map(function (e) {
+    var filter = DEX_FILTERS[view.dexFilter] ? view.dexFilter : 'all';
+    var shown = DEX.filter(DEX_FILTERS[filter]);
+
+    var cells = shown.map(function (e) {
       var st = state.dex[e.id];
+      var isShiny = !!state.shiny[e.id];
+      var locked = !st && e.id === C.SECRET.id;
       return h('div', {
-        class: 'dexcell' + (st === 'caught' ? ' caught' : st ? '' : ' unseen'),
+        class: 'dexcell' + (st === 'caught' ? ' caught' : st ? '' : ' unseen') + (isShiny ? ' shinycell' : ''),
         onclick: function () {
-          if (!st) { Sound.play('bad'); return; }
+          /* Only the secret explains itself; the rest just stay silent
+             silhouettes, which is half the point of a dex. */
+          if (!st) { Sound.play('bad'); if (locked) toast(ui('dexLocked')); return; }
           Sound.play('blip');
           view.dexEntry = e;
           view.screen = 'dexdetail';
           render();
         }
       }, [
-        sprite(e.monster, 3),
+        h('div', { class: 'no', text: pad(e.no) }),
+        st ? dexSprite(e, 3) : sprite(e.monster, 3),
         h('div', { class: 'nm', text: st ? T(e.name) : ui('notSeen') }),
-        h('div', { class: 'st', text: st === 'caught' ? ui('owned') : st ? ui('seen') : '—' })
+        h('div', { class: 'st', text: st === 'caught' ? ui('owned') : st ? ui('seen') : '—' }),
+        isShiny ? h('div', { class: 'shinymark', text: '✦' }) : null
       ]);
     });
 
-    var found = entries.filter(function (e) { return state.dex[e.id]; }).length;
-    var caught = entries.filter(function (e) { return state.dex[e.id] === 'caught'; }).length;
+    var caught = caughtCount(DEX);
+    var shinies = DEX.filter(function (e) { return state.shiny[e.id]; }).length;
+    var pct = Math.round((caught / DEX.length) * 100);
+    var fill = h('i');
+    requestAnimationFrame(function () { fill.style.width = pct + '%'; });
+
+    function tab(key, label) {
+      return h('div', {
+        class: 'chip' + (filter === key ? ' on' : ''),
+        text: label,
+        onclick: function () { view.dexFilter = key; Sound.play('blip'); render(); }
+      });
+    }
 
     return [
       h('div', { class: 'panel double' }, [
         h('div', { class: 'eyebrow', text: ui('dex') }),
-        h('div', { class: 'h-sub', text: (state.lang === 'zh' ? '见过 ' : 'Seen ') + found + ' / ' + entries.length +
-          '   ·   ' + (state.lang === 'zh' ? '捕获 ' : 'Caught ') + caught })
+        h('div', { class: 'scoreline', style: 'margin-top:4px' }, [
+          h('span', { text: ui('dexDone') }),
+          h('span', { class: 'stat-num', text: caught + ' / ' + DEX.length + '  (' + pct + '%)' })
+        ]),
+        h('div', { class: 'bar' }, [fill]),
+        h('div', { class: 'small', style: 'margin-top:7px', text: '✦ ' + ui('dexShiny') + ' ' + shinies + ' / ' + DEX.length })
       ]),
-      found === 0 ? h('div', { class: 'panel double center' }, [h('p', { class: 'small', text: ui('dexEmpty') })]) : null,
+      h('div', { class: 'tabs' }, [
+        tab('all', ui('dexAll')),
+        tab('missing', ui('dexMissing')),
+        tab('shiny', '✦ ' + ui('dexShinyOnly'))
+      ]),
+      caught === 0 && filter === 'all'
+        ? h('div', { class: 'panel double center' }, [h('p', { class: 'small', text: ui('dexEmpty') })])
+        : null,
       h('div', { class: 'dexgrid' }, cells),
       h('div', { class: 'gap' }),
       h('button', {
@@ -615,18 +744,45 @@
 
   function screenDexDetail() {
     var e = view.dexEntry;
+    var isShiny = !!state.shiny[e.id];
+
+    function row(labelKey, value) {
+      return h('div', { class: 'row' }, [
+        h('span', { text: ui(labelKey) }),
+        h('span', { class: 'val', text: value })
+      ]);
+    }
+
     return [
       h('div', { class: 'stage-wrap' }, [
-        h('div', { class: 'stage' }, [sprite(e.monster, 7)]),
+        h('div', { class: 'stage' + (isShiny ? ' sparkle' : '') }, [dexSprite(e, 7)]),
         h('div', { class: 'ground' })
       ]),
       h('div', { class: 'panel double' }, [
-        h('div', { class: 'eyebrow', text: T(e.title) }),
+        h('div', { class: 'dexhead' }, [
+          h('span', { class: 'eyebrow', text: ui('dexNo') + pad(e.no) }),
+          h('span', { class: 'tagrow' }, [
+            isShiny ? h('span', { class: 'tag shiny', text: '✦ ' + ui('dexShiny') }) : null,
+            e.rarity >= 2 ? h('span', { class: 'tag', text: ui('dexRareTag') }) : null,
+            h('span', { class: 'tag ' + (state.dex[e.id] === 'caught' ? 'own' : ''), text: state.dex[e.id] === 'caught' ? ui('owned') : ui('seen') })
+          ])
+        ]),
         h('div', { class: 'h-title', text: T(e.name) }),
         h('div', { class: 'hr' }),
-        h('p', { class: 'prose', text: T(e.note) }),
-        h('div', { class: 'gap' }),
-        h('div', { class: 'small', text: state.dex[e.id] === 'caught' ? ui('owned') : ui('seen') })
+        h('div', { class: 'breakdown' }, [
+          row('dexType', T(e.type)),
+          row('dexFrom', T(e.from)),
+          row('dexDanger', stars(e.danger, 5)),
+          row('dexRarity', stars(e.rarity, 3))
+        ])
+      ]),
+      h('div', { class: 'panel double' }, [
+        h('div', { class: 'label', text: ui('dexEntryLbl') }),
+        h('p', { class: 'prose', text: T(e.note) })
+      ]),
+      h('div', { class: 'panel double good' }, [
+        h('div', { class: 'label tip', text: ui('dexWeak') }),
+        h('p', { class: 'prose', text: T(e.weak) })
       ]),
       h('button', {
         class: 'btn center', onclick: function () { Sound.play('back'); view.screen = 'dex'; render(); }
@@ -689,7 +845,10 @@
       h('button', {
         class: 'btn center', onclick: function () {
           Sound.play('select');
-          state = Object.assign(freshState(), { lang: state.lang, sound: state.sound, hero: state.hero, dex: state.dex });
+          state = Object.assign(freshState(), {
+            lang: state.lang, sound: state.sound, hero: state.hero,
+            dex: state.dex, shiny: state.shiny
+          });
           save();
           go('title');
         }
@@ -698,14 +857,15 @@
   }
 
   function copyResult(score, ending, caught, total) {
+    var shinies = DEX.filter(function (e) { return state.shiny[e.id]; }).length;
     var text = state.lang === 'zh'
       ? [T(C.UI.title) + T(C.UI.title2),
          '成绩：' + ending.grade + ' 级 · ' + T(ending.title) + '（' + score + ' 分）',
-         '法律图鉴：' + caught + '/' + total + ' 已捕获',
+         '法律图鉴：' + caught + '/' + total + ' 已捕获 · 闪光 ' + shinies,
          '合规 ' + state.stats.comp + ' · 声誉 ' + state.stats.rep + ' · 资金 ' + state.stats.cash].join('\n')
       : ['Can You Really Run a Business in China?',
          'Result: grade ' + ending.grade + ' — ' + T(ending.title) + ' (' + score + ' pts)',
-         'Law Dex: ' + caught + '/' + total + ' caught',
+         'Law Dex: ' + caught + '/' + total + ' caught, ' + shinies + ' shiny',
          'Compliance ' + state.stats.comp + ' · Reputation ' + state.stats.rep + ' · Cash ' + state.stats.cash].join('\n');
 
     function fallback() {
@@ -750,10 +910,19 @@
     if (caught) state.dex[ch.id] = 'caught';
     else if (!state.dex[ch.id]) state.dex[ch.id] = 'seen';
 
+    /* A flawless chapter — every answer the right one — turns the creature
+       shiny. It is the reason to come back to a chapter you merely passed. */
+    view.shiny = false;
+    if (view.runPoints === max && !state.shiny[ch.id]) {
+      state.shiny[ch.id] = true;
+      view.shiny = true;
+    }
+
     var idx = C.CHAPTERS.indexOf(ch);
     if (idx >= 0 && idx === state.unlocked) state.unlocked = idx + 1;
 
     view.settlement = B.settle(state.stats, view.runPoints, max);
+    view.secret = checkSecret();
 
     save();
     view.screen = 'capture';
@@ -779,11 +948,14 @@
     var beat = view.runPoints >= catchThreshold(C.BOSS);
     if (beat) state.dex.boss = 'caught';
     else if (!state.dex.boss) state.dex.boss = 'seen';
+    if (view.runPoints === max) state.shiny.boss = true;
 
     /* Everyone who reaches the end meets the deregistration ghost. */
     state.dex.exit = beat ? 'caught' : 'seen';
+    if (view.runPoints === max) state.shiny.exit = true;
 
     B.settle(state.stats, view.runPoints, max);
+    checkSecret();
 
     state.bossDone = true;
     state.finished = true;

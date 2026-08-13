@@ -182,11 +182,35 @@ var FINISHED = {
   var grade = (await page.textContent('.grade')).trim();
   check('a perfect run grades S (got ' + grade + ')', grade === 'S');
 
-  var dexCaught = await page.evaluate(function (k) {
+  var dex = await page.evaluate(function (k) {
     var s = JSON.parse(localStorage.getItem(k));
-    return Object.keys(s.dex).filter(function (x) { return s.dex[x] === 'caught'; }).length;
+    return {
+      caught: Object.keys(s.dex).filter(function (x) { return s.dex[x] === 'caught'; }).length,
+      shiny: Object.keys(s.shiny || {}).length,
+      secret: s.dex.lawyer === 'caught'
+    };
   }, SAVE_KEY);
-  check('a perfect run catches all 10 dex entries (got ' + dexCaught + ')', dexCaught === 10);
+  /* 8 chapters + boss + exit + 6 rares + the secret. */
+  check('a perfect run catches all 17 dex entries (got ' + dex.caught + ')', dex.caught === 17);
+  check('a perfect run turns all 10 chapter creatures shiny (got ' + dex.shiny + ')', dex.shiny === 10);
+  check('completing the dex unlocks the secret entry', dex.secret === true);
+
+  /* The dex screen should render every entry, and the filters should narrow it. */
+  await clickLabel(/图鉴|DEX/);
+  await pause(300);
+  check('dex grid shows all 17 entries', (await page.$$('.dexcell')).length === 17);
+  var tabs = await page.$$('.tabs .chip');
+  await tabs[1].click();                        // 未收集 / MISSING
+  await pause(200);
+  check('missing filter is empty after a perfect run', (await page.$$('.dexcell')).length === 0);
+  await (await page.$$('.tabs .chip'))[2].click();  // shiny
+  await pause(200);
+  check('shiny filter lists the 10 shinies', (await page.$$('.dexcell')).length === 10);
+  await (await page.$$('.tabs .chip'))[0].click();  // all
+  await pause(200);
+  await (await page.$$('.dexcell'))[0].click();
+  await pause(250);
+  check('dex detail shows a weakness', (await page.$$('.label.tip')).length === 1);
 
   /* ---- report ---------------------------------------------------------- */
 

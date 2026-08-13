@@ -46,8 +46,27 @@ are three each:
 | 8 | 数据 Data | ICP recordal, PIPL cross-border transfer, buying personal data |
 | ★ | 年终大考 The Annual Review | False invoicing, surviving an audit, labour arbitration, deregistration |
 
-Answer well and you catch the chapter's creature into the **法律图鉴 Law Dex**;
-answer badly and it escapes, leaving only a "seen" record. Ten entries in total.
+### The Law Dex
+
+Seventeen creatures, caught three different ways:
+
+- **Ten chapter creatures** (No.001–010), caught by clearing a chapter above its
+  threshold. Fall short and it escapes, leaving only a "seen" record.
+- **Six rare encounters** (No.011–016) — 双倍工资鬼, 抢注鸦, 虚开鬼, 限高锁,
+  负面清单蛇, 出境门. Each is released by getting one specific question right, so
+  they reward precision rather than an aggregate score, and stay catchable on a
+  replay if you missed them.
+- **One secret** (No.017), which appears the moment the other sixteen are caught.
+  It is the punchline of the whole game.
+
+Clear a chapter with a flawless score and its creature turns **✦ shiny** — a
+hue-rotated palette of the same sprite. That is the reason to go back to a
+chapter you merely passed.
+
+Every dex page is a Pokédex-style sheet: number, type, where it is found, danger
+and rarity ratings, the flavour entry, and — the useful part — **弱点 WEAK TO**,
+the practical countermeasure. A completed dex is a checklist of everything that
+actually protects you.
 
 Four stats track the run — 资金 cash, 合规 compliance, 声誉 reputation,
 精力 energy. Between chapters the quarter closes: you rest, the company books
@@ -68,9 +87,9 @@ Five endings, from 合规大师 (Compliance Master) down to 已被限制高消�
 ```
 index.html          markup and script tags — that's the whole shell
 css/style.css       pixel UI; light and dark, mobile first
-js/pixel.js         sprite data as character grids + a canvas renderer
+js/pixel.js         sprite data as character grids, canvas renderer, shiny palette
 js/audio.js         chiptune SFX synthesised from oscillators
-js/content.js       every scene, tip, citation and ending, in zh and en
+js/content.js       every scene, tip, citation, dex entry and ending, in zh and en
 js/balance.js       the numbers, kept separate so they can be simulated
 js/game.js          state machine and rendering
 tools/simulate.js   plays the game headlessly; checks content and balance
@@ -79,9 +98,9 @@ tools/e2e.js        drives the real game in a real browser
 
 ### Art
 
-There are no image files. Each sprite is a grid of characters against a shared
-27-colour palette in `js/pixel.js`, painted to a canvas and scaled up with
-`image-rendering: pixelated`:
+There are no image files. Each of the twenty sprites is a grid of characters
+against a shared 27-colour palette in `js/pixel.js`, painted to a canvas and
+scaled up with `image-rendering: pixelated`:
 
 ```js
 visa: [
@@ -93,8 +112,13 @@ visa: [
 ```
 
 `Pixel.validate()` runs on load and warns in the console about any row of the
-wrong width or any character not in the palette, which is the only way
-hand-authoring these stays sane.
+wrong width or any character not in the palette — `npm run sim` checks the same
+thing without a browser. It is the only way hand-authoring these stays sane.
+
+Shiny variants are not separate art. `shinyPalette()` converts every palette
+colour to HSL and rotates its hue, sending greys and whites to gold instead
+since they have no hue to turn. Every creature gets a variant that still reads
+as itself, and a new creature gets one for free.
 
 ### Content
 
@@ -116,8 +140,10 @@ npm install     # only needed for the browser test
 npm run e2e     # drives the real game (expects `npm run serve` running)
 ```
 
-`npm run sim` validates that every scene is bilingual, has at least two choices
-and has a right answer, then plays the whole game under four strategies:
+`npm run sim` validates the content — every scene bilingual, with at least two
+choices and a right answer; every dex entry complete; every rare reachable from
+exactly one scene; every sprite row the right width — then plays the whole game
+under four strategies:
 
 ```
 best      grade S  score 100  pts 62/62   cash 154  compliance 100  reputation 100  energy  72
