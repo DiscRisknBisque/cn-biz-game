@@ -83,6 +83,13 @@ function checkContent() {
 
   Object.keys(C.UI).forEach(function (k) { bilingual('UI.' + k, C.UI[k]); });
 
+  bilingual('AS_OF', C.AS_OF);
+  Object.keys(C.RISK).forEach(function (k) {
+    bilingual('RISK.' + k + '.label', C.RISK[k].label);
+    bilingual('RISK.' + k + '.desc', C.RISK[k].desc);
+    if (!C.RISK[k].colour) problems.push('RISK.' + k + ': needs a colour');
+  });
+
   if (C.CAMPAIGNS.length < 1) problems.push('no campaigns defined');
 
   C.CAMPAIGNS.forEach(function (camp) {
@@ -112,6 +119,18 @@ function checkContent() {
           if (c.score === 2) best++;
         });
         if (best === 0) problems.push(at + ': no choice scores 2 — the scene has no right answer');
+
+        /* Risk tagging is what tells a player whether a mistake is a fine or a
+           criminal record, so an untagged scene is a real gap, not cosmetic. */
+        if (!sc.risk || !sc.risk.length) {
+          problems.push(at + ': no risk categories — every scene must say what kind of trouble it is');
+        } else {
+          sc.risk.forEach(function (k) {
+            if (!C.RISK[k]) problems.push(at + ': unknown risk category "' + k + '"');
+          });
+          if (sc.risk.length !== new Set(sc.risk).size) problems.push(at + ': duplicate risk category');
+        }
+        if ('volatile' in sc && sc.volatile !== true) problems.push(at + ': volatile must be true or absent');
       });
     });
 
@@ -123,6 +142,11 @@ function checkContent() {
     if (!camp.endings.some(function (e) { return e.min === 0; })) {
       problems.push(tag + ': endings need a floor at min 0, or a bad run falls through');
     }
+
+    if (!camp.advice || camp.advice.length < 3) {
+      problems.push(tag + ': needs at least 3 concrete next steps for the result screen');
+    }
+    (camp.advice || []).forEach(function (a, i) { bilingual(tag + '.advice' + i, a); });
 
     /* --- dex ----------------------------------------------------------- */
 
@@ -285,7 +309,19 @@ C.CAMPAIGNS.forEach(function (camp) {
     '  energy ' + Math.round(acc.energy / N));
 
   var perfect = play(camp, STRATEGIES.best);
-  console.log('  a perfect run releases ' + perfect.rares + '/' + camp.rares.length + ' rares\n');
+  console.log('  a perfect run releases ' + perfect.rares + '/' + camp.rares.length + ' rares');
+
+  var spread = {};
+  var volatile = 0;
+  unitsOf(camp).forEach(function (u) {
+    u.scenes.forEach(function (sc) {
+      (sc.risk || []).forEach(function (k) { spread[k] = (spread[k] || 0) + 1; });
+      if (sc.volatile) volatile++;
+    });
+  });
+  console.log('  risk tags  ' + Object.keys(spread).sort().map(function (k) {
+    return k + ':' + spread[k];
+  }).join('  ') + '   ·  ' + volatile + ' scenes flagged as policy-volatile\n');
 });
 
 process.exit(problems.length ? 1 : 0);

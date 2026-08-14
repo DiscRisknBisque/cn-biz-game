@@ -38,6 +38,7 @@
       sound: true,
       hero: 'hero1',
       started: false,
+      ackRisk: false,       // has the risk notice been read at least once
       campaign: null,       // null until a route is picked
       runs: {},             // campaign id -> run
       dex: {},              // dex id -> 'seen' | 'caught'
@@ -328,6 +329,10 @@
           Sound.play('blip'); save(); render();
         }
       }),
+      h('div', {
+        class: 'chip warn', text: '⚠', title: ui('riskBtn'),
+        onclick: function () { Sound.play('blip'); go('risk'); }
+      }),
       h('div', { class: 'spacer' }),
       h('div', {
         class: 'chip', text: state.sound ? ui('soundOn') : ui('soundOff'),
@@ -337,6 +342,37 @@
           Sound.play('blip'); save(); render();
         }
       })
+    ]);
+  }
+
+  /* The risk categories a scene involves, rendered as coloured badges. This is
+     the part that tells a player which mistakes are a fine and which are a
+     criminal record — the most useful signal in the game after the tips. */
+  function riskBadges(kinds) {
+    return (kinds || []).map(function (k) {
+      var r = C.RISK[k];
+      if (!r) return null;
+      return h('span', { class: 'riskbadge', style: 'background:' + r.colour, text: T(r.label) });
+    }).filter(Boolean);
+  }
+
+  function riskPanel(sc) {
+    if (!sc.risk || !sc.risk.length) return null;
+    var lines = sc.risk.map(function (k) {
+      var r = C.RISK[k];
+      return r ? h('div', { class: 'riskline' }, [
+        h('span', { class: 'riskbadge', style: 'background:' + r.colour, text: T(r.label) }),
+        h('span', { class: 'small', text: T(r.desc) })
+      ]) : null;
+    }).filter(Boolean);
+
+    return h('div', { class: 'panel double risknote' }, [
+      h('div', { class: 'eyebrow', text: ui('sceneRisk') }),
+      h('div', { class: 'risklist' }, lines),
+      sc.volatile ? h('div', { class: 'volatile' }, [
+        h('span', { class: 'riskbadge vol', text: '⚠ ' + ui('volatileTag') }),
+        h('span', { class: 'small', text: ui('volatileNote') })
+      ]) : null
     ]);
   }
 
@@ -374,6 +410,8 @@
 
     function newGame() {
       Sound.play('select');
+      /* Nobody starts without having seen the risk notice at least once. */
+      if (!state.ackRisk) { go('risk'); return; }
       go(state.started ? 'routes' : 'hero');
     }
 
@@ -408,6 +446,44 @@
     ];
   }
 
+  /* Shown once before the first game, and reachable any time from the topbar
+     or the about screen. Deliberately a full screen rather than a modal: it is
+     meant to be read, not dismissed. */
+  function screenRisk() {
+    var first = !state.ackRisk;
+    return [
+      h('div', { class: 'panel double bad' }, [
+        h('div', { class: 'label', style: 'background:var(--red)', text: '⚠ ' + ui('riskBtn') }),
+        h('div', { class: 'h-title', style: 'margin-bottom:8px', text: ui('riskTitle') }),
+        h('p', { class: 'prose', style: 'white-space:pre-line', text: ui('riskBody') })
+      ]),
+      h('div', { class: 'panel double' }, [
+        h('div', { class: 'scoreline' }, [
+          h('span', { text: ui('asOfLabel') }),
+          h('span', { class: 'stat-num', text: T(C.AS_OF) })
+        ])
+      ]),
+      h('div', { class: 'panel double' }, [
+        h('div', { class: 'eyebrow', text: ui('riskLegend') }),
+        h('div', { class: 'risklist' }, Object.keys(C.RISK).map(function (k) {
+          var r = C.RISK[k];
+          return h('div', { class: 'riskline' }, [
+            h('span', { class: 'riskbadge', style: 'background:' + r.colour, text: T(r.label) }),
+            h('span', { class: 'small', text: T(r.desc) })
+          ]);
+        }))
+      ]),
+      h('button', {
+        class: 'btn primary center', onclick: function () {
+          state.ackRisk = true;
+          Sound.play('select');
+          save();
+          go(first ? (state.started ? 'routes' : 'hero') : 'title');
+        }
+      }, [h('strong', { text: first ? ui('riskAck') : ui('back') })])
+    ];
+  }
+
   function screenAbout() {
     return [
       h('div', { class: 'panel double' }, [
@@ -416,8 +492,16 @@
       ]),
       h('div', { class: 'panel double bad' }, [
         h('div', { class: 'label', text: ui('disclaimerT') }),
-        h('p', { class: 'small', text: ui('disclaimer') })
+        h('p', { class: 'small', text: ui('disclaimer') }),
+        h('div', { class: 'hr' }),
+        h('div', { class: 'scoreline' }, [
+          h('span', { text: ui('asOfLabel') }),
+          h('span', { class: 'stat-num', text: T(C.AS_OF) })
+        ])
       ]),
+      h('button', {
+        class: 'btn center', onclick: function () { Sound.play('blip'); go('risk'); }
+      }, [h('strong', { text: '⚠ ' + ui('riskBtn') })]),
       h('button', {
         class: 'btn center', onclick: function () {
           if (confirm(ui('resetAsk'))) {
@@ -717,6 +801,7 @@
         h('div', { class: 'label law', text: ui('lawTitle') }),
         h('p', { class: 'small', text: T(sc.law) })
       ]),
+      riskPanel(sc),
       h('button', {
         class: 'btn primary center', onclick: function () {
           Sound.play('select');
@@ -956,10 +1041,24 @@
         ])
       ]),
       statsPanel(),
+      h('div', { class: 'panel double tint' }, [
+        h('div', { class: 'label', style: 'background:var(--green-dk)', text: ui('adviceTitle') }),
+        h('ol', { class: 'advice' }, camp.advice.map(function (a) {
+          return h('li', { text: T(a) });
+        }))
+      ]),
       h('div', { class: 'panel double bad' }, [
         h('div', { class: 'label', text: ui('disclaimerT') }),
-        h('p', { class: 'small', text: ui('disclaimer') })
+        h('p', { class: 'small', text: ui('disclaimer') }),
+        h('div', { class: 'hr' }),
+        h('div', { class: 'scoreline' }, [
+          h('span', { text: ui('asOfLabel') }),
+          h('span', { class: 'stat-num', text: T(C.AS_OF) })
+        ])
       ]),
+      h('button', {
+        class: 'btn center', onclick: function () { Sound.play('blip'); go('risk'); }
+      }, [h('strong', { text: '⚠ ' + ui('riskBtn') })]),
       h('button', {
         class: 'btn primary center', onclick: function () { copyResult(score, ending); }
       }, [h('strong', { text: ui('share') })]),
@@ -991,11 +1090,13 @@
       ? [T(C.UI.title) + T(C.UI.title2) + ' · ' + T(camp.title),
          '成绩：' + ending.grade + ' 级 · ' + T(ending.title) + '（' + score + ' 分）',
          '法律图鉴：' + caught + '/' + DEX.length + ' 已捕获 · 闪光 ' + shinies,
-         '合规 ' + r.stats.comp + ' · 声誉 ' + r.stats.rep + ' · 资金 ' + r.stats.cash].join('\n')
+         '合规 ' + r.stats.comp + ' · 声誉 ' + r.stats.rep + ' · 资金 ' + r.stats.cash,
+         '（普法科普游戏，不构成法律意见）'].join('\n')
       : ['Can You Really Run a Business in China? — ' + T(camp.title),
          'Result: grade ' + ending.grade + ' — ' + T(ending.title) + ' (' + score + ' pts)',
          'Law Dex: ' + caught + '/' + DEX.length + ' caught, ' + shinies + ' shiny',
-         'Compliance ' + r.stats.comp + ' · Reputation ' + r.stats.rep + ' · Cash ' + r.stats.cash].join('\n');
+         'Compliance ' + r.stats.comp + ' · Reputation ' + r.stats.rep + ' · Cash ' + r.stats.cash,
+         '(an educational game, not legal advice)'].join('\n');
 
     function fallback() {
       var ta = document.createElement('textarea');
@@ -1115,6 +1216,7 @@
     about: screenAbout,
     hero: screenHero,
     routes: screenRoutes,
+    risk: screenRisk,
     map: screenMap,
     intro: screenIntro,
     scene: screenScene,

@@ -34,6 +34,7 @@
       },
       scenes: [
         {
+          risk: ['admin', 'tax'],
           prompt: {
             zh: '产品每月稳定几千块收入了。有人说"先别注册，等做大了再说，注册了就要记账报税很麻烦"。',
             en: 'The product is bringing in a few thousand a month. Someone tells you: "Do not register yet — wait until it is bigger. Registering means bookkeeping and tax filings, it is a hassle."'
@@ -65,6 +66,7 @@
           }
         },
         {
+          risk: ['civil'],
           prompt: {
             zh: '你在个体工商户和一人有限责任公司之间纠结。一个客户的项目做砸了，索赔 80 万。两种身份下有什么区别？',
             en: 'You are torn between registering as an individual household or a single-shareholder company. A client project goes badly and they claim RMB 800,000. What is the difference?'
@@ -96,6 +98,7 @@
           }
         },
         {
+          risk: ['civil'],
           prompt: {
             zh: '你查到几年前的资料说"一个人只能开一家一人有限公司，而且每年必须请会计师事务所审计"。现在还是这样吗？',
             en: 'You find older guidance saying one person may own only one single-shareholder company, and that it must be audited by an accounting firm every year. Is that still right?'
@@ -147,6 +150,7 @@
       scenes: [
         {
           rare: 'borrowghost',
+          risk: ['tax', 'civil'],
           prompt: {
             zh: '公司账上有 30 万闲钱。你想拿 15 万出来付自己的房子首付，反正公司是你一个人的。',
             en: 'There is RMB 300,000 sitting in the company account. You want to take 150,000 for the deposit on your flat — after all, the company is entirely yours.'
@@ -178,6 +182,7 @@
           }
         },
         {
+          risk: ['tax', 'civil'],
           prompt: {
             zh: '客户要求把项目款打到你的个人微信，说这样"省事"。金额 6 万。',
             en: 'A client wants to send the RMB 60,000 project fee to your personal WeChat because it is "simpler".'
@@ -209,6 +214,7 @@
           }
         },
         {
+          risk: ['civil'],
           prompt: {
             zh: '既然新公司法不再强制一人公司做年度审计，你打算怎么证明"公司财产独立于股东财产"？',
             en: 'With the mandatory annual audit gone, how do you plan to prove the company\'s property is independent of yours?'
@@ -259,6 +265,7 @@
       },
       scenes: [
         {
+          risk: ['tax'],
           prompt: {
             zh: '公司今年利润 40 万，你想全部拿出来自己用。一人有限公司和个体工商户，税负差在哪？',
             en: 'The company made RMB 400,000 this year and you want all of it. Where does the tax differ between a single-shareholder company and an individual household?'
@@ -290,6 +297,8 @@
           }
         },
         {
+          risk: ['tax', 'criminal'],
+          volatile: true,
           prompt: {
             zh: '有人推荐："去税收洼地注册个个人独资企业，申请核定征收，综合税负能压到 3% 以下。"',
             en: 'Someone suggests: "Register a sole proprietorship in a tax-incentive district, apply for assessed collection, and get your all-in rate under 3%."'
@@ -321,6 +330,8 @@
           }
         },
         {
+          risk: ['tax', 'criminal'],
+          volatile: true,
           prompt: {
             zh: '你是小规模纳税人，月销售额一直在免征增值税的门槛附近。一个企业客户要求开 6% 的增值税专用发票。',
             en: 'You are a small-scale VAT taxpayer hovering around the VAT exemption threshold. A corporate client asks for a 6% special VAT invoice.'
@@ -372,6 +383,7 @@
       scenes: [
         {
           rare: 'dayjobshadow',
+          risk: ['civil'],
           prompt: {
             zh: '你还有一份全职工作，做的也是软件。这个产品是你晚上和周末用自己的电脑写的，方向和公司业务不完全一样但沾边。',
             en: 'You still have a full-time software job. You built this product at night and at weekends on your own machine, in an area adjacent to — but not the same as — your employer\'s business.'
@@ -403,6 +415,7 @@
           }
         },
         {
+          risk: ['civil'],
           prompt: {
             zh: '你产品里大量界面图和一部分代码是 AI 生成的。有人直接抄了你的界面。你能主张著作权吗？',
             en: 'Much of your product\'s UI art and some of its code came out of an AI. Someone copies your interface wholesale. Can you claim copyright?'
@@ -435,6 +448,7 @@
         },
         {
           rare: 'copyleftvine',
+          risk: ['civil'],
           prompt: {
             zh: 'AI 帮你补全了一段很好用的代码，你顺手合并了。后来发现它来自一个 GPL 协议的开源项目。你的产品是闭源商业软件。',
             en: 'The AI completed a genuinely useful chunk of code and you merged it. You later find it came from a GPL-licensed project. Your product is closed-source commercial software.'
@@ -485,6 +499,7 @@
       },
       scenes: [
         {
+          risk: ['admin'],
           prompt: {
             zh: '你的产品是一个面向公众开放的 AI 写作助手，用户可以生成并公开分享内容。上线前需要做什么？',
             en: 'Your product is a publicly available AI writing assistant where users generate content and can publish it. What has to happen before launch?'
@@ -517,6 +532,8 @@
         },
         {
           rare: 'labelmark',
+          risk: ['admin'],
+          volatile: true,
           prompt: {
             zh: '你的应用会生成图片和文章。有用户拿去发在社交平台上，看不出是 AI 做的。你需要做什么吗？',
             en: 'Your app generates images and articles. Users post them on social platforms with nothing to show they were AI-made. Is that your problem?'
@@ -548,6 +565,7 @@
           }
         },
         {
+          risk: ['admin'],
           prompt: {
             zh: '产品要正式开放注册，需要手机号和邮箱。服务器在国内，还准备上架 App 和微信小程序。',
             en: 'You are opening registration, collecting phone numbers and emails. Servers are in China, and you plan to ship an app and a WeChat mini program.'
@@ -598,6 +616,7 @@
       },
       scenes: [
         {
+          risk: ['admin', 'status', 'tax'],
           prompt: {
             zh: '你决定停止运营。公司放着不管，不注销、也不再报税，会怎么样？',
             en: 'You decide to stop. If you simply leave the company alone — no deregistration, no more filings — what happens?'
@@ -629,6 +648,7 @@
           }
         },
         {
+          risk: ['civil'],
           prompt: {
             zh: '你决定正式注销这家一人公司。新公司法下，谁负责组织清算？',
             en: 'You decide to deregister the company properly. Under the current Company Law, whose job is it to organise the liquidation?'
@@ -660,6 +680,7 @@
           }
         },
         {
+          risk: ['civil'],
           prompt: {
             zh: '注销完成后，一个老客户找上门，说两年前那个项目有质量问题要索赔。公司已经没了，怎么办？',
             en: 'After deregistration, an old client surfaces claiming defects in a project from two years ago. The company no longer exists. Now what?'
@@ -711,6 +732,7 @@
     },
     scenes: [
       {
+        risk: ['civil'],
         prompt: {
           zh: '客户起诉你的一人公司，同时把你个人列为共同被告，要求你承担连带责任。庭上你要做什么？',
           en: 'A client sues your single-shareholder company and names you personally as a co-defendant, seeking joint liability. What do you do in court?'
@@ -739,6 +761,7 @@
         law: { zh: '《公司法》第23条第3款；《民事诉讼法》第67条；《民法典》第538条、第539条', en: 'Company Law, art. 23(3); Civil Procedure Law, art. 67; Civil Code, arts. 538 & 539' }
       },
       {
+        risk: ['tax', 'criminal'],
         prompt: {
           zh: '税务约谈：公司账上"其他应收款——股东"挂着 42 万，已经跨了一个纳税年度。',
           en: 'A tax interview: "other receivables — shareholder" shows RMB 420,000 outstanding, and it has crossed a tax year.'
@@ -767,6 +790,7 @@
         law: { zh: '财税〔2003〕158号第2条；《个人所得税法》第3条；《税收征收管理法》第63条', en: 'Caishui [2003] No. 158, art. 2; Individual Income Tax Law, art. 3; Tax Collection and Administration Law, art. 63' }
       },
       {
+        risk: ['civil'],
         prompt: {
           zh: '前东家的律师函到了：主张你的产品属于职务作品，要求停止运营并移交著作权。',
             en: 'A letter from your former employer\'s lawyers: they say the product is a work made in the course of your employment, and want it shut down and the copyright handed over.'
@@ -982,6 +1006,30 @@
     dexMeta: DEX_META,
     rares: RARES,
     secret: SECRET,
-    endings: ENDINGS
+    endings: ENDINGS,
+    /* Shown on the result screen. Ordered by how much they buy you per hour
+       spent, which for a one-person company is not the order people guess. */
+    advice: [
+      {
+        zh: '开一个对公账户，从今天起所有业务收付都走它。个人收款码收公司的钱，是全篇里最容易犯、也最难辩解的一件事。',
+        en: 'Open a corporate bank account and route every business payment through it from today. Taking company money through a personal payment code is the easiest mistake here to make and the hardest to explain away.'
+      },
+      {
+        zh: '找一个代账会计，每月把票据给他。几百块钱换的是一套账——那是你将来在法庭上证明"公司不是你、你不是公司"的唯一证据。',
+        en: 'Get a bookkeeper and hand over the receipts each month. A few hundred a month buys you a set of books, which is the only evidence you will have in court that you and the company are not the same person.'
+      },
+      {
+        zh: '年底前把账上的"其他应收款——股东"清掉。跨过 12 月 31 日还挂着，它会同时变成一笔 20% 的税和一份财产混同的证据。',
+        en: 'Clear the "other receivables — shareholder" balance before year end. Let it cross 31 December and it becomes both a 20% tax bill and a piece of evidence that your money and the company\u2019s are the same money.'
+      },
+      {
+        zh: '在发布流程里加一道开源许可扫描（SCA）。AI 补全让引入 GPL 代码变得非常容易，而这件事发现得越晚越贵。',
+        en: 'Put an open-source licence scan into your release pipeline. AI completion makes pulling in GPL code very easy, and this is a problem that gets more expensive the later you find it.'
+      },
+      {
+        zh: '如果你还在职，先把劳动合同里的知识产权和竞业条款读一遍，并保留自有设备、业余时间的证据。这一步花二十分钟，能省掉一场官司。',
+        en: 'If you are still employed, read the IP and non-compete clauses in your contract, and keep evidence of your own equipment and your own hours. Twenty minutes here can save you a lawsuit.'
+      }
+    ]
   };
 });

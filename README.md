@@ -104,11 +104,30 @@ regulator sends a bill and you spend the next quarter firefighting.
 Each route has its own five endings — 合规大师 down to 已被限制高消费 on one,
 干净的一人公司 down to 判决：由你个人承担 on the other.
 
-> **This is educational, not legal advice.** The content summarises publicly
-> available Chinese law, and the rules move — tax reliefs, FX quotas and the
-> negative list change often. Before acting, talk to a licensed PRC lawyer or
-> accountant and check the current official text. The disclaimer is in the game
-> too, on the About screen and again at the end.
+### Risk disclosure
+
+This is educational, not legal advice — and the game says so in four places
+rather than burying it in an About screen:
+
+- **A risk notice before the first game.** A full screen, not a modal: the game
+  cannot assess your situation, the content has a shelf life, the grades are
+  entertainment, and one consultation costs less than the fix. It has to be
+  acknowledged once, and stays reachable from the ⚠ chip in the top bar.
+- **Per-scene risk categories.** Every one of the 52 scenes is tagged with the
+  kind of trouble it is about — 刑事 criminal, 税务 tax, 行政 regulatory,
+  民事 civil, 资格 status — shown as colour-coded badges with the actual
+  consequence spelled out. This is the difference between a mistake that costs a
+  fine and one that costs a criminal record, and it is the single most useful
+  thing here after the citations.
+- **Volatility flags.** Six scenes rest on time-limited policy — VAT thresholds,
+  assessed collection, the negative list, cross-border data thresholds, visa-free
+  entry, the AI labelling rules. Those carry a ⚠ 政策易变 marker telling you to
+  check the current announcement.
+- **A content-as-of date**, shown on the notice, the About screen and the result.
+
+The result screen ends with concrete next steps for that route rather than a
+generic "consult a professional", and the shareable result string carries the
+disclaimer with it so a screenshot cannot read as a compliance certificate.
 
 ## Layout
 
@@ -164,6 +183,12 @@ entry in `CAMPAIGNS` — the engine does not change.** Rare encounters are wired
 by putting `rare: 'someId'` on the scene that releases them; `npm run sim` fails
 if one is unreachable, triggered twice, or missing its art.
 
+Every scene also carries `risk: ['criminal', 'tax', ...]` and, where the rule
+rests on time-limited policy, `volatile: true`. The categories are defined once
+in `content.js` alongside `AS_OF`, the date the legal content was last reviewed
+— **update that date whenever you touch the law**, since it is what the game
+shows players when it tells them the content has a shelf life.
+
 The `fx` numbers are deliberately written by feel. `js/balance.js` damps them
 per stat so they survive a whole route on a 0–100 bar, which means you can write
 "this wrecks your compliance" without holding a spreadsheet in your head.
@@ -177,10 +202,10 @@ npm run e2e     # drives the real game (expects `npm run serve` running)
 ```
 
 `npm run sim` validates the content — every scene bilingual, with at least two
-choices and a right answer; every dex entry complete and its id unique across
-routes; every rare reachable from exactly one scene; every referenced sprite
-present and every row the right width — then plays each route under four
-strategies:
+choices and a right answer; every scene tagged with known risk categories; every
+dex entry complete and its id unique across routes; every rare reachable from
+exactly one scene; every referenced sprite present and every row the right width
+— then plays each route under four strategies:
 
 ```
 foreign — Founding as a Foreigner  (8 chapters, 62 points)
@@ -189,6 +214,7 @@ foreign — Founding as a Foreigner  (8 chapters, 62 points)
   worst     grade D  score   1  pts  1/62   cash   0  compliance   0  reputation   0  energy   0
   random    grade B:3% C:42% D:55%  score 35  pts 26/62   cash  82  compliance  12  reputation  11  energy  45
   a perfect run releases 6/6 rares
+  risk tags  admin:18  civil:12  criminal:6  status:4  tax:7   ·  3 scenes flagged as policy-volatile
 
 solo — The One-Person Company  (6 chapters, 42 points)
   best      grade S  score 100  pts 42/42   cash 128  compliance 100  reputation 100  energy  69
@@ -196,6 +222,7 @@ solo — The One-Person Company  (6 chapters, 42 points)
   worst     grade D  score   0  pts  0/42   cash   0  compliance   0  reputation   0  energy  19
   random    grade B:2% C:30% D:69%  score 31  pts 16/42   cash  66  compliance  11  reputation  13  energy  44
   a perfect run releases 4/4 rares
+  risk tags  admin:5  civil:12  criminal:3  status:1  tax:8   ·  3 scenes flagged as policy-volatile
 ```
 
 Run it after touching any `fx` value or anything in `balance.js` — it is much

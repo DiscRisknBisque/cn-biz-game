@@ -33,6 +33,7 @@
       },
       scenes: [
         {
+          risk: ['admin'],
           prompt: {
             zh: '你还在犹豫来中国用什么签证。有人告诉你："必须先拿到工作签证，才能注册公司当股东。"',
             en: 'You are still deciding which visa to come in on. Someone tells you: "You need a work visa before you can register a company and be a shareholder."'
@@ -64,6 +65,7 @@
           }
         },
         {
+          risk: ['admin', 'status'],
           prompt: {
             zh: '你是在华留学生，持 X1 签证和学习类居留许可。你和同学做的项目开始有收入了，你想在自己参与创办的公司里干活并领报酬。',
             en: 'You are an international student in China on an X1 visa with a study residence permit. The project you built with classmates is earning money, and you want to work at the company you co-founded and be paid for it.'
@@ -95,6 +97,8 @@
           }
         },
         {
+          risk: ['admin'],
+          volatile: true,
           prompt: {
             zh: '你这次是持 L 字（旅游）签证入境的——或者干脆是免签入境。你打算顺便见几个客户、看看办公室、把合同签了。',
             en: 'This time you came in on an L (tourist) visa — or visa-free. While you are here you plan to meet a few customers, view an office and sign the contract.'
@@ -126,6 +130,7 @@
           }
         },
         {
+          risk: ['admin'],
           prompt: {
             zh: '公司注册好了。不管你现在持的是 M、L 还是 X 签证，你打算下周就到自己的公司正式上班、领工资。怎么办？',
             en: 'The company is registered. Whatever you hold right now — M, L or X — you plan to start working at it next week, on payroll. What do you do?'
@@ -157,6 +162,7 @@
           }
         },
         {
+          risk: ['admin', 'criminal'],
           prompt: {
             zh: '办工作许可时，系统要给你评一个类别：A、B 还是 C。这个类别意味着什么？',
             en: 'Your work permit application gets graded A, B or C. What does the grade actually decide?'
@@ -188,6 +194,7 @@
           }
         },
         {
+          risk: ['admin'],
           prompt: {
             zh: '公司注册好了，你是法定代表人，但你大部分时间在海外遥控，一年来中国两三次。需要办工作许可吗？',
             en: 'The company is registered and you are its legal representative — but you run it from abroad and visit two or three times a year. Do you need a work permit?'
@@ -238,6 +245,7 @@
       },
       scenes: [
         {
+          risk: ['admin', 'civil'],
           prompt: {
             zh: '你想在中国卖你自己的产品并开发票收款。朋友建议"先设个代表处，便宜又快"。',
             en: 'You want to sell your product in China and invoice customers. A friend says "just open a rep office, it is cheaper and faster".'
@@ -270,6 +278,8 @@
         },
         {
           rare: 'neglist',
+          risk: ['admin'],
+          volatile: true,
           prompt: {
             zh: '你的项目是"面向中国用户的在线教育 App"。注册前第一件该查的事是什么？',
             en: 'Your project is an online education app for Chinese users. What is the very first thing to check before registering?'
@@ -301,6 +311,7 @@
           }
         },
         {
+          risk: ['civil'],
           prompt: {
             zh: '注册资本填多少？中介说"认缴制，随便写，写 1000 万显得有实力"。',
             en: 'How much registered capital? Your agent says "it is a subscription system — put down RMB 10 million, it looks impressive".'
@@ -351,6 +362,7 @@
       },
       scenes: [
         {
+          risk: ['civil'],
           prompt: {
             zh: '公章刻好了。你的行政助理说"放我抽屉里吧，用起来方便"。',
             en: 'The company chop is ready. Your office assistant says "leave it in my drawer, it is easier that way".'
@@ -383,6 +395,7 @@
         },
         {
           rare: 'travelban',
+          risk: ['civil', 'status'],
           prompt: {
             zh: '你被登记为法定代表人。这意味着什么？',
             en: 'You are registered as the legal representative. What does that actually mean?'
@@ -414,6 +427,7 @@
           }
         },
         {
+          risk: ['admin', 'tax'],
           prompt: {
             zh: '你的执照上写着"技术咨询、软件开发"。一个客户想让你顺便帮他从海外进口一批设备。',
             en: 'Your licence says "technology consulting; software development". A client asks you to also import a batch of equipment for them.'
@@ -464,6 +478,7 @@
       },
       scenes: [
         {
+          risk: ['admin', 'criminal'],
           prompt: {
             zh: '你想先把 50 万启动资金打进来。最快的办法是打到你自己的中国个人账户，再转给公司。',
             en: 'You want to bring in RMB 500,000 of seed money. The fastest route is into your own personal Chinese account, then transfer to the company.'
@@ -495,6 +510,7 @@
           }
         },
         {
+          risk: ['admin'],
           prompt: {
             zh: '资本金进来了，账上躺着 400 万暂时不用。财务建议拿去买理财产品或者借给一家合作方公司。',
             en: 'The capital has landed and RMB 4 million is sitting idle. Your finance person suggests buying wealth-management products or lending it to a partner company.'
@@ -526,6 +542,7 @@
           }
         },
         {
+          risk: ['tax', 'admin'],
           prompt: {
             zh: '公司第一年就赚钱了，你想把利润分回海外母公司。',
             en: 'The company turns a profit in year one and you want to send it home to the parent.'
@@ -576,6 +593,7 @@
       },
       scenes: [
         {
+          risk: ['tax', 'criminal'],
           prompt: {
             zh: '团队聚餐花了 3000 元，餐厅只给了小票，没开发票。这笔钱能税前扣除吗？',
             en: 'A team dinner cost RMB 3,000. The restaurant gave you a till receipt, not a fapiao. Can you deduct it?'
@@ -607,6 +625,7 @@
           }
         },
         {
+          risk: ['tax', 'status'],
           prompt: {
             zh: '公司刚成立还没收入，会计说"零申报就行"。可你这个月其实收了一笔 8 万元的预付款。',
             en: 'The company has no revenue yet and your accountant suggests a zero-return. But you did receive an RMB 80,000 prepayment this month.'
@@ -638,6 +657,7 @@
           }
         },
         {
+          risk: ['tax'],
           prompt: {
             zh: '你今年在中国住了 200 天。你在海外还有一套房子的租金收入。这笔收入要在中国交税吗？',
             en: 'You have spent 200 days in China this year. You also earn rent from a property back home. Is that taxable in China?'
@@ -689,6 +709,7 @@
       scenes: [
         {
           rare: 'doublewage',
+          risk: ['civil'],
           prompt: {
             zh: '员工已经工作两个月了，书面劳动合同一直没签。会有什么后果？',
             en: 'Your employee has worked two months and still has no written contract. What happens?'
@@ -720,6 +741,7 @@
           }
         },
         {
+          risk: ['civil', 'admin'],
           prompt: {
             zh: '你想给一位签了两年合同的工程师设 6 个月试用期，试用期工资按正式工资的一半发。',
             en: 'You want a six-month probation for an engineer on a two-year contract, at half their normal salary.'
@@ -751,6 +773,7 @@
           }
         },
         {
+          risk: ['civil', 'admin'],
           prompt: {
             zh: '一位员工说："别给我交社保了，折成现金发给我，我签个自愿放弃声明。"',
             en: 'An employee says: "Skip my social insurance and pay me the cash instead — I will sign a waiver."'
@@ -801,6 +824,7 @@
       },
       scenes: [
         {
+          risk: ['civil'],
           prompt: {
             zh: '你的品牌在海外已注册多年。在中国注册商标的时机是？',
             en: 'Your brand has been registered abroad for years. When should you file in China?'
@@ -833,6 +857,7 @@
         },
         {
           rare: 'squatter',
+          risk: ['civil'],
           prompt: {
             zh: '坏消息：有人在你要用的类别上抢注了你的品牌，现在开价 30 万要卖给你。',
             en: 'Bad news: someone has registered your brand in the class you need and is offering to sell it back for RMB 300,000.'
@@ -864,6 +889,7 @@
           }
         },
         {
+          risk: ['civil'],
           prompt: {
             zh: '你的核心是一套自研软件和一个硬件外观设计。怎么保护？',
             en: 'Your core assets are in-house software and a distinctive hardware design. How do you protect them?'
@@ -914,6 +940,7 @@
       },
       scenes: [
         {
+          risk: ['admin'],
           prompt: {
             zh: '你的网站要面向中国用户开放，域名解析到境内服务器。第一件事？',
             en: 'Your site will serve Chinese users from servers inside China. First thing to do?'
@@ -946,6 +973,8 @@
         },
         {
           rare: 'crossborder',
+          risk: ['admin'],
+          volatile: true,
           prompt: {
             zh: '你的 App 收集中国用户的手机号和位置，数据同步到新加坡的服务器分析。',
             en: 'Your app collects Chinese users\' phone numbers and location, and syncs it to Singapore for analysis.'
@@ -977,6 +1006,7 @@
           }
         },
         {
+          risk: ['criminal', 'admin'],
           prompt: {
             zh: '为了做增长，市场团队买了一批"精准客户名单"，包含姓名和手机号。',
             en: 'For growth, your marketing team buys a list of "high-intent leads" with names and phone numbers.'
@@ -1029,6 +1059,7 @@
     scenes: [
       {
         rare: 'falsebill',
+        risk: ['criminal', 'tax'],
         prompt: {
           zh: '一个"朋友"提出：他给你开 200 万咨询费发票，你付款后返还 190 万现金，双方都能少交税。',
           en: 'A "friend" proposes: he invoices you RMB 2 million in consulting fees, you pay, he returns 1.9 million in cash, and you both pay less tax.'
@@ -1057,6 +1088,7 @@
         law: { zh: '《刑法》第205条；《发票管理办法》第21条', en: 'Criminal Law, art. 205; Measures for the Administration of Invoices, art. 21' }
       },
       {
+        risk: ['criminal', 'tax'],
         prompt: {
           zh: '稽查人员要求提供近三年的账簿、凭证和银行流水。你的会计说"有些原始凭证找不到了"。',
             en: 'The inspectors ask for three years of books, vouchers and bank records. Your accountant says some original vouchers cannot be found.'
@@ -1085,6 +1117,7 @@
         law: { zh: '《税收征收管理法》第24条、第63条、第70条；《刑法》第201条', en: 'Tax Collection and Administration Law, arts. 24, 63 & 70; Criminal Law, art. 201' }
       },
       {
+        risk: ['civil'],
         prompt: {
           zh: '同时，一位被辞退的员工申请了劳动仲裁。你当时的理由是"公司业务调整，不需要这个岗位了"，直接通知他次日别来了。',
           en: 'Meanwhile a dismissed employee files for labour arbitration. Your reason was "business restructuring, the role is gone", told to them the day before their last day.'
@@ -1113,6 +1146,7 @@
         law: { zh: '《劳动合同法》第40条、第46条、第47条、第48条、第87条', en: 'Labour Contract Law, arts. 40, 46, 47, 48 & 87' }
       },
       {
+        risk: ['admin', 'status', 'civil'],
         prompt: {
           zh: '最后一题：熬过这一年后，你决定关掉公司回国。最省事的做法是？',
           en: 'Last question: having survived the year, you decide to wind up and go home. The easy way is?'
@@ -1403,6 +1437,26 @@
     dexMeta: DEX_META,
     rares: RARES,
     secret: SECRET,
-    endings: ENDINGS
+    endings: ENDINGS,
+    /* Shown on the result screen. Concrete enough to act on this week — a
+       result page that only says "consult a lawyer" is not advice. */
+    advice: [
+      {
+        zh: '找一位做外商投资的律师问三件事：你的行业在不在最新版负面清单上、主体形式怎么选、你本人的工作许可走哪条路径。这三件事定错了，后面全要返工。',
+        en: 'Ask a foreign-investment lawyer three things: whether your sector is on the current negative list, which vehicle to use, and which work-permit route applies to you. Get these wrong and everything after them has to be redone.'
+      },
+      {
+        zh: '第一年就找一家能出规范报表的代理记账，并坚持"付款必要发票"。第二年的汇算清缴会告诉你这个习惯值多少钱。',
+        en: 'Engage a bookkeeper who can produce proper statements from year one, and hold the line on "no fapiao, no payment". Your second annual tax settlement will tell you what that habit was worth.'
+      },
+      {
+        zh: '进入市场之前把商标注册掉——英文名、中文名、拼音、图形，核心类别之外再做几个防御类别。这是全书里最便宜的一笔保险。',
+        en: 'Register the trademark before you enter the market — English name, Chinese name, pinyin, logo, plus a few defensive classes around your core. It is the cheapest insurance in this whole book.'
+      },
+      {
+        zh: '做面向用户的产品，上线前确认两件事：ICP 备案办了没有，个人信息出境走的是哪条法定通道。',
+        en: 'If you are building something user-facing, confirm two things before launch: that the ICP filing is done, and which statutory channel your personal-information transfers abroad rely on.'
+      }
+    ]
   };
 });

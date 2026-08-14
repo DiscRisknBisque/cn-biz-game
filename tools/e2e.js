@@ -141,6 +141,19 @@ var LEGACY_SAVE = {
   await (await page.$$('.btn.choice'))[0].click();
   await pause(200);
   check('feedback cites a source', (await page.$$('.label.law')).length === 1);
+  check('feedback discloses the risk categories', (await page.$$('.panel.risknote')).length === 1);
+  check('risk badges are rendered', (await page.$$('.risknote .riskbadge')).length >= 1);
+
+  /* A scene flagged as policy-volatile has to say so. */
+  var volatileShown = await page.evaluate(function () {
+    var camp = window.Content.campaign('solo');
+    var n = 0;
+    camp.chapters.concat([camp.boss]).forEach(function (u) {
+      u.scenes.forEach(function (sc) { if (sc.volatile) n++; });
+    });
+    return n;
+  });
+  check('the solo route flags volatile policy scenes', volatileShown === 3);
 
   /* ---- a full run of every campaign reaches its ending ------------------ */
 
@@ -152,8 +165,16 @@ var LEGACY_SAVE = {
   await page.evaluate(function (k) { localStorage.removeItem(k); }, SAVE_KEY);
   await page.goto(BASE + '/index.html');
   await pause(250);
-  await page.click('.btn.primary');             // START -> hero picker
+  await page.click('.btn.primary');             // START -> risk notice
+  await pause(250);
+  check('a first run is shown the risk notice before anything else',
+        (await page.$$('.risklist')).length === 1);
+  check('the risk notice lists every category',
+        (await page.$$('.risklist .riskline')).length === 5);
+  await page.click('.btn.primary');             // acknowledge -> hero picker
   await pause(200);
+  check('acknowledging the notice is remembered',
+        (await readSave()).ackRisk === true);
   await page.click('.btn.primary');             // confirm -> route select
   await pause(250);
 
@@ -189,6 +210,10 @@ var LEGACY_SAVE = {
 
     var grade = (await page.textContent('.grade')).trim();
     check('a perfect ' + id + ' run grades S (got ' + grade + ')', grade === 'S');
+    check('the ' + id + ' result gives concrete next steps',
+          (await page.$$('.advice li')).length >= 3);
+    check('the ' + id + ' result still carries the disclaimer',
+          (await page.$$('.panel.bad')).length >= 1);
   }
 
   async function playUnit(picks, nodeIndex) {
