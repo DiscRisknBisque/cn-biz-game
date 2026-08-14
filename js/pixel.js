@@ -393,6 +393,248 @@
       '...KNNKKKKKNNK..'
     ],
 
+    /* --- 一人公司篇 (the solo-founder route) ---------------------------- */
+
+    /* 个体龟 — the sole trader. The shell is everything you personally own. */
+    soloturtle: [
+      '................',
+      '.....KKKKKK.....',
+      '...KKgggggggKK..',
+      '..KgggggggggggK.',
+      '..KggKKgggKKggK.',
+      '..KgKWWgggWWKgK.',
+      '..KgKWKgggKWKgK.',
+      '..KggKKgggKKggK.',
+      '.KGGGGGGGGGGGGK.',
+      '.KGKGGKGGKGGKGK.',
+      '.KGGGGGGGGGGGGK.',
+      '.KGKGGKGGKGGKGK.',
+      '.KGGGGGGGGGGGGK.',
+      '.KKGGGGGGGGGGKK.',
+      '..KK.KK..KK.KK..',
+      '...K..K..K..K...'
+    ],
+
+    /* 混同鬼 — company money and your money, melting into one another. */
+    commingle: [
+      '................',
+      '...KKKK..KKKK...',
+      '..KBBBBKKOOOOK..',
+      '.KBBBBBBKOOOOOK.',
+      '.KBBWWBBKOOWWOK.',
+      '.KBBWKBBKOOWKOK.',
+      '.KBBBBBBKOOOOOK.',
+      '.KBBBBBBnOOOOOK.',
+      '.KBBBBnnnnOOOOK.',
+      '.KBBBnnnnnnOOOK.',
+      '.KBBnnnnnnnnOOK.',
+      '.KBnnnnnnnnnnOK.',
+      '.KKnnnnnnnnnnKK.',
+      '..KnnnnnnnnnnK..',
+      '...KK.KK.KK.KK..',
+      '....K..K..K..K..'
+    ],
+
+    /* 双税兽 — corporate tax on the way in, dividend tax on the way out. */
+    doubletax: [
+      '................',
+      '..KKKK....KKKK..',
+      '.KRRRRK..KRRRRK.',
+      'KRRRRRRKKRRRRRRK',
+      'KRWWRRRKKRRRWWRK',
+      'KRWKRRRKKRRRKWRK',
+      'KRRRRRRKKRRRRRRK',
+      'KRRKRRRKKRRRKRRK',
+      '.KRRRRRRRRRRRRK.',
+      '..KRRRRRRRRRRK..',
+      '..KRRKKRRKKRRK..',
+      '..KRRRRRRRRRRK..',
+      '..KRRRRRRRRRRK..',
+      '..KKRRRRRRRRKK..',
+      '...KK.KK.KK.KK..',
+      '....K..K..K.....'
+    ],
+
+    /* 归属灵 — half yours, half somebody else's, and nobody wrote it down. */
+    ownershade: [
+      '................',
+      '.....KKKKKK.....',
+      '...KKppppXXKK...',
+      '..KppppppXXXXK..',
+      '..KppppppXXXXK..',
+      '..KpWWpppXXWWK..',
+      '..KpWKpppXXWKK..',
+      '..KppppppXXXXK..',
+      '..KppKKppXXXXK..',
+      '..KppppppXXXXK..',
+      '..KppppppXXXXK..',
+      '..KppppppXXXXK..',
+      '..KppppppXXXXK..',
+      '..KKppppXXXXKK..',
+      '...KKpKKXXKXK...',
+      '....K.K..K.K....'
+    ],
+
+    /* 备案眼 — filings and assessments. It is watching the launch. */
+    filingeye: [
+      '................',
+      '................',
+      '....KKKKKKKK....',
+      '..KKbbbbbbbbKK..',
+      '.KbbbbbbbbbbbbK.',
+      'KbbbbWWWWbbbbbbK',
+      'KbbbWWWWWWWbbbbK',
+      'KbbWWWKKWWWWbbbK',
+      'KbbWWKKKKWWWbbbK',
+      'KbbWWWKKWWWWbbbK',
+      'KbbbWWWWWWWbbbbK',
+      'KbbbbWWWWbbbbbbK',
+      '.KbbbbbbbbbbbbK.',
+      '..KKbbbbbbbbKK..',
+      '....KKKKKKKK....',
+      '................'
+    ],
+
+    /* 僵尸户 — stopped trading, never deregistered, still accruing duties. */
+    zombiefirm: [
+      '................',
+      '..KKKKKKKKKKKK..',
+      '..KnnnnnnnnnnK..',
+      '..KnKKKKKKKKnK..',
+      '..KnnnnnnnnnnK..',
+      '..KnWnWnnWnWnK..',
+      '..KnnWnnnnWnnK..',
+      '..KnWnWnnWnWnK..',
+      '..KnnnnnnnnnnK..',
+      '..KnnKKKKKKnnK..',
+      '..KnnnnnnnnnnK..',
+      '..KnKnKnKnKnnK..',
+      '..KnnnnnnnnnnK..',
+      '..KKnnnnnnnnKK..',
+      '...K.K.K.K.K.K..',
+      '................'
+    ],
+
+    /* 穿透兽 — reaches through the company and takes hold of you. The boss. */
+    veilpiercer: [
+      '................',
+      '..KK........KK..',
+      '.KRRK......KRRK.',
+      '.KRRKKKKKKKKRRK.',
+      '.KKXXXXXXXXXXKK.',
+      '..KXXXXXXXXXXK..',
+      '..KXRRKXXKRRXK..',
+      '..KXRKKXXKKRXK..',
+      '..KXXXXXXXXXXK..',
+      '..KXXKRRRRKXXK..',
+      '..KXXRKKKKRXXK..',
+      '..KXXXXXXXXXXK..',
+      '.KKXXXXXXXXXXKK.',
+      'KRRKXXXXXXXXKRRK',
+      'KRRK.KKKKKK.KRRK',
+      '.KK..........KK.'
+    ],
+
+    /* 借款鬼 — the shareholder loan you meant to pay back in January. */
+    borrowghost: [
+      '................',
+      '...KKKKKKKKKK...',
+      '..KyyyyyyyyyyK..',
+      '..KyKKyyyyKKyK..',
+      '..KyyyyyyyyyyK..',
+      '..KyWWKyyKWWyK..',
+      '..KyWKKyyKKWyK..',
+      '..KyyyyyyyyyyK..',
+      '..KyYKyyyyKYyK..',
+      '..KyyYKYYKYyyK..',
+      '..KyyyYYYYyyyK..',
+      '..KyyyyyyyyyyK..',
+      '..KyKyKyKyKyyK..',
+      '..KyyyyyyyyyyK..',
+      '..KKyKKyKKyKKK..',
+      '...K..K..K...K..'
+    ],
+
+    /* 传染藤 — copyleft. It spreads to whatever you attach it to. */
+    copyleftvine: [
+      '................',
+      '.K............K.',
+      '.gK..KKKK....Kg.',
+      '..gKKgggggKKKg..',
+      '...KgggggggggK..',
+      '..KggggggggggK..',
+      '..KggWWggWWggK..',
+      '..KggWKggKWggK..',
+      '..KggggggggggK..',
+      '..KggKGGGGKggK..',
+      '..KgggGGGGgggK..',
+      '..KggggggggggK..',
+      '.KgKggggggggKgK.',
+      'Kg.KKgggggKK.gK.',
+      'g...KKgggKK...g.',
+      '.....KKKKK......'
+    ],
+
+    /* 职务影 — your employer, standing behind your side project. */
+    dayjobshadow: [
+      '................',
+      '......KKKK......',
+      '.....KXXXXK.....',
+      '....KXXXXXXK....',
+      '....KXWWXXXK....',
+      '....KXWKXXXK....',
+      '....KXXXXXXK....',
+      '....KXXKKXXK....',
+      '.....KXXXXK.....',
+      '...KKKKKKKKKK...',
+      '..KXXXKRKXXXXK..',
+      '..KXXXKRKXXXXK..',
+      '..KXXXXRXXXXXK..',
+      '..KXXXXRXXXXXK..',
+      '..KKKKKKKKKKKK..',
+      '...KXXK..KXXK...'
+    ],
+
+    /* 标识印 — the label AI-generated content has to carry. */
+    labelmark: [
+      '................',
+      '...KKKKKKKKKK...',
+      '..KcccccccccK...',
+      '.KcccccccccccK..',
+      '.KccWWcccWWccK..',
+      '.KccWKcccKWccK..',
+      '.KcccccccccccK..',
+      '.KcKKcKKKcKKcK..',
+      '.KcKccKcKcKccK..',
+      '.KcKKcKcKcKKcK..',
+      '.KccKcKcKcKccK..',
+      '.KcKKcKKKcKKcK..',
+      '.KcccccccccccK..',
+      '..KcccccccccK...',
+      '...KKKKKKKKKK...',
+      '................'
+    ],
+
+    /* 会计师 — the solo route's reward, and its cheapest insurance. */
+    accountant: [
+      '................',
+      '......KKKK......',
+      '.....KTTTTK.....',
+      '....KTEEEETK....',
+      '....KEEEEEEK....',
+      '....KEKEEKEK....',
+      '....KEEEEEEK....',
+      '....KEEKKEEK....',
+      '.....KEEEEK.....',
+      '...KKKKWKKKKK...',
+      '..KCCCKWKCCCCK..',
+      '..KCCCKWKCCCCK..',
+      '..KCCCCCCCCCCK..',
+      '..KCCKYYYYKCCK..',
+      '..KKKYKKKKYKKK..',
+      '...KCCKKKKCCK...'
+    ],
+
     /* --- Player avatars ------------------------------------------------ */
     hero1: [
       '................',

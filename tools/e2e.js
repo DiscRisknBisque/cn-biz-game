@@ -52,12 +52,15 @@ async function launchBrowser() {
   }
 }
 
-/* A completed save, used as the base for the state-dependent checks. */
-var FINISHED = {
-  lang: 'zh', sound: true, hero: 'hero1', started: true, unlocked: 8,
-  cleared: { visa: 6, entity: 6, chop: 6, fx: 6, tax: 6, labor: 6, ip: 6, data: 6, boss: 8 },
-  dex: {}, bossHp: 0, bossDone: true, finished: true,
-  stats: { cash: 150, comp: 90, rep: 88, energy: 70 }
+/* A save from before the second route existed: a single run at the top level.
+   Used to check the migration still rescues it. */
+var LEGACY_SAVE = {
+  lang: 'zh', sound: true, hero: 'hero1', started: true, unlocked: 3,
+  cleared: { visa: 12, entity: 6, chop: 5 },
+  dex: { visa: 'caught', entity: 'caught', chop: 'seen' },
+  shiny: { visa: true },
+  bossHp: 100, bossDone: false, finished: false,
+  stats: { cash: 140, comp: 72, rep: 66, energy: 58 }
 };
 
 (async function () {
@@ -71,6 +74,7 @@ var FINISHED = {
 
   function check(name, ok) { if (!ok) failures.push(name); }
   function seed(obj) { return page.evaluate(function (a) { localStorage.setItem(a[0], a[1]); }, [SAVE_KEY, JSON.stringify(obj)]); }
+  function readSave() { return page.evaluate(function (k) { return JSON.parse(localStorage.getItem(k)); }, SAVE_KEY); }
   function labels() { return page.$$eval('.btn', function (els) { return els.map(function (e) { return e.textContent.trim(); }); }); }
   function clickLabel(re) {
     return page.evaluate(function (src) {
@@ -80,24 +84,21 @@ var FINISHED = {
   }
   function pause(ms) { return page.waitForTimeout(ms); }
 
-  /* ---- title screen reflects save state -------------------------------- */
+  /* ---- legacy saves migrate rather than being discarded ----------------- */
 
   await page.goto(BASE + '/index.html');
-  await seed(FINISHED);
+  await seed(LEGACY_SAVE);
   await page.goto(BASE + '/index.html');
-  await pause(250);
+  await pause(300);
+
+  var migrated = await readSave();
+  check('a pre-routes save migrates into the foreign route',
+        migrated && migrated.runs && migrated.runs.foreign && migrated.runs.foreign.unlocked === 3);
+  check('migration keeps the dex and shinies',
+        migrated.dex.visa === 'caught' && migrated.shiny.visa === true);
 
   var l1 = await labels();
-  check('finished save offers exactly one START and no CONTINUE',
-        l1.filter(function (l) { return l === '开始游戏'; }).length === 1 && l1.indexOf('继续游戏') === -1);
-
-  await seed(Object.assign({}, FINISHED, { finished: false, bossDone: false, unlocked: 3 }));
-  await page.goto(BASE + '/index.html');
-  await pause(250);
-
-  var l2 = await labels();
-  check('in-progress save offers CONTINUE and NEW GAME',
-        l2.indexOf('继续游戏') >= 0 && l2.indexOf('重新开始') >= 0);
+  check('a migrated in-progress save offers CONTINUE', l1.indexOf('继续游戏') >= 0);
 
   /* ---- language toggle persists ---------------------------------------- */
 
@@ -110,19 +111,29 @@ var FINISHED = {
   await page.click('.chip');
   await pause(150);
 
-  /* ---- locked chapters stay locked ------------------------------------- */
+  /* ---- route select ----------------------------------------------------- */
 
-  await clickLabel(/继续游戏/);
+  await clickLabel(/换条路线|SWITCH ROUTE/);
   await pause(250);
-  var nodes = await page.$$('.node');
-  check('map lists every chapter plus the boss', nodes.length === 9);
-  await nodes[7].click();                       // chapter 8, locked at unlocked:3
+  var routes = await page.$$('.route');
+  check('route select lists both campaigns', routes.length === 2);
+
+  await routes[1].click();                      // the solo route
   await pause(250);
-  check('a locked chapter does not open', (await page.$$('.node')).length === 9);
+  var soloNodes = await page.$$('.node');
+  check('the solo route has 6 chapters plus a boss', soloNodes.length === 7);
 
-  /* ---- a chapter can be played and progress is saved -------------------- */
+  var saved = await readSave();
+  check('picking a route creates its own run and leaves the other alone',
+        saved.campaign === 'solo' && saved.runs.solo && saved.runs.foreign.unlocked === 3);
 
-  await nodes[3].click();                       // chapter 4, unlocked
+  /* ---- locked chapters stay locked, unlocked ones play ------------------ */
+
+  await soloNodes[5].click();                   // chapter 6, locked at unlocked:0
+  await pause(250);
+  check('a locked chapter does not open', (await page.$$('.node')).length === 7);
+
+  await (await page.$$('.node'))[0].click();
   await pause(250);
   await page.click('.btn.primary');             // intro -> first scene
   await pause(200);
@@ -131,29 +142,54 @@ var FINISHED = {
   await pause(200);
   check('feedback cites a source', (await page.$$('.label.law')).length === 1);
 
-  var saved = await page.evaluate(function (k) { return JSON.parse(localStorage.getItem(k)); }, SAVE_KEY);
-  check('stats are persisted mid-chapter', saved && typeof saved.stats.comp === 'number');
+  /* ---- a full run of every campaign reaches its ending ------------------ */
 
-  /* ---- a full run from a clean save reaches an ending ------------------- */
+  var campaigns = await page.evaluate(function () {
+    return window.Content.CAMPAIGNS.map(function (c) { return c.id; });
+  });
+  check('two campaigns are registered', campaigns.length === 2);
 
   await page.evaluate(function (k) { localStorage.removeItem(k); }, SAVE_KEY);
   await page.goto(BASE + '/index.html');
   await pause(250);
   await page.click('.btn.primary');             // START -> hero picker
   await pause(200);
-  await page.click('.btn.primary');             // confirm -> map
-  await pause(200);
+  await page.click('.btn.primary');             // confirm -> route select
+  await pause(250);
 
-  var plan = await page.evaluate(function () {
-    var pick = function (sc) {
-      var s = sc.choices.map(function (c) { return c.score; });
-      return s.indexOf(Math.max.apply(null, s));
-    };
-    return {
-      chapters: window.Content.CHAPTERS.map(function (ch) { return ch.scenes.map(pick); }),
-      boss: window.Content.BOSS.scenes.map(pick)
-    };
-  });
+  for (var ci = 0; ci < campaigns.length; ci++) {
+    var id = campaigns[ci];
+
+    if (ci > 0) {
+      await clickLabel(/换条路线|SWITCH ROUTE/);
+      await pause(250);
+    }
+    await (await page.$$('.route'))[ci].click();
+    await pause(250);
+
+    var plan = await page.evaluate(function (cid) {
+      var camp = window.Content.campaign(cid);
+      var pick = function (sc) {
+        var s = sc.choices.map(function (c) { return c.score; });
+        return s.indexOf(Math.max.apply(null, s));
+      };
+      return {
+        chapters: camp.chapters.map(function (ch) { return ch.scenes.map(pick); }),
+        boss: camp.boss.scenes.map(pick)
+      };
+    }, id);
+
+    for (var c = 0; c < plan.chapters.length; c++) {
+      await playUnit(plan.chapters[c], c);
+      await page.click('.btn.primary');         // capture -> map
+      await pause(180);
+    }
+    await playUnit(plan.boss, plan.chapters.length);
+    await pause(350);
+
+    var grade = (await page.textContent('.grade')).trim();
+    check('a perfect ' + id + ' run grades S (got ' + grade + ')', grade === 'S');
+  }
 
   async function playUnit(picks, nodeIndex) {
     var ns = await page.$$('.node');
@@ -171,41 +207,38 @@ var FINISHED = {
     }
   }
 
-  for (var c = 0; c < plan.chapters.length; c++) {
-    await playUnit(plan.chapters[c], c);
-    await page.click('.btn.primary');           // capture -> map
-    await pause(180);
-  }
-  await playUnit(plan.boss, 8);
-  await pause(350);
+  /* ---- the dex, after clearing everything perfectly --------------------- */
 
-  var grade = (await page.textContent('.grade')).trim();
-  check('a perfect run grades S (got ' + grade + ')', grade === 'S');
+  var expected = await page.evaluate(function () {
+    return window.Game.dex().length;
+  });
 
   var dex = await page.evaluate(function (k) {
     var s = JSON.parse(localStorage.getItem(k));
     return {
       caught: Object.keys(s.dex).filter(function (x) { return s.dex[x] === 'caught'; }).length,
       shiny: Object.keys(s.shiny || {}).length,
-      secret: s.dex.lawyer === 'caught'
+      secrets: (s.dex.lawyer === 'caught') && (s.dex.accountant === 'caught')
     };
   }, SAVE_KEY);
-  /* 8 chapters + boss + exit + 6 rares + the secret. */
-  check('a perfect run catches all 17 dex entries (got ' + dex.caught + ')', dex.caught === 17);
-  check('a perfect run turns all 10 chapter creatures shiny (got ' + dex.shiny + ')', dex.shiny === 10);
-  check('completing the dex unlocks the secret entry', dex.secret === true);
 
-  /* The dex screen should render every entry, and the filters should narrow it. */
+  check('a perfect run of both routes catches all ' + expected + ' dex entries (got ' + dex.caught + ')',
+        dex.caught === expected);
+  check('completing each route unlocks its own secret', dex.secrets === true);
+
   await clickLabel(/图鉴|DEX/);
   await pause(300);
-  check('dex grid shows all 17 entries', (await page.$$('.dexcell')).length === 17);
+  check('dex grid shows every entry', (await page.$$('.dexcell')).length === expected);
+  check('dex is grouped by route', (await page.$$('.dexsection')).length === 2);
+
   var tabs = await page.$$('.tabs .chip');
   await tabs[1].click();                        // 未收集 / MISSING
   await pause(200);
   check('missing filter is empty after a perfect run', (await page.$$('.dexcell')).length === 0);
   await (await page.$$('.tabs .chip'))[2].click();  // shiny
   await pause(200);
-  check('shiny filter lists the 10 shinies', (await page.$$('.dexcell')).length === 10);
+  check('shiny filter lists the shinies (got ' + dex.shiny + ')',
+        (await page.$$('.dexcell')).length === dex.shiny && dex.shiny > 0);
   await (await page.$$('.tabs .chip'))[0].click();  // all
   await pause(200);
   await (await page.$$('.dexcell'))[0].click();

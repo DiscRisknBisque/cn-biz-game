@@ -1,12 +1,13 @@
 #!/usr/bin/env node
 /*
- * tools/simulate.js — play the whole game headlessly under several strategies
+ * tools/simulate.js — play every campaign headlessly under several strategies
  * and print where the stats and grades land.
  *
  * Run it after touching balance.js or any fx value:  node tools/simulate.js
  *
- * It also sanity-checks the content: every scene needs choices, every choice
- * needs both languages, and at least one choice must be the right answer.
+ * It also validates the content: every scene bilingual with a right answer,
+ * every dex entry complete, every rare reachable from exactly one scene, and
+ * every sprite row the right width.
  */
 'use strict';
 
@@ -14,10 +15,17 @@ var path = require('path');
 var C = require(path.join(__dirname, '..', 'js', 'content.js'));
 var B = require(path.join(__dirname, '..', 'js', 'balance.js'));
 
-var UNITS = C.CHAPTERS.concat([C.BOSS]);
-var MAX_POINTS = UNITS.reduce(function (n, u) { return n + u.scenes.length * 2; }, 0);
+function unitsOf(camp) { return camp.chapters.concat([camp.boss]); }
+function maxPointsOf(camp) {
+  return unitsOf(camp).reduce(function (n, u) { return n + u.scenes.length * 2; }, 0);
+}
 
 /* --- strategies -------------------------------------------------------- */
+
+function argOf(sc, pick) {
+  var scores = sc.choices.map(function (c) { return c.score; });
+  return scores.indexOf(pick.apply(null, scores));
+}
 
 var STRATEGIES = {
   best:     function (sc) { return argOf(sc, Math.max); },
@@ -31,33 +39,30 @@ var STRATEGIES = {
   random:   function (sc) { return Math.floor(Math.random() * sc.choices.length); }
 };
 
-function argOf(sc, pick) {
-  var scores = sc.choices.map(function (c) { return c.score; });
-  return scores.indexOf(pick.apply(null, scores));
-}
-
-function play(strategy) {
+function play(camp, strategy) {
   var stats = Object.assign({}, B.START);
   var points = 0;
+  var rares = 0;
 
-  UNITS.forEach(function (unit) {
+  unitsOf(camp).forEach(function (unit) {
     var unitPoints = 0;
     unit.scenes.forEach(function (sc) {
       var choice = sc.choices[strategy(sc)];
       B.applyFx(stats, choice.fx);
       unitPoints += choice.score;
+      if (sc.rare && choice.score === 2) rares++;
     });
     points += unitPoints;
     B.settle(stats, unitPoints, unit.scenes.length * 2);
   });
 
-  var score = B.score(stats, points, MAX_POINTS);
-  return { stats: stats, points: points, score: score, grade: gradeFor(score) };
+  var score = B.score(stats, points, maxPointsOf(camp));
+  return { stats: stats, points: points, score: score, rares: rares, grade: gradeFor(camp, score) };
 }
 
-function gradeFor(score) {
-  for (var i = 0; i < C.ENDINGS.length; i++) {
-    if (score >= C.ENDINGS[i].min) return C.ENDINGS[i].grade;
+function gradeFor(camp, score) {
+  for (var i = 0; i < camp.endings.length; i++) {
+    if (score >= camp.endings[i].min) return camp.endings[i].grade;
   }
   return '?';
 }
@@ -67,6 +72,7 @@ function gradeFor(score) {
 function checkContent() {
   var problems = [];
   var langs = ['zh', 'en'];
+  var seenDexIds = {};
 
   function bilingual(where, obj) {
     if (!obj) { problems.push(where + ': missing'); return; }
@@ -75,79 +81,97 @@ function checkContent() {
     });
   }
 
-  UNITS.forEach(function (unit) {
-    bilingual(unit.id + '.title', unit.title);
-    bilingual(unit.id + '.name', unit.name);
-    bilingual(unit.id + '.dexNote', unit.dexNote);
-    unit.scenes.forEach(function (sc, i) {
-      var at = unit.id + '#' + (i + 1);
-      bilingual(at + '.prompt', sc.prompt);
-      bilingual(at + '.tip', sc.tip);
-      bilingual(at + '.law', sc.law);
-      if (!sc.choices || sc.choices.length < 2) problems.push(at + ': needs at least 2 choices');
-      var best = 0;
-      (sc.choices || []).forEach(function (c, j) {
-        bilingual(at + '.choice' + (j + 1), c.text);
-        bilingual(at + '.choice' + (j + 1) + '.verdict', c.verdict);
-        if (![0, 1, 2].includes(c.score)) problems.push(at + '.choice' + (j + 1) + ': score must be 0, 1 or 2');
-        if (c.score === 2) best++;
-      });
-      if (best === 0) problems.push(at + ': no choice scores 2 — the scene has no right answer');
-    });
-  });
-
-  C.ENDINGS.forEach(function (e, i) {
-    bilingual('ending' + i + '.title', e.title);
-    bilingual('ending' + i + '.body', e.body);
-  });
-
   Object.keys(C.UI).forEach(function (k) { bilingual('UI.' + k, C.UI[k]); });
 
-  /* --- dex ------------------------------------------------------------- */
+  if (C.CAMPAIGNS.length < 1) problems.push('no campaigns defined');
 
-  var dexIds = {};
+  C.CAMPAIGNS.forEach(function (camp) {
+    var tag = camp.id;
+    bilingual(tag + '.title', camp.title);
+    bilingual(tag + '.subtitle', camp.subtitle);
+    bilingual(tag + '.blurb', camp.blurb);
+    if (!camp.icon) problems.push(tag + ': needs an icon sprite');
 
-  Object.keys(C.DEX_META).forEach(function (id) {
-    var m = C.DEX_META[id];
-    bilingual('DEX_META.' + id + '.type', m.type);
-    bilingual('DEX_META.' + id + '.weak', m.weak);
-    if (!(m.danger >= 0 && m.danger <= 5)) problems.push('DEX_META.' + id + ': danger must be 0-5');
-    if (!(m.rarity >= 1 && m.rarity <= 3)) problems.push('DEX_META.' + id + ': rarity must be 1-3');
-    dexIds[id] = true;
-  });
+    unitsOf(camp).forEach(function (unit) {
+      bilingual(tag + '/' + unit.id + '.title', unit.title);
+      bilingual(tag + '/' + unit.id + '.name', unit.name);
+      bilingual(tag + '/' + unit.id + '.dexNote', unit.dexNote);
+      bilingual(tag + '/' + unit.id + '.intro', unit.intro);
 
-  /* Every chapter, the boss and the bonus entry need metadata, or their dex
-     page renders with blank rows. */
-  UNITS.concat([C.BONUS_DEX]).forEach(function (u) {
-    if (!C.DEX_META[u.id]) problems.push('DEX_META is missing an entry for "' + u.id + '"');
-  });
-
-  C.RARES.concat([C.SECRET]).forEach(function (r) {
-    bilingual('rare.' + r.id + '.name', r.name);
-    bilingual('rare.' + r.id + '.type', r.type);
-    bilingual('rare.' + r.id + '.from', r.from);
-    bilingual('rare.' + r.id + '.note', r.note);
-    bilingual('rare.' + r.id + '.weak', r.weak);
-    if (dexIds[r.id]) problems.push('rare "' + r.id + '" collides with a chapter dex id');
-    dexIds[r.id] = true;
-  });
-
-  /* Every rare must be reachable: some scene has to point at it, and that
-     scene has to have a right answer to release it. */
-  var referenced = {};
-  UNITS.forEach(function (unit) {
-    unit.scenes.forEach(function (sc, i) {
-      if (!sc.rare) return;
-      var at = unit.id + '#' + (i + 1);
-      if (!C.RARES.some(function (r) { return r.id === sc.rare; })) {
-        problems.push(at + ': rare "' + sc.rare + '" is not in RARES');
-      }
-      if (referenced[sc.rare]) problems.push('rare "' + sc.rare + '" is triggered by more than one scene');
-      referenced[sc.rare] = at;
+      unit.scenes.forEach(function (sc, i) {
+        var at = tag + '/' + unit.id + '#' + (i + 1);
+        bilingual(at + '.prompt', sc.prompt);
+        bilingual(at + '.tip', sc.tip);
+        bilingual(at + '.law', sc.law);
+        if (!sc.choices || sc.choices.length < 2) problems.push(at + ': needs at least 2 choices');
+        var best = 0;
+        (sc.choices || []).forEach(function (c, j) {
+          bilingual(at + '.choice' + (j + 1), c.text);
+          bilingual(at + '.choice' + (j + 1) + '.verdict', c.verdict);
+          if ([0, 1, 2].indexOf(c.score) < 0) problems.push(at + '.choice' + (j + 1) + ': score must be 0, 1 or 2');
+          if (c.score === 2) best++;
+        });
+        if (best === 0) problems.push(at + ': no choice scores 2 — the scene has no right answer');
+      });
     });
-  });
-  C.RARES.forEach(function (r) {
-    if (!referenced[r.id]) problems.push('rare "' + r.id + '" is unreachable — no scene triggers it');
+
+    camp.endings.forEach(function (e, i) {
+      bilingual(tag + '.ending' + i + '.title', e.title);
+      bilingual(tag + '.ending' + i + '.body', e.body);
+      if (typeof e.min !== 'number') problems.push(tag + '.ending' + i + ': needs a numeric min');
+    });
+    if (!camp.endings.some(function (e) { return e.min === 0; })) {
+      problems.push(tag + ': endings need a floor at min 0, or a bad run falls through');
+    }
+
+    /* --- dex ----------------------------------------------------------- */
+
+    var dexUnits = unitsOf(camp).concat(camp.bonusDex ? [camp.bonusDex] : []);
+    dexUnits.forEach(function (u) {
+      var m = camp.dexMeta[u.id];
+      if (!m) { problems.push(tag + ': dexMeta is missing an entry for "' + u.id + '"'); return; }
+      bilingual(tag + '.dexMeta.' + u.id + '.type', m.type);
+      bilingual(tag + '.dexMeta.' + u.id + '.weak', m.weak);
+      if (!(m.danger >= 0 && m.danger <= 5)) problems.push(tag + '.dexMeta.' + u.id + ': danger must be 0-5');
+      if (!(m.rarity >= 1 && m.rarity <= 3)) problems.push(tag + '.dexMeta.' + u.id + ': rarity must be 1-3');
+    });
+    if (camp.bonusDex) {
+      bilingual(tag + '.bonusDex.name', camp.bonusDex.name);
+      bilingual(tag + '.bonusDex.dexNote', camp.bonusDex.dexNote);
+    }
+
+    camp.rares.concat([camp.secret]).forEach(function (r) {
+      bilingual(tag + '.' + r.id + '.name', r.name);
+      bilingual(tag + '.' + r.id + '.type', r.type);
+      bilingual(tag + '.' + r.id + '.from', r.from);
+      bilingual(tag + '.' + r.id + '.note', r.note);
+      bilingual(tag + '.' + r.id + '.weak', r.weak);
+    });
+
+    /* Ids are the keys the save file uses, so a collision would silently
+       merge two creatures into one. */
+    dexUnits.concat(camp.rares, [camp.secret]).forEach(function (e) {
+      if (seenDexIds[e.id]) problems.push('dex id "' + e.id + '" is used by both ' + seenDexIds[e.id] + ' and ' + tag);
+      seenDexIds[e.id] = tag;
+    });
+
+    /* Every rare must be reachable: exactly one scene points at it, and that
+       scene has a right answer to release it. */
+    var referenced = {};
+    unitsOf(camp).forEach(function (unit) {
+      unit.scenes.forEach(function (sc, i) {
+        if (!sc.rare) return;
+        var at = tag + '/' + unit.id + '#' + (i + 1);
+        if (!camp.rares.some(function (r) { return r.id === sc.rare; })) {
+          problems.push(at + ': rare "' + sc.rare + '" is not in this campaign\'s rares');
+        }
+        if (referenced[sc.rare]) problems.push(tag + ': rare "' + sc.rare + '" is triggered by more than one scene');
+        referenced[sc.rare] = at;
+      });
+    });
+    camp.rares.forEach(function (r) {
+      if (!referenced[r.id]) problems.push(tag + ': rare "' + r.id + '" is unreachable — no scene triggers it');
+    });
   });
 
   return problems;
@@ -158,6 +182,7 @@ function checkContent() {
 function checkSprites() {
   var fs = require('fs');
   var src = fs.readFileSync(path.join(__dirname, '..', 'js', 'pixel.js'), 'utf8');
+
   var palette = {};
   var palBlock = src.slice(src.indexOf('var PALETTE'), src.indexOf('var SPRITES'));
   /* Keys are written both bare (K: '#...') and quoted ('.': null). */
@@ -167,12 +192,14 @@ function checkSprites() {
   });
 
   var problems = [];
+  var names = {};
   var re = /(\w+):\s*\[([\s\S]*?)\]/g;
   var m;
   while ((m = re.exec(src))) {
     var name = m[1];
     var rows = (m[2].match(/'[^']*'/g) || []).map(function (r) { return r.slice(1, -1); });
     if (rows.length < 8) continue;
+    names[name] = true;
     var w = rows[0].length;
     rows.forEach(function (row, i) {
       if (row.length !== w) problems.push('sprite ' + name + ' row ' + i + ' is ' + row.length + ' wide, expected ' + w);
@@ -183,6 +210,17 @@ function checkSprites() {
       });
     });
   }
+
+  /* Every creature the content refers to has to actually exist as art. */
+  C.CAMPAIGNS.forEach(function (camp) {
+    var refs = [camp.icon];
+    unitsOf(camp).concat(camp.bonusDex ? [camp.bonusDex] : [], camp.rares, [camp.secret])
+      .forEach(function (u) { refs.push(u.monster); });
+    refs.forEach(function (r) {
+      if (r && !names[r]) problems.push(camp.id + ': references sprite "' + r + '", which does not exist');
+    });
+  });
+
   return problems;
 }
 
@@ -193,49 +231,61 @@ if (problems.length) {
   console.log('CONTENT PROBLEMS (' + problems.length + '):');
   problems.slice(0, 40).forEach(function (p) { console.log('  - ' + p); });
   if (problems.length > 40) console.log('  ... and ' + (problems.length - 40) + ' more');
+  console.log('');
 } else {
-  console.log('Content OK — ' + UNITS.length + ' units, ' +
-              UNITS.reduce(function (n, u) { return n + u.scenes.length; }, 0) +
-              ' scenes, ' + MAX_POINTS + ' points available, ' +
-              (Object.keys(C.DEX_META).length + C.RARES.length + 1) + ' dex entries.\n');
+  var scenes = 0, dex = 0;
+  C.CAMPAIGNS.forEach(function (camp) {
+    unitsOf(camp).forEach(function (u) { scenes += u.scenes.length; });
+    dex += unitsOf(camp).length + (camp.bonusDex ? 1 : 0) + camp.rares.length + 1;
+  });
+  console.log('Content OK — ' + C.CAMPAIGNS.length + ' campaigns, ' + scenes +
+              ' scenes, ' + dex + ' dex entries.\n');
 }
 
-function row(label, r) {
+function row(label, r, max) {
   var s = r.stats;
   console.log(
-    label.padEnd(10) +
+    '  ' + label.padEnd(10) +
     'grade ' + r.grade +
     '  score ' + String(r.score).padStart(3) +
-    '  pts ' + String(r.points).padStart(2) + '/' + MAX_POINTS +
+    '  pts ' + String(r.points).padStart(2) + '/' + max +
     '   cash ' + String(s.cash).padStart(3) +
     '  compliance ' + String(s.comp).padStart(3) +
     '  reputation ' + String(s.rep).padStart(3) +
     '  energy ' + String(s.energy).padStart(3));
 }
 
-['best', 'cheapest', 'worst'].forEach(function (name) {
-  row(name, play(STRATEGIES[name]));
-});
+C.CAMPAIGNS.forEach(function (camp) {
+  var max = maxPointsOf(camp);
+  console.log(camp.id + ' — ' + camp.title.en + '  (' + camp.chapters.length + ' chapters, ' + max + ' points)');
 
-/* Average a batch of coin-flip runs so the middle of the curve is visible. */
-var N = 400;
-var acc = { score: 0, cash: 0, comp: 0, rep: 0, energy: 0, points: 0 };
-var grades = {};
-for (var i = 0; i < N; i++) {
-  var r = play(STRATEGIES.random);
-  acc.score += r.score; acc.points += r.points;
-  acc.cash += r.stats.cash; acc.comp += r.stats.comp;
-  acc.rep += r.stats.rep; acc.energy += r.stats.energy;
-  grades[r.grade] = (grades[r.grade] || 0) + 1;
-}
-console.log('random    grade ' + Object.keys(grades).sort().map(function (g) {
-  return g + ':' + Math.round((grades[g] / N) * 100) + '%';
-}).join(' ') +
-  '  score ' + Math.round(acc.score / N) +
-  '  pts ' + Math.round(acc.points / N) + '/' + MAX_POINTS +
-  '   cash ' + Math.round(acc.cash / N) +
-  '  compliance ' + Math.round(acc.comp / N) +
-  '  reputation ' + Math.round(acc.rep / N) +
-  '  energy ' + Math.round(acc.energy / N) + '   (mean of ' + N + ' runs)');
+  ['best', 'cheapest', 'worst'].forEach(function (name) {
+    row(name, play(camp, STRATEGIES[name]), max);
+  });
+
+  /* Average a batch of coin-flip runs so the middle of the curve is visible. */
+  var N = 400;
+  var acc = { score: 0, points: 0, cash: 0, comp: 0, rep: 0, energy: 0 };
+  var grades = {};
+  for (var i = 0; i < N; i++) {
+    var r = play(camp, STRATEGIES.random);
+    acc.score += r.score; acc.points += r.points;
+    acc.cash += r.stats.cash; acc.comp += r.stats.comp;
+    acc.rep += r.stats.rep; acc.energy += r.stats.energy;
+    grades[r.grade] = (grades[r.grade] || 0) + 1;
+  }
+  console.log('  random    grade ' + Object.keys(grades).sort().map(function (g) {
+    return g + ':' + Math.round((grades[g] / N) * 100) + '%';
+  }).join(' ') +
+    '  score ' + Math.round(acc.score / N) +
+    '  pts ' + Math.round(acc.points / N) + '/' + max +
+    '   cash ' + Math.round(acc.cash / N) +
+    '  compliance ' + Math.round(acc.comp / N) +
+    '  reputation ' + Math.round(acc.rep / N) +
+    '  energy ' + Math.round(acc.energy / N));
+
+  var perfect = play(camp, STRATEGIES.best);
+  console.log('  a perfect run releases ' + perfect.rares + '/' + camp.rares.length + ' rares\n');
+});
 
 process.exit(problems.length ? 1 : 0);

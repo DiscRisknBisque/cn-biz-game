@@ -4,6 +4,9 @@
  * There is one view element; every state change rebuilds it. The game is small
  * enough that re-rendering wholesale is simpler, and cheaper to reason about,
  * than keeping a diff of the DOM in sync with the save file.
+ *
+ * Two campaigns share this engine. Progress is tracked per route; the dex is
+ * shared, numbered continuously across both.
  */
 (function (global) {
   'use strict';
@@ -14,13 +17,19 @@
   var Sound = global.Sound;
 
   var SAVE_KEY = 'cnbizgame.save.v1';
-  var TOTAL_CHAPTERS = C.CHAPTERS.length;
-
-  /* Points available across the whole run — used to normalise the final score. */
-  var MAX_POINTS = C.CHAPTERS.reduce(function (n, ch) { return n + ch.scenes.length * 2; }, 0)
-                 + C.BOSS.scenes.length * 2;
 
   /* ------------------------------------------------------------------ state */
+
+  function freshRun() {
+    return {
+      unlocked: 0,          // index of the next chapter that may be played
+      cleared: {},          // chapter id -> points scored
+      bossHp: 100,
+      bossDone: false,
+      finished: false,
+      stats: Object.assign({}, B.START)
+    };
+  }
 
   function freshState() {
     return {
@@ -29,14 +38,10 @@
       sound: true,
       hero: 'hero1',
       started: false,
-      unlocked: 0,          // index of the next chapter that may be played
-      cleared: {},          // chapterId -> points scored
+      campaign: null,       // null until a route is picked
+      runs: {},             // campaign id -> run
       dex: {},              // dex id -> 'seen' | 'caught'
-      shiny: {},            // dex id -> true, earned by a flawless chapter
-      bossHp: 100,
-      bossDone: false,
-      finished: false,
-      stats: Object.assign({}, B.START)
+      shiny: {}             // dex id -> true, earned by a flawless chapter
     };
   }
 
@@ -59,15 +64,58 @@
       var raw = localStorage.getItem(SAVE_KEY);
       if (!raw) return false;
       var s = JSON.parse(raw);
-      if (!s || !s.stats) return false;
-      /* Merge onto a fresh state so a save from an older build cannot leave
-         a key undefined. */
+      if (!s) return false;
+
       var base = freshState();
       Object.keys(base).forEach(function (k) { if (k in s) base[k] = s[k]; });
-      base.stats = Object.assign(freshState().stats, s.stats || {});
+
+      /* Saves from before the second route kept a single run at the top level.
+         Fold it into the foreign route rather than dropping someone's progress. */
+      var migrated = false;
+      if (!s.runs && s.stats) {
+        migrated = true;
+        base.runs = {
+          foreign: {
+            unlocked: s.unlocked || 0,
+            cleared: s.cleared || {},
+            bossHp: typeof s.bossHp === 'number' ? s.bossHp : 100,
+            bossDone: !!s.bossDone,
+            finished: !!s.finished,
+            stats: Object.assign({}, B.START, s.stats)
+          }
+        };
+        base.campaign = 'foreign';
+      }
+
+      /* Fill in anything a partial or hand-edited save left out. */
+      Object.keys(base.runs).forEach(function (id) {
+        base.runs[id] = Object.assign(freshRun(), base.runs[id]);
+        base.runs[id].stats = Object.assign({}, B.START, base.runs[id].stats);
+      });
+
       state = base;
+      /* Write the migrated shape straight back so the old one stops lingering
+         and every later load takes the fast path. */
+      if (migrated) save();
       return true;
     } catch (e) { return false; }
+  }
+
+  /* --------------------------------------------------------------- campaign */
+
+  function cur() { return C.campaign(state.campaign || C.CAMPAIGNS[0].id); }
+
+  function run() {
+    var id = (state.campaign || C.CAMPAIGNS[0].id);
+    if (!state.runs[id]) state.runs[id] = freshRun();
+    return state.runs[id];
+  }
+
+  function runOf(id) { return state.runs[id] || null; }
+
+  function maxPoints(camp) {
+    return camp.chapters.reduce(function (n, ch) { return n + ch.scenes.length * 2; }, 0)
+         + camp.boss.scenes.length * 2;
   }
 
   /* ----------------------------------------------------------------- helpers */
@@ -132,51 +180,60 @@
   }
 
   function totalPoints() {
-    var n = 0;
-    Object.keys(state.cleared).forEach(function (k) { n += state.cleared[k]; });
+    var r = run(), n = 0;
+    Object.keys(r.cleared).forEach(function (k) { n += r.cleared[k]; });
     return n;
   }
 
   function finalScore() {
-    return B.score(state.stats, totalPoints(), MAX_POINTS);
+    return B.score(run().stats, totalPoints(), maxPoints(cur()));
   }
 
   function endingFor(score) {
-    for (var i = 0; i < C.ENDINGS.length; i++) {
-      if (score >= C.ENDINGS[i].min) return C.ENDINGS[i];
+    var list = cur().endings;
+    for (var i = 0; i < list.length; i++) {
+      if (score >= list[i].min) return list[i];
     }
-    return C.ENDINGS[C.ENDINGS.length - 1];
+    return list[list.length - 1];
   }
 
-  /* The dex roster, in numbered order: the ten chapter creatures, then the six
-     rare encounters, then the secret. Chapter entries take their name and
-     flavour from the chapter itself so the two can never drift apart. */
+  /* ------------------------------------------------------------------- dex */
+
+  /* One roster across every campaign, numbered continuously: play both routes
+     and the numbers keep going up. Chapter entries take their name and flavour
+     from the chapter itself so the two can never drift apart. */
   var DEX = (function () {
-    function fromUnit(u, from) {
-      var meta = C.DEX_META[u.id] || {};
-      return {
-        id: u.id, monster: u.monster, name: u.name, note: u.dexNote,
-        from: from, type: meta.type, danger: meta.danger, rarity: meta.rarity, weak: meta.weak
-      };
-    }
-    var list = C.CHAPTERS.map(function (ch, i) {
-      return fromUnit(ch, {
-        zh: '第' + (i + 1) + '章 · ' + ch.title.zh,
-        en: 'Ch.' + (i + 1) + ' · ' + ch.title.en
+    var list = [];
+
+    C.CAMPAIGNS.forEach(function (camp) {
+      function fromUnit(u, from) {
+        var meta = camp.dexMeta[u.id] || {};
+        return {
+          id: u.id, monster: u.monster, name: u.name, note: u.dexNote, campaign: camp.id,
+          from: from, type: meta.type, danger: meta.danger, rarity: meta.rarity, weak: meta.weak
+        };
+      }
+      camp.chapters.forEach(function (ch, i) {
+        list.push(fromUnit(ch, {
+          zh: '第' + (i + 1) + '章 · ' + ch.title.zh,
+          en: 'Ch.' + (i + 1) + ' · ' + ch.title.en
+        }));
       });
+      list.push(fromUnit(camp.boss, camp.boss.title));
+      if (camp.bonusDex) list.push(fromUnit(camp.bonusDex, camp.bonusDex.title));
+      camp.rares.forEach(function (r) {
+        list.push(Object.assign({ campaign: camp.id }, r));
+      });
+      list.push(Object.assign({ campaign: camp.id, secret: true }, camp.secret));
     });
-    list.push(fromUnit(C.BOSS, C.BOSS.title));
-    list.push(fromUnit(C.BONUS_DEX, C.BONUS_DEX.title));
-    C.RARES.forEach(function (r) { list.push(r); });
-    list.push(C.SECRET);
+
     list.forEach(function (e, i) { e.no = i + 1; });
     return list;
   })();
 
-  /* Everything except the secret, which is the reward for completing them. */
-  var DEX_MAIN = DEX.filter(function (e) { return e.id !== C.SECRET.id; });
-
-  function dexEntries() { return DEX; }
+  function dexOf(campaignId) {
+    return DEX.filter(function (e) { return e.campaign === campaignId; });
+  }
 
   function dexEntry(id) {
     for (var i = 0; i < DEX.length; i++) if (DEX[i].id === id) return DEX[i];
@@ -195,19 +252,22 @@
     return list.filter(function (e) { return state.dex[e.id] === 'caught'; }).length;
   }
 
-  /* The secret unlocks the moment every other entry has been caught. Returns
-     true only on the transition, so the caller can celebrate it once. */
-  function checkSecret() {
-    if (state.dex[C.SECRET.id]) return false;
-    if (caughtCount(DEX_MAIN) < DEX_MAIN.length) return false;
-    state.dex[C.SECRET.id] = 'caught';
-    return true;
+  /* Each route has its own secret, unlocked by catching everything else on that
+     route. Returns the entry only on the transition, so it is celebrated once. */
+  function checkSecret(campaignId) {
+    var all = dexOf(campaignId);
+    var secret = all.filter(function (e) { return e.secret; })[0];
+    if (!secret || state.dex[secret.id]) return null;
+    var rest = all.filter(function (e) { return !e.secret; });
+    if (caughtCount(rest) < rest.length) return null;
+    state.dex[secret.id] = 'caught';
+    return secret;
   }
 
   /* ------------------------------------------------------------ shared parts */
 
   function statBar(key, iconName, labelKey) {
-    var val = state.stats[key];
+    var val = run().stats[key];
     var max = LIMITS[key][1];
     var pct = Math.round((val / max) * 100);
     var cls = 'bar' + (pct <= 20 ? ' dead' : pct <= 45 ? ' warn' : '');
@@ -260,7 +320,7 @@
   }
 
   function topbar() {
-    var bar = h('div', { class: 'topbar' }, [
+    return h('div', { class: 'topbar' }, [
       h('div', {
         class: 'chip', text: ui('langBtn'), title: 'Language',
         onclick: function () {
@@ -278,7 +338,6 @@
         }
       })
     ]);
-    return bar;
   }
 
   /* Reveal text one character at a time; tapping anywhere finishes it early.
@@ -310,17 +369,12 @@
   /* ----------------------------------------------------------------- screens */
 
   function screenTitle() {
-    /* A finished run is not a resumable one — it offers a fresh start instead. */
-    var canContinue = state.started && !state.finished;
+    var r = state.campaign ? runOf(state.campaign) : null;
+    var canContinue = state.started && r && !r.finished;
 
     function newGame() {
       Sound.play('select');
-      state = Object.assign(freshState(), {
-        lang: state.lang, sound: state.sound, hero: state.hero,
-        dex: state.dex, shiny: state.shiny
-      });
-      save();
-      go('hero');
+      go(state.started ? 'routes' : 'hero');
     }
 
     return [
@@ -342,8 +396,8 @@
             class: 'btn primary center', onclick: newGame
           }, [h('strong', { text: ui('start') })]),
       canContinue
-        ? h('button', { class: 'btn center', onclick: newGame },
-            [h('strong', { text: ui('newGame') })])
+        ? h('button', { class: 'btn center', onclick: function () { Sound.play('blip'); go('routes'); } },
+            [h('strong', { text: ui('switchRoute') })])
         : null,
       h('button', {
         class: 'btn center', onclick: function () { Sound.play('blip'); go('dex'); }
@@ -397,16 +451,65 @@
       ]),
       h('button', {
         class: 'btn primary center', onclick: function () {
-          state.started = true; Sound.play('select'); save(); go('map');
+          state.started = true; Sound.play('select'); save(); go('routes');
         }
       }, [h('strong', { text: ui('confirm') })])
     ];
   }
 
+  /* Route select. Each card shows how far that route has got, so coming back
+     to a half-finished one is obvious. */
+  function screenRoutes() {
+    var cards = C.CAMPAIGNS.map(function (camp) {
+      var r = runOf(camp.id);
+      var total = camp.chapters.length;
+      var done = r ? Object.keys(r.cleared).filter(function (k) { return k !== camp.boss.id; }).length : 0;
+      var badge = !r ? ui('routeNew')
+                : r.finished ? ui('routeCleared')
+                : done + '/' + total;
+
+      return h('div', {
+        class: 'route' + (state.campaign === camp.id ? ' sel' : ''),
+        onclick: function () {
+          state.campaign = camp.id;
+          run();                      // materialise the run if it is new
+          Sound.play('select');
+          save();
+          go('map');
+        }
+      }, [
+        h('div', { class: 'route-head' }, [
+          sprite(camp.icon, 4),
+          h('div', { class: 'route-txt' }, [
+            h('div', { class: 'route-title', text: T(camp.title) }),
+            h('div', { class: 'route-sub', text: T(camp.subtitle) })
+          ]),
+          h('div', { class: 'route-badge', text: badge })
+        ]),
+        h('p', { class: 'small', text: T(camp.blurb) })
+      ]);
+    });
+
+    return [
+      h('div', { class: 'panel double' }, [
+        h('div', { class: 'eyebrow', text: ui('chooseRoute') }),
+        h('div', { class: 'h-sub', text: ui('routeHint') })
+      ])
+    ].concat(cards, [
+      h('div', { class: 'gap' }),
+      h('button', {
+        class: 'btn center', onclick: function () { Sound.play('back'); go('title'); }
+      }, [h('strong', { text: ui('back') })])
+    ]);
+  }
+
   function screenMap() {
-    var nodes = C.CHAPTERS.map(function (ch, i) {
-      var locked = i > state.unlocked;
-      var done = ch.id in state.cleared;
+    var camp = cur();
+    var r = run();
+
+    var nodes = camp.chapters.map(function (ch, i) {
+      var locked = i > r.unlocked;
+      var done = ch.id in r.cleared;
       return h('div', {
         class: 'node' + (locked ? ' locked' : '') + (done ? ' done' : ''),
         onclick: function () {
@@ -420,34 +523,33 @@
           h('div', { class: 'n-title', text: (state.lang === 'zh' ? '第' + (i + 1) + '章 · ' : 'Ch.' + (i + 1) + ' · ') + T(ch.title) }),
           h('div', { class: 'n-sub', text: T(ch.subtitle) })
         ]),
-        h('div', { class: 'n-badge', text: locked ? '🔒' : done ? '★ ' + state.cleared[ch.id] + '/' + (ch.scenes.length * 2) : '▶' })
+        h('div', { class: 'n-badge', text: locked ? '🔒' : done ? '★ ' + r.cleared[ch.id] + '/' + (ch.scenes.length * 2) : '▶' })
       ]);
     });
 
-    var bossLocked = state.unlocked < TOTAL_CHAPTERS;
+    var bossLocked = r.unlocked < camp.chapters.length;
     nodes.push(h('div', {
-      class: 'node' + (bossLocked ? ' locked' : '') + (state.bossDone ? ' done' : ''),
+      class: 'node' + (bossLocked ? ' locked' : '') + (r.bossDone ? ' done' : ''),
       onclick: function () {
         if (bossLocked) { Sound.play('bad'); return; }
         Sound.play('select');
-        if (state.bossDone) { go('result'); return; }
+        if (r.bossDone) { go('result'); return; }
         startBoss();
       }
     }, [
-      h('div', { class: 'art' }, [sprite(C.BOSS.monster, 3)]),
+      h('div', { class: 'art' }, [sprite(camp.boss.monster, 3)]),
       h('div', { class: 'txt' }, [
-        h('div', { class: 'n-title', text: T(C.BOSS.title) }),
-        h('div', { class: 'n-sub', text: T(C.BOSS.subtitle) })
+        h('div', { class: 'n-title', text: T(camp.boss.title) }),
+        h('div', { class: 'n-sub', text: T(camp.boss.subtitle) })
       ]),
-      h('div', { class: 'n-badge', text: bossLocked ? '🔒' : state.bossDone ? '★' : '!' })
+      h('div', { class: 'n-badge', text: bossLocked ? '🔒' : r.bossDone ? '★' : '!' })
     ]));
 
     return [
       h('div', { class: 'panel double' }, [
-        h('div', { class: 'eyebrow', text: ui('map') }),
-        h('div', { class: 'h-sub', text: state.lang === 'zh'
-          ? '进度 ' + Math.min(state.unlocked, TOTAL_CHAPTERS) + '/' + TOTAL_CHAPTERS
-          : 'Progress ' + Math.min(state.unlocked, TOTAL_CHAPTERS) + '/' + TOTAL_CHAPTERS })
+        h('div', { class: 'eyebrow', text: ui('map') + ' · ' + T(camp.title) }),
+        h('div', { class: 'h-sub', text: (state.lang === 'zh' ? '进度 ' : 'Progress ') +
+          Math.min(r.unlocked, camp.chapters.length) + '/' + camp.chapters.length })
       ]),
       statsPanel(),
       h('div', { class: 'map' }, nodes),
@@ -455,6 +557,9 @@
       h('button', {
         class: 'btn center', onclick: function () { Sound.play('blip'); go('dex'); }
       }, [h('strong', { text: ui('dex') })]),
+      h('button', {
+        class: 'btn center', onclick: function () { Sound.play('blip'); go('routes'); }
+      }, [h('strong', { text: ui('switchRoute') })]),
       h('button', {
         class: 'btn center', onclick: function () { Sound.play('back'); go('title'); }
       }, [h('strong', { text: ui('back') })])
@@ -490,7 +595,7 @@
   function screenScene() {
     var ch = view.chapter;
     var sc = ch.scenes[view.sceneIdx];
-    var isBoss = ch.id === 'boss';
+    var isBoss = ch === cur().boss;
 
     var head = [
       h('div', { class: 'panel double' }, [
@@ -501,9 +606,9 @@
 
     if (isBoss) {
       var hp = h('i');
-      requestAnimationFrame(function () { hp.style.width = state.bossHp + '%'; });
+      requestAnimationFrame(function () { hp.style.width = run().bossHp + '%'; });
       head.unshift(h('div', { class: 'panel' }, [
-        h('div', { class: 'eyebrow', text: T(C.BOSS.name) + ' — ' + ui('bossHp') }),
+        h('div', { class: 'eyebrow', text: T(ch.name) + ' — ' + ui('bossHp') }),
         h('div', { class: 'hpbar' }, [hp])
       ]));
     }
@@ -530,9 +635,10 @@
     var ch = view.chapter;
     var sc = ch.scenes[view.sceneIdx];
     var choice = sc.choices[i];
+    var r = run();
 
     view.picked = i;
-    view.applied = B.applyFx(state.stats, choice.fx);
+    view.applied = B.applyFx(r.stats, choice.fx);
     view.runPoints += choice.score;
 
     /* Rare encounters are released by nailing one specific question, so they
@@ -543,11 +649,11 @@
       view.rare = dexEntry(sc.rare);
     }
 
-    if (ch.id === 'boss') {
+    if (ch === cur().boss) {
       var dmg = choice.score === 2 ? 30 : choice.score === 1 ? 12 : 0;
-      state.bossHp = Math.max(0, state.bossHp - dmg);
+      r.bossHp = Math.max(0, r.bossHp - dmg);
       if (choice.score === 0) {
-        state.stats.energy = clamp('energy', state.stats.energy - 8);
+        r.stats.energy = clamp('energy', r.stats.energy - 8);
         var st = document.getElementById('stage');
         if (st) { st.classList.add('shake'); }
       }
@@ -615,7 +721,7 @@
         class: 'btn primary center', onclick: function () {
           Sound.play('select');
           if (!last) { view.sceneIdx++; view.screen = 'scene'; render(); }
-          else if (ch.id === 'boss') { finishBoss(); }
+          else if (ch === cur().boss) { finishBoss(); }
           else { finishChapter(); }
         }
       }, [h('strong', { text: ui('next') })])
@@ -646,7 +752,7 @@
           h('span', { class: 'stat-num', text: view.runPoints + ' / ' + max })
         ])
       ]),
-      view.secret ? secretPanel() : null,
+      view.secret ? secretPanel(view.secret) : null,
       settlementPanel(),
       statsPanel(),
       h('button', {
@@ -655,14 +761,14 @@
     ];
   }
 
-  /* Shown once, the moment the last missing entry is filled in. */
-  function secretPanel() {
+  /* Shown once, the moment the last missing entry on a route is filled in. */
+  function secretPanel(entry) {
     return h('div', { class: 'panel double tint' }, [
       h('div', { class: 'rare-row' }, [
-        sprite(C.SECRET.monster, 4),
+        sprite(entry.monster, 4),
         h('div', {}, [
           h('div', { class: 'rare-title', text: ui('secretGot') }),
-          h('div', { class: 'rare-name', text: 'No.' + pad(DEX.length) + '  ' + T(C.SECRET.name) })
+          h('div', { class: 'rare-name', text: 'No.' + pad(entry.no) + '  ' + T(entry.name) })
         ])
       ])
     ]);
@@ -676,18 +782,16 @@
 
   function screenDex() {
     var filter = DEX_FILTERS[view.dexFilter] ? view.dexFilter : 'all';
-    var shown = DEX.filter(DEX_FILTERS[filter]);
 
-    var cells = shown.map(function (e) {
+    function cell(e) {
       var st = state.dex[e.id];
       var isShiny = !!state.shiny[e.id];
-      var locked = !st && e.id === C.SECRET.id;
       return h('div', {
         class: 'dexcell' + (st === 'caught' ? ' caught' : st ? '' : ' unseen') + (isShiny ? ' shinycell' : ''),
         onclick: function () {
-          /* Only the secret explains itself; the rest just stay silent
-             silhouettes, which is half the point of a dex. */
-          if (!st) { Sound.play('bad'); if (locked) toast(ui('dexLocked')); return; }
+          /* Only the secret explains itself; the rest stay silent silhouettes,
+             which is half the point of a dex. */
+          if (!st) { Sound.play('bad'); if (e.secret) toast(ui('dexLocked')); return; }
           Sound.play('blip');
           view.dexEntry = e;
           view.screen = 'dexdetail';
@@ -700,6 +804,19 @@
         h('div', { class: 'st', text: st === 'caught' ? ui('owned') : st ? ui('seen') : '—' }),
         isShiny ? h('div', { class: 'shinymark', text: '✦' }) : null
       ]);
+    }
+
+    /* Grouped by route so the dex reads as two collections, not one long list. */
+    var sections = [];
+    C.CAMPAIGNS.forEach(function (camp) {
+      var entries = dexOf(camp.id).filter(DEX_FILTERS[filter]);
+      if (!entries.length) return;
+      var all = dexOf(camp.id);
+      sections.push(h('div', { class: 'dexsection' }, [
+        h('span', { text: T(camp.title) }),
+        h('span', { class: 'stat-num', text: caughtCount(all) + '/' + all.length })
+      ]));
+      sections.push(h('div', { class: 'dexgrid' }, entries.map(cell)));
     });
 
     var caught = caughtCount(DEX);
@@ -733,13 +850,13 @@
       ]),
       caught === 0 && filter === 'all'
         ? h('div', { class: 'panel double center' }, [h('p', { class: 'small', text: ui('dexEmpty') })])
-        : null,
-      h('div', { class: 'dexgrid' }, cells),
+        : null
+    ].concat(sections, [
       h('div', { class: 'gap' }),
       h('button', {
-        class: 'btn center', onclick: function () { Sound.play('back'); go(state.started ? 'map' : 'title'); }
+        class: 'btn center', onclick: function () { Sound.play('back'); go(state.campaign ? 'map' : 'title'); }
       }, [h('strong', { text: ui('back') })])
-    ];
+    ]);
   }
 
   function screenDexDetail() {
@@ -791,28 +908,29 @@
   }
 
   function screenResult() {
+    var camp = cur();
+    var r = run();
     var score = finalScore();
     var ending = endingFor(score);
-    var entries = dexEntries();
-    var caught = entries.filter(function (e) { return state.dex[e.id] === 'caught'; }).length;
+    var mine = dexOf(camp.id);
 
-    playOnce('result', score >= 55 ? 'fanfare' : 'gameover');
+    playOnce('result:' + camp.id, score >= 55 ? 'fanfare' : 'gameover');
 
-    var rows = C.CHAPTERS.map(function (ch) {
-      var got = state.cleared[ch.id];
+    var rows = camp.chapters.map(function (ch) {
+      var got = r.cleared[ch.id];
       return h('div', { class: 'row' }, [
         h('span', { text: T(ch.title) + ' · ' + T(ch.subtitle) }),
         h('span', { class: 'stat-num', text: (got == null ? '—' : got) + '/' + (ch.scenes.length * 2) })
       ]);
     });
     rows.push(h('div', { class: 'row' }, [
-      h('span', { text: T(C.BOSS.title) }),
-      h('span', { class: 'stat-num', text: (state.cleared.boss == null ? '—' : state.cleared.boss) + '/' + (C.BOSS.scenes.length * 2) })
+      h('span', { text: T(camp.boss.title) }),
+      h('span', { class: 'stat-num', text: (r.cleared[camp.boss.id] == null ? '—' : r.cleared[camp.boss.id]) + '/' + (camp.boss.scenes.length * 2) })
     ]));
 
     return [
       h('div', { class: 'panel double center' }, [
-        h('div', { class: 'eyebrow', text: ui('finalTitle') }),
+        h('div', { class: 'eyebrow', text: ui('finalTitle') + ' · ' + T(camp.title) }),
         h('div', { class: 'grade', text: ending.grade }),
         h('div', { class: 'h-title', text: T(ending.title) }),
         h('div', { class: 'scoreline', style: 'justify-content:center;gap:10px;margin-top:8px' }, [
@@ -831,42 +949,53 @@
         h('div', { class: 'eyebrow', text: state.lang === 'zh' ? '分章得分' : 'BY CHAPTER' }),
         h('div', { class: 'breakdown' }, rows)
       ]),
+      h('div', { class: 'panel double' }, [
+        h('div', { class: 'scoreline' }, [
+          h('span', { text: ui('dex') + ' · ' + T(camp.title) }),
+          h('span', { class: 'stat-num', text: caughtCount(mine) + '/' + mine.length })
+        ])
+      ]),
       statsPanel(),
       h('div', { class: 'panel double bad' }, [
         h('div', { class: 'label', text: ui('disclaimerT') }),
         h('p', { class: 'small', text: ui('disclaimer') })
       ]),
       h('button', {
-        class: 'btn primary center', onclick: function () { copyResult(score, ending, caught, entries.length); }
+        class: 'btn primary center', onclick: function () { copyResult(score, ending); }
       }, [h('strong', { text: ui('share') })]),
       h('button', {
         class: 'btn center', onclick: function () { Sound.play('blip'); go('dex'); }
       }, [h('strong', { text: ui('dex') })]),
       h('button', {
+        class: 'btn center', onclick: function () { Sound.play('blip'); go('routes'); }
+      }, [h('strong', { text: ui('switchRoute') })]),
+      h('button', {
         class: 'btn center', onclick: function () {
           Sound.play('select');
-          state = Object.assign(freshState(), {
-            lang: state.lang, sound: state.sound, hero: state.hero,
-            dex: state.dex, shiny: state.shiny
-          });
+          /* Replaying a route resets that route only; the dex is kept. */
+          state.runs[camp.id] = freshRun();
           save();
-          go('title');
+          go('map');
         }
       }, [h('strong', { text: ui('retry') })])
     ];
   }
 
-  function copyResult(score, ending, caught, total) {
+  function copyResult(score, ending) {
+    var camp = cur();
+    var r = run();
+    var caught = caughtCount(DEX);
     var shinies = DEX.filter(function (e) { return state.shiny[e.id]; }).length;
+
     var text = state.lang === 'zh'
-      ? [T(C.UI.title) + T(C.UI.title2),
+      ? [T(C.UI.title) + T(C.UI.title2) + ' · ' + T(camp.title),
          '成绩：' + ending.grade + ' 级 · ' + T(ending.title) + '（' + score + ' 分）',
-         '法律图鉴：' + caught + '/' + total + ' 已捕获 · 闪光 ' + shinies,
-         '合规 ' + state.stats.comp + ' · 声誉 ' + state.stats.rep + ' · 资金 ' + state.stats.cash].join('\n')
-      : ['Can You Really Run a Business in China?',
+         '法律图鉴：' + caught + '/' + DEX.length + ' 已捕获 · 闪光 ' + shinies,
+         '合规 ' + r.stats.comp + ' · 声誉 ' + r.stats.rep + ' · 资金 ' + r.stats.cash].join('\n')
+      : ['Can You Really Run a Business in China? — ' + T(camp.title),
          'Result: grade ' + ending.grade + ' — ' + T(ending.title) + ' (' + score + ' pts)',
-         'Law Dex: ' + caught + '/' + total + ' caught, ' + shinies + ' shiny',
-         'Compliance ' + state.stats.comp + ' · Reputation ' + state.stats.rep + ' · Cash ' + state.stats.cash].join('\n');
+         'Law Dex: ' + caught + '/' + DEX.length + ' caught, ' + shinies + ' shiny',
+         'Compliance ' + r.stats.comp + ' · Reputation ' + r.stats.rep + ' · Cash ' + r.stats.cash].join('\n');
 
     function fallback() {
       var ta = document.createElement('textarea');
@@ -895,16 +1024,20 @@
     view.sceneIdx = 0;
     view.picked = null;
     view.runPoints = 0;
+    view.shiny = false;
+    view.secret = null;
     view.screen = 'intro';
     render();
   }
 
   function finishChapter() {
+    var camp = cur();
+    var r = run();
     var ch = view.chapter;
     var max = ch.scenes.length * 2;
-    var prev = state.cleared[ch.id];
+    var prev = r.cleared[ch.id];
     /* Replaying a chapter keeps your best run rather than punishing curiosity. */
-    state.cleared[ch.id] = prev == null ? view.runPoints : Math.max(prev, view.runPoints);
+    r.cleared[ch.id] = prev == null ? view.runPoints : Math.max(prev, view.runPoints);
 
     var caught = view.runPoints >= catchThreshold(ch);
     if (caught) state.dex[ch.id] = 'caught';
@@ -918,11 +1051,11 @@
       view.shiny = true;
     }
 
-    var idx = C.CHAPTERS.indexOf(ch);
-    if (idx >= 0 && idx === state.unlocked) state.unlocked = idx + 1;
+    var idx = camp.chapters.indexOf(ch);
+    if (idx >= 0 && idx === r.unlocked) r.unlocked = idx + 1;
 
-    view.settlement = B.settle(state.stats, view.runPoints, max);
-    view.secret = checkSecret();
+    view.settlement = B.settle(r.stats, view.runPoints, max);
+    view.secret = checkSecret(camp.id);
 
     save();
     view.screen = 'capture';
@@ -930,9 +1063,10 @@
   }
 
   function startBoss() {
-    state.bossHp = 100;
+    var r = run();
+    r.bossHp = 100;
     save();
-    view.chapter = C.BOSS;
+    view.chapter = cur().boss;
     view.sceneIdx = 0;
     view.picked = null;
     view.runPoints = 0;
@@ -941,24 +1075,29 @@
   }
 
   function finishBoss() {
-    var max = C.BOSS.scenes.length * 2;
-    var prev = state.cleared.boss;
-    state.cleared.boss = prev == null ? view.runPoints : Math.max(prev, view.runPoints);
+    var camp = cur();
+    var r = run();
+    var boss = camp.boss;
+    var max = boss.scenes.length * 2;
+    var prev = r.cleared[boss.id];
+    r.cleared[boss.id] = prev == null ? view.runPoints : Math.max(prev, view.runPoints);
 
-    var beat = view.runPoints >= catchThreshold(C.BOSS);
-    if (beat) state.dex.boss = 'caught';
-    else if (!state.dex.boss) state.dex.boss = 'seen';
-    if (view.runPoints === max) state.shiny.boss = true;
+    var beat = view.runPoints >= catchThreshold(boss);
+    if (beat) state.dex[boss.id] = 'caught';
+    else if (!state.dex[boss.id]) state.dex[boss.id] = 'seen';
+    if (view.runPoints === max) state.shiny[boss.id] = true;
 
-    /* Everyone who reaches the end meets the deregistration ghost. */
-    state.dex.exit = beat ? 'caught' : 'seen';
-    if (view.runPoints === max) state.shiny.exit = true;
+    /* Routes that carry a bonus entry hand it over at the ending. */
+    if (camp.bonusDex) {
+      state.dex[camp.bonusDex.id] = beat ? 'caught' : 'seen';
+      if (view.runPoints === max) state.shiny[camp.bonusDex.id] = true;
+    }
 
-    B.settle(state.stats, view.runPoints, max);
-    checkSecret();
+    B.settle(r.stats, view.runPoints, max);
+    checkSecret(camp.id);
 
-    state.bossDone = true;
-    state.finished = true;
+    r.bossDone = true;
+    r.finished = true;
     save();
     go('result');
   }
@@ -975,6 +1114,7 @@
     title: screenTitle,
     about: screenAbout,
     hero: screenHero,
+    routes: screenRoutes,
     map: screenMap,
     intro: screenIntro,
     scene: screenScene,
@@ -1009,9 +1149,8 @@
   /* ------------------------------------------------------------------- start */
 
   function init() {
-    var had = load();
+    load();
     Sound.setEnabled(state.sound);
-    if (had && state.started && !state.finished) view.screen = 'title';
     render();
   }
 
@@ -1021,5 +1160,5 @@
     init();
   }
 
-  global.Game = { render: render, state: function () { return state; } };
+  global.Game = { render: render, state: function () { return state; }, dex: function () { return DEX; } };
 })(window);
