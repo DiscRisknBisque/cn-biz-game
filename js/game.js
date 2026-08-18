@@ -16,6 +16,7 @@
   var Auth = global.Auth;
   var Pixel = global.Pixel;
   var Sound = global.Sound;
+  var Music = global.Music;
 
   var SAVE_KEY = 'cnbizgame.save.v1';
 
@@ -37,6 +38,7 @@
       /* The game is Chinese-first by design; the toggle is one tap away. */
       lang: 'zh',
       sound: true,
+      music: true,
       hero: 'hero1',
       started: false,
       ackRisk: false,       // has the risk notice been read at least once
@@ -336,7 +338,17 @@
       }),
       h('div', { class: 'spacer' }),
       h('div', {
-        class: 'chip', text: state.sound ? ui('soundOn') : ui('soundOff'),
+        class: 'chip' + (state.music ? '' : ' off'), text: state.music ? ui('musicOn') : ui('musicOff'),
+        title: ui('musicLabel'),
+        onclick: function () {
+          state.music = !state.music;
+          Music.setEnabled(state.music);
+          Sound.play('blip'); save(); render();
+        }
+      }),
+      h('div', {
+        class: 'chip' + (state.sound ? '' : ' off'), text: state.sound ? ui('soundOn') : ui('soundOff'),
+        title: ui('sfxLabel'),
         onclick: function () {
           state.sound = !state.sound;
           Sound.setEnabled(state.sound);
@@ -1552,6 +1564,24 @@
     render();
   }
 
+  /* ------------------------------------------------------------------ music */
+
+  /* The boss shares the scene screens with ordinary chapters, so the track has
+     to follow the chapter rather than the screen name alone. */
+  var SCREEN_TRACK = {
+    title: 'title', about: 'title', risk: 'title', routes: 'title',
+    login: 'title', profile: 'title', account: 'title', hero: 'title',
+    map: 'map', dex: 'map', dexdetail: 'map', capture: 'map',
+    intro: 'scene', scene: 'scene', feedback: 'scene',
+    result: 'result'
+  };
+
+  function trackForView() {
+    var t = SCREEN_TRACK[view.screen] || 'title';
+    if (t === 'scene' && view.chapter && view.chapter === cur().boss) return 'boss';
+    return t;
+  }
+
   /* ---------------------------------------------------------------- renderer */
 
   var RENDERERS = {
@@ -1574,6 +1604,8 @@
   };
 
   function render() {
+    Music.play(trackForView());
+
     var app = document.getElementById('app');
     app.innerHTML = '';
     app.appendChild(topbar());
@@ -1600,6 +1632,7 @@
     Auth.load();
     load();
     Sound.setEnabled(state.sound);
+    Music.setEnabled(state.music);
     render();
   }
 

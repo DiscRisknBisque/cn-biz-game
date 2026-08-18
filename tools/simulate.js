@@ -248,9 +248,60 @@ function checkSprites() {
   return problems;
 }
 
+/* The tracks are hand-typed tracker strings, so a mistyped note or a channel
+   that is one token short is easy to do and impossible to see. */
+function checkMusic() {
+  var fs = require('fs');
+  var src = fs.readFileSync(path.join(__dirname, '..', 'js', 'music.js'), 'utf8');
+  var problems = [];
+
+  var body = src.slice(src.indexOf('var TRACKS = {'), src.indexOf('/* Compile the scores once.'));
+  var noteRe = /^([A-G])(#|b)?(-?\d)$/;
+
+  /* Pull out each `name: { ... }` track block, then each melody string in it. */
+  var trackRe = /(\w+):\s*\{\s*\n\s*bpm:\s*(\d+)/g;
+  var starts = [];
+  var m;
+  while ((m = trackRe.exec(body))) starts.push({ name: m[1], bpm: parseInt(m[2], 10), at: m.index });
+  if (!starts.length) return ['music: no tracks found — has the TRACKS block moved?'];
+
+  starts.forEach(function (t, i) {
+    var chunk = body.slice(t.at, i + 1 < starts.length ? starts[i + 1].at : body.length);
+    if (!(t.bpm >= 40 && t.bpm <= 240)) problems.push('music/' + t.name + ': bpm ' + t.bpm + ' is out of range');
+
+    /* Each channel's melody is a run of concatenated string literals. */
+    var chanRe = /melody:\s*((?:'[^']*'\s*\+?\s*)+)/g;
+    var lengths = [];
+    var cm, ci = 0;
+    while ((cm = chanRe.exec(chunk))) {
+      var joined = (cm[1].match(/'[^']*'/g) || []).map(function (x) { return x.slice(1, -1); }).join('');
+      var tokens = joined.replace(/\|/g, ' ').trim().split(/\s+/);
+      ci++;
+      lengths.push(tokens.length);
+      tokens.forEach(function (tok, k) {
+        var ok = tok === '.' || tok === '-' || tok === 'K' || tok === 'S' || tok === 'h' || noteRe.test(tok);
+        if (!ok) problems.push('music/' + t.name + ' channel ' + ci + ' step ' + k + ': unreadable token "' + tok + '"');
+      });
+      if (tokens[0] === '.') problems.push('music/' + t.name + ' channel ' + ci + ': starts on a sustain, which loops into silence');
+    }
+    if (!ci) problems.push('music/' + t.name + ': no channels');
+
+    /* Unequal channel lengths would make the parts drift apart on every loop. */
+    var uniq = lengths.filter(function (v, k, a) { return a.indexOf(v) === k; });
+    if (uniq.length > 1) {
+      problems.push('music/' + t.name + ': channels are ' + lengths.join('/') + ' steps — they must match or the loop drifts');
+    }
+    if (lengths[0] % 16 !== 0) {
+      problems.push('music/' + t.name + ': ' + lengths[0] + ' steps is not a whole number of bars');
+    }
+  });
+
+  return problems;
+}
+
 /* --- report ------------------------------------------------------------ */
 
-var problems = checkContent().concat(checkSprites());
+var problems = checkContent().concat(checkSprites(), checkMusic());
 if (problems.length) {
   console.log('CONTENT PROBLEMS (' + problems.length + '):');
   problems.slice(0, 40).forEach(function (p) { console.log('  - ' + p); });

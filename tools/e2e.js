@@ -368,6 +368,66 @@ var LEGACY_SAVE = {
   await pause(250);
   check('dex detail shows a weakness', (await page.$$('.label.tip')).length === 1);
 
+  /* ---- music ------------------------------------------------------------- */
+
+  await page.goto(BASE + '/index.html');
+  await pause(250);
+
+  /* Count oscillators as they are created. SFX make a handful per click; the
+     music scheduler makes a steady stream with no interaction at all, so
+     growth during a quiet second can only have come from the soundtrack. */
+  await page.evaluate(function () {
+    window.__osc = 0;
+    var proto = (window.AudioContext || window.webkitAudioContext).prototype;
+    var orig = proto.createOscillator;
+    proto.createOscillator = function () { window.__osc++; return orig.call(this); };
+  });
+
+  check('the title screen asks for the title theme',
+        (await page.evaluate(function () { return window.Music.current(); })) === 'title');
+
+  await page.click('.logo');                    // a gesture, to unlock audio
+  await pause(200);
+  var before = await page.evaluate(function () { return window.__osc; });
+  await pause(900);                             // no interaction at all
+  var after = await page.evaluate(function () { return window.__osc; });
+  check('music keeps scheduling notes on its own (' + before + ' -> ' + after + ')', after > before + 4);
+
+  /* Turning it off has to actually stop it, not just change the glyph. */
+  var chips = await page.$$('.topbar .chip');
+  await chips[2].click();                       // music toggle
+  await pause(300);
+  var q0 = await page.evaluate(function () { return window.__osc; });
+  await pause(700);
+  var q1 = await page.evaluate(function () { return window.__osc; });
+  check('muting music stops the scheduler (' + q0 + ' -> ' + q1 + ')', q1 === q0);
+  check('the music setting is saved', (await readSave()).music === false);
+
+  await (await page.$$('.topbar .chip'))[2].click();   // back on
+  await pause(400);
+  check('unmuting starts it again',
+        (await page.evaluate(function () { return window.__osc; })) > q1);
+
+  /* Each area has its own theme. Seed a known state rather than clicking
+     through, so this section does not depend on where the previous one left
+     the save. */
+  await seedAccount();
+  await seed({ lang: 'zh', sound: true, music: true, hero: 'hero1',
+               started: true, ackRisk: true, campaign: null, runs: {}, dex: {}, shiny: {} });
+  await page.goto(BASE + '/index.html');
+  await pause(250);
+  await clickLabel(/开始游戏|START/);            // -> route select
+  await pause(250);
+  await (await page.$$('.route'))[0].click();   // -> map
+  await pause(250);
+  check('the map has its own theme',
+        (await page.evaluate(function () { return window.Music.current(); })) === 'map');
+
+  await (await page.$$('.node'))[0].click();    // chapter 1
+  await pause(250);
+  check('scenes switch to the quieter theme',
+        (await page.evaluate(function () { return window.Music.current(); })) === 'scene');
+
   /* ---- account management ------------------------------------------------ */
 
   await page.goto(BASE + '/index.html');

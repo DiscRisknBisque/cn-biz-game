@@ -151,6 +151,8 @@ canvas.sprite { image-rendering: pixelated; image-rendering: crisp-edges; }
      -2px 0 0 0 var(--ink), 2px 0 0 0 var(--ink);
 }
 .chip:active { transform: translateY(2px); }
+/* A muted toggle should read as off at a glance, not just by its glyph. */
+.chip.off { color: var(--ink-soft); background: var(--paper-2); }
 
 /* --- buttons -------------------------------------------------------------- */
 

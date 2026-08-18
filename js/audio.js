@@ -71,6 +71,9 @@
   }
 
   global.Sound = {
+    /* Shared so the music engine schedules on the same clock rather than
+       opening a second context. */
+    context: ac,
     play: play,
     isEnabled: function () { return enabled; },
     setEnabled: function (v) { enabled = !!v; if (enabled) ac(); }

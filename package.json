@@ -1,13 +1,14 @@
 {
   "name": "cn-biz-game",
   "version": "1.0.0",
-  "description": "测测你适不适合在中国做企业主 — a pixel-art quiz game about the law of founding a company in China as a foreigner.",
+  "description": "测测你适不适合在中国做企业主 — a pixel-art quiz game about Chinese business law, for foreign founders and one-person companies.",
   "private": true,
   "scripts": {
     "serve": "python3 -m http.server 8123",
     "sim": "node tools/simulate.js",
     "e2e": "node tools/e2e.js",
-    "test": "node tools/simulate.js"
+    "test": "node tools/simulate.js",
+    "music": "node tools/render-music.js"
   },
   "devDependencies": {
     "playwright": "^1.49.0"

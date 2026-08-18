@@ -18,7 +18,8 @@ Every question is a real decision, every answer is followed by the rule that
 actually governs it and a citation you can go and read.
 
 Chinese by default, English one tap away. No build step, no dependencies, no
-image or audio files — open `index.html` and play.
+image or audio files — the sprites and the soundtrack are both generated at
+runtime. Open `index.html` and play.
 
 ---
 
@@ -181,6 +182,7 @@ index.html             markup and script tags — that's the whole shell
 css/style.css          pixel UI; light and dark, mobile first
 js/pixel.js            sprite data as character grids, canvas renderer, shiny palette
 js/audio.js            chiptune SFX synthesised from oscillators
+js/music.js            five looping themes, written as tracker strings
 js/auth.js             account state and the sign-in flow — the backend seam
 js/campaign-foreign.js the 外国人来华创业 route
 js/campaign-solo.js    the 一人公司 route
@@ -189,6 +191,7 @@ js/balance.js          the numbers, kept separate so they can be simulated
 js/game.js             state machine and rendering
 tools/simulate.js      plays every route headlessly; checks content and balance
 tools/e2e.js           drives the real game in a real browser
+tools/render-music.js  bounces the soundtrack to .wav so you can hear it
 ```
 
 ### Art
@@ -214,6 +217,35 @@ Shiny variants are not separate art. `shinyPalette()` converts every palette
 colour to HSL and rotates its hue, sending greys and whites to gold instead
 since they have no hue to turn. Every creature gets a variant that still reads
 as itself, and a new creature gets one for free.
+
+### Music
+
+There are no audio files either. `js/music.js` holds five looping themes as
+tracker-style strings — one token per sixteenth note, `.` to hold, `-` for
+silence, `|` as a bar line that is stripped before parsing:
+
+```js
+'C5 .  E5 .  G5 .  A5 .  G5 .  E5 .  D5 .  .  . |' +
+'A4 .  C5 .  E5 .  G5 .  E5 .  C5 .  A4 .  .  . |'
+```
+
+| Track | Where | Notes |
+|---|---|---|
+| `title` | title, sign-in, routes, about | 132 BPM, C major pentatonic over I–vi–IV–V |
+| `map` | roadmap, dex, capture | 108 BPM, no drums, room to think |
+| `scene` | scenarios | 92 BPM, **no lead line** — players are reading legal text and a melody would compete |
+| `boss` | the boss chapters | 150 BPM, A minor, driving eighths |
+| `result` | the ending | 100 BPM, warm and resolving |
+
+Playback is a lookahead scheduler riding the audio clock rather than
+`setInterval`, so the beat does not drift. Music and sound effects have separate
+toggles — plenty of people want the blips but not a loop — and both persist.
+
+`npm run sim` parses the scores and fails on an unreadable note, a channel that
+is a token short of the others, or a part that opens on a sustain (which loops
+into silence). `npm run music` bounces every track to a `.wav` in `build/music/`
+and reports peak and RMS, so a track that renders silence or clips is caught
+rather than shipped.
 
 ### Content
 
@@ -243,8 +275,9 @@ per stat so they survive a whole route on a 0–100 bar, which means you can wri
 
 ```bash
 npm run sim     # headless playthroughs + content validation, no deps needed
-npm install     # only needed for the browser test
+npm install     # only needed for the browser tools
 npm run e2e     # drives the real game (expects `npm run serve` running)
+npm run music   # bounces the soundtrack to build/music/*.wav
 ```
 
 `npm run sim` validates the content — every scene bilingual, with at least two
