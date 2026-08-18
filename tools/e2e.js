@@ -21,6 +21,15 @@ try {
 }
 
 var SAVE_KEY = 'cnbizgame.save.v1';
+var ACCOUNT_KEY = 'cnbizgame.account.v1';
+
+/* A signed-in account, so the tests that are not about sign-in can skip it. */
+var ACCOUNT = {
+  method: 'phone', identifier: '13800138000', masked: '138****8000',
+  profile: { name: '测试用户', gender: 'private', age: 30, nationality: 'CN' },
+  consent: { privacy: true, guardian: false, at: '2026-08-01T00:00:00.000Z' },
+  createdAt: '2026-08-01T00:00:00.000Z'
+};
 
 /* Playwright normally finds its own browser. When the environment ships one at
    a different path (CI images often do), fall back to whatever is on disk
@@ -74,6 +83,9 @@ var LEGACY_SAVE = {
 
   function check(name, ok) { if (!ok) failures.push(name); }
   function seed(obj) { return page.evaluate(function (a) { localStorage.setItem(a[0], a[1]); }, [SAVE_KEY, JSON.stringify(obj)]); }
+  function seedAccount() { return page.evaluate(function (a) { localStorage.setItem(a[0], a[1]); }, [ACCOUNT_KEY, JSON.stringify(ACCOUNT)]); }
+  function readAccount() { return page.evaluate(function (k) { var v = localStorage.getItem(k); return v ? JSON.parse(v) : null; }, ACCOUNT_KEY); }
+  function fill(sel, value) { return page.fill(sel, value); }
   function readSave() { return page.evaluate(function (k) { return JSON.parse(localStorage.getItem(k)); }, SAVE_KEY); }
   function labels() { return page.$$eval('.btn', function (els) { return els.map(function (e) { return e.textContent.trim(); }); }); }
   function clickLabel(re) {
@@ -88,6 +100,7 @@ var LEGACY_SAVE = {
 
   await page.goto(BASE + '/index.html');
   await seed(LEGACY_SAVE);
+  await seedAccount();
   await page.goto(BASE + '/index.html');
   await pause(300);
 
@@ -162,7 +175,8 @@ var LEGACY_SAVE = {
   });
   check('two campaigns are registered', campaigns.length === 2);
 
-  await page.evaluate(function (k) { localStorage.removeItem(k); }, SAVE_KEY);
+  await page.evaluate(function (a) { a.forEach(function (k) { localStorage.removeItem(k); }); },
+                      [SAVE_KEY, ACCOUNT_KEY]);
   await page.goto(BASE + '/index.html');
   await pause(250);
   await page.click('.btn.primary');             // START -> risk notice
@@ -171,10 +185,94 @@ var LEGACY_SAVE = {
         (await page.$$('.risklist')).length === 1);
   check('the risk notice lists every category',
         (await page.$$('.risklist .riskline')).length === 5);
-  await page.click('.btn.primary');             // acknowledge -> hero picker
-  await pause(200);
+  await page.click('.btn.primary');             // acknowledge -> sign in
+  await pause(250);
   check('acknowledging the notice is remembered',
         (await readSave()).ackRisk === true);
+
+  /* ---- sign-in ---------------------------------------------------------- */
+
+  check('sign-in offers three methods', (await page.$$('.tabs .chip')).length === 3);
+  check('sign-in is labelled as a demo', (await page.$$('.panel.demo')).length === 1);
+  check('the consent box starts unticked',
+        (await page.$eval('.checkrow input', function (e) { return e.checked; })) === false);
+
+  /* WeChat is a documented stub, not a working login. It also needs consent
+     before it will do anything at all. */
+  await (await page.$$('.tabs .chip'))[2].click();
+  await pause(200);
+  await page.click('.btn.primary');             // without consent
+  await pause(200);
+  check('WeChat sign-in is blocked without consent', (await page.$$('.needs li')).length === 0);
+
+  await page.click('.checkrow input');          // tick
+  await page.click('.btn.primary');
+  await pause(200);
+  check('WeChat sign-in explains what a real one needs', (await page.$$('.needs li')).length >= 3);
+  check('WeChat stub does not create an account', (await readAccount()) === null);
+
+  /* Consent is about the privacy notice, not the method, so it survives a tab
+     switch — untick it deliberately to test the phone path from scratch. */
+  await (await page.$$('.tabs .chip'))[0].click();
+  await pause(200);
+  check('consent carries across a method switch',
+        (await page.$eval('.checkrow input', function (e) { return e.checked; })) === true);
+  await page.click('.checkrow input');          // untick
+  check('consent can be withdrawn',
+        (await page.$eval('.checkrow input', function (e) { return e.checked; })) === false);
+
+  /* Bad input is rejected before any code is sent. */
+  await fill('.input', 'not-a-phone');
+  await clickLabel(/获取验证码|Send code/);
+  await pause(200);
+  check('an invalid phone number is rejected', (await page.$$('.ferr')).length === 1);
+
+  /* Consent is required even with a valid code. */
+  await fill('.input', '13800138000');
+  await clickLabel(/获取验证码|Send code/);
+  await pause(250);
+  check('a demo code is shown', (await page.$$('.democode .code')).length === 1);
+  var demoCode = (await page.textContent('.democode .code')).trim();
+
+  var inputs = await page.$$('.input');
+  await inputs[1].fill(demoCode);
+  await page.click('.btn.primary');             // verify without consent
+  await pause(200);
+  check('sign-in is blocked without consent', (await readAccount()) === null);
+
+  await page.click('.checkrow input');          // tick
+  await page.click('.btn.primary');             // verify -> profile
+  await pause(250);
+  var acct = await readAccount();
+  check('a verified code creates the account', acct && acct.method === 'phone');
+  check('the identifier is stored masked for display', acct.masked.indexOf('****') > 0);
+  check('consent is recorded with a timestamp', acct.consent.privacy === true && !!acct.consent.at);
+
+  /* ---- profile ---------------------------------------------------------- */
+
+  check('the profile form asks for all four fields', (await page.$$('.fieldrow')).length === 4);
+
+  /* Under 14 triggers the guardian-consent requirement. */
+  var pInputs = await page.$$('.fieldrow input');
+  await pInputs[0].fill('测试用户');
+  await pInputs[1].fill('12');
+  await page.click('.btn.primary');
+  await pause(250);
+  check('an under-14 age asks for guardian consent', (await page.$$('.checkrow')).length === 1);
+  check('an under-14 profile is not saved without it', (await readAccount()).profile === null);
+
+  /* Revealing the guardian block re-rendered the form, so re-query. */
+  pInputs = await page.$$('.fieldrow input');
+  await pInputs[1].fill('30');
+  await page.click('.btn.primary');             // save -> title
+  await pause(250);
+  var withProfile = await readAccount();
+  check('the profile saves', withProfile.profile && withProfile.profile.age === 30);
+  check('nationality defaults are stored', !!withProfile.profile.nationality);
+  check('the title screen greets the signed-in player', (await page.$$('.whoami')).length === 1);
+
+  await page.click('.btn.primary');             // START -> hero picker
+  await pause(200);
   await page.click('.btn.primary');             // confirm -> route select
   await pause(250);
 
@@ -270,6 +368,20 @@ var LEGACY_SAVE = {
   await pause(250);
   check('dex detail shows a weakness', (await page.$$('.label.tip')).length === 1);
 
+  /* ---- account management ------------------------------------------------ */
+
+  await page.goto(BASE + '/index.html');
+  await pause(250);
+  await clickLabel(/我的账号|MY ACCOUNT/);
+  await pause(250);
+  check('the account screen shows the stored details', (await page.$$('.breakdown .row')).length === 5);
+
+  page.once('dialog', function (d) { d.accept(); });   // also delete progress
+  await clickLabel(/注销账号|DELETE ACCOUNT/);
+  await pause(300);
+  check('deleting the account really erases it', (await readAccount()) === null);
+  check('deleting with confirmation also clears the save', (await readSave()) === null);
+
   /* ---- report ---------------------------------------------------------- */
 
   await browser.close();
@@ -287,5 +399,6 @@ var LEGACY_SAVE = {
   process.exit(failures.length || errors.length ? 1 : 0);
 })().catch(function (e) {
   console.error('e2e run failed: ' + e.message);
+  if (e.stack) console.error(e.stack.split('\n').slice(0, 8).join('\n'));
   process.exit(1);
 });

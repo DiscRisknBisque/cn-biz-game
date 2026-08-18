@@ -129,6 +129,51 @@ The result screen ends with concrete next steps for that route rather than a
 generic "consult a professional", and the shareable result string carries the
 disclaimer with it so a screenshot cannot read as a compliance certificate.
 
+## Sign-in
+
+The game asks for an account before the first run: phone, email or WeChat, then
+name, gender, age and nationality.
+
+> **This is a front-end flow, not authentication.** There is no server in this
+> project. Verification codes are generated in the browser and printed on the
+> screen; "WeChat login" is a documented stub; everything lives in
+> `localStorage`. The login screen says so, in a purple 演示模式 banner, so
+> nobody deploys it believing they have auth.
+
+`js/auth.js` is the single seam a real backend replaces. Four functions are
+marked `BACKEND`:
+
+| Function | Replace with |
+|---|---|
+| `sendCode` | `POST /auth/send-code` — an SMS provider (real-name registered in China) or a mail service. Must not return the code. |
+| `verifyCode` | `POST /auth/verify` — returns a session token, not a boolean. |
+| `wechatSignIn` | The real flow: `snsapi_login` on web or `wx.login` in a mini program gives you a one-time `code`; your **server** exchanges it for an `access_token` using the AppID and AppSecret and maps the `openid`/`unionid` to an account. The AppSecret must never reach the browser. |
+| `deleteAccount` | `DELETE /account` — actual erasure. PIPL art. 47 wants deletion, not a deactivated flag. |
+
+### The registration is also a worked example
+
+This game teaches PIPL, so the sign-up cannot be a counter-example. Name, phone,
+email, gender, age and nationality are all personal information under art. 4,
+and the flow implements the client half of what holding them requires:
+
+- **A privacy notice** that states what is collected, why, where it lives, and
+  what it is never used for — expandable inline on the sign-in screen, not a
+  link nobody opens.
+- **Consent that is actually given.** The box starts unticked and is never
+  pre-ticked; sign-in is blocked without it, on every method including WeChat.
+  It can be unticked again.
+- **Data minimisation.** Only the name is required. Gender offers "prefer not to
+  say", nationality offers "other / not listed".
+- **Guardian consent under 14** (art. 31). An under-14 age reveals a guardian
+  block and the profile will not save until it is ticked.
+- **Access, export and deletion** (arts. 45 and 47) on the account screen.
+  Deletion is real erasure and offers to take the game progress with it.
+- **The identifier is masked** for display (`138****8000`). With a real backend
+  the raw value stays server-side and the client only ever holds the mask.
+
+Nationality is a list of sovereign states plus a free-text escape hatch —
+a nationality field is not the place for regions.
+
 ## Layout
 
 ```
@@ -136,6 +181,7 @@ index.html             markup and script tags — that's the whole shell
 css/style.css          pixel UI; light and dark, mobile first
 js/pixel.js            sprite data as character grids, canvas renderer, shiny palette
 js/audio.js            chiptune SFX synthesised from oscillators
+js/auth.js             account state and the sign-in flow — the backend seam
 js/campaign-foreign.js the 外国人来华创业 route
 js/campaign-solo.js    the 一人公司 route
 js/content.js          shared UI strings, and the campaign list

@@ -13,6 +13,7 @@
 
   var C = global.Content;
   var B = global.Balance;
+  var Auth = global.Auth;
   var Pixel = global.Pixel;
   var Sound = global.Sound;
 
@@ -402,16 +403,93 @@
     return finish;
   }
 
+  /* ------------------------------------------------------------------ forms */
+
+  var ERR_KEYS = {
+    required: 'errRequired', phone: 'errPhone', email: 'errEmail',
+    code: 'errCode', wrongcode: 'errWrongCode', expired: 'errExpired',
+    nocode: 'errNoCode', name: 'errName', age: 'errAge'
+  };
+  function errText(code) { return ui(ERR_KEYS[code] || 'errRequired'); }
+
+  /* Scratch state for whichever form is on screen. Never persisted: half-typed
+     phone numbers have no business surviving a reload. */
+  var form = {};
+
+  function field(opts) {
+    var input = h('input', {
+      class: 'input' + (form.errors && form.errors[opts.key] ? ' bad' : ''),
+      type: opts.type || 'text',
+      value: form[opts.key] || '',
+      inputmode: opts.inputmode,
+      maxlength: opts.maxlength,
+      autocomplete: opts.autocomplete,
+      placeholder: opts.placeholder || '',
+      oninput: function (e) { form[opts.key] = e.target.value; }
+    });
+    return h('label', { class: 'fieldrow' }, [
+      h('span', { class: 'flabel' }, [
+        h('span', { text: ui(opts.label) }),
+        opts.required ? h('span', { class: 'req', text: '*' }) : null
+      ]),
+      input,
+      opts.hint ? h('span', { class: 'fhint', text: ui(opts.hint) }) : null,
+      form.errors && form.errors[opts.key]
+        ? h('span', { class: 'ferr', text: errText(form.errors[opts.key]) }) : null
+    ]);
+  }
+
+  function selectField(opts) {
+    var sel = h('select', {
+      class: 'input' + (form.errors && form.errors[opts.key] ? ' bad' : ''),
+      onchange: function (e) { form[opts.key] = e.target.value; render(); }
+    }, opts.options.map(function (o) {
+      return h('option', { value: o.value, selected: form[opts.key] === o.value ? 'selected' : null, text: o.text });
+    }));
+    return h('label', { class: 'fieldrow' }, [
+      h('span', { class: 'flabel' }, [
+        h('span', { text: ui(opts.label) }),
+        opts.required ? h('span', { class: 'req', text: '*' }) : null
+      ]),
+      sel,
+      form.errors && form.errors[opts.key]
+        ? h('span', { class: 'ferr', text: errText(form.errors[opts.key]) }) : null
+    ]);
+  }
+
+  function checkRow(key, labelKey, extraClass) {
+    return h('label', { class: 'checkrow ' + (extraClass || '') }, [
+      h('input', {
+        type: 'checkbox',
+        /* Never pre-ticked: consent that was not actively given is not consent. */
+        checked: form[key] ? 'checked' : null,
+        onchange: function (e) { form[key] = e.target.checked; }
+      }),
+      h('span', { class: 'small', text: ui(labelKey) })
+    ]);
+  }
+
+  function privacyPanel() {
+    return h('details', { class: 'panel double privacy' }, [
+      h('summary', { text: ui('privacyTitle') }),
+      h('p', { class: 'small', style: 'white-space:pre-line;margin-top:9px', text: ui('privacyBody') })
+    ]);
+  }
+
   /* ----------------------------------------------------------------- screens */
 
   function screenTitle() {
     var r = state.campaign ? runOf(state.campaign) : null;
     var canContinue = state.started && r && !r.finished;
 
+    var signedIn = Auth.isSignedIn();
+
     function newGame() {
       Sound.play('select');
       /* Nobody starts without having seen the risk notice at least once. */
       if (!state.ackRisk) { go('risk'); return; }
+      /* ...and nobody plays without an account, per the brief. */
+      if (!signedIn) { form = {}; go(Auth.current() ? 'profile' : 'login'); return; }
       go(state.started ? 'routes' : 'hero');
     }
 
@@ -425,6 +503,11 @@
         h('div', { class: 'stage' }, [sprite(state.hero, 7)]),
         h('div', { class: 'ground' })
       ]),
+      signedIn ? h('div', { class: 'whoami' }, [
+        h('span', { text: (Auth.current().profile.name || '') }),
+        h('span', { class: 'sep', text: '·' }),
+        h('span', { class: 'small', text: Auth.current().masked || ui('byWechat') })
+      ]) : null,
       canContinue
         ? h('button', {
             class: 'btn primary center',
@@ -440,6 +523,13 @@
       h('button', {
         class: 'btn center', onclick: function () { Sound.play('blip'); go('dex'); }
       }, [h('strong', { text: ui('dex') })]),
+      h('button', {
+        class: 'btn center', onclick: function () {
+          Sound.play('blip');
+          form = {};
+          go(signedIn ? 'account' : 'login');
+        }
+      }, [h('strong', { text: signedIn ? ui('account') : ui('signIn') })]),
       h('button', {
         class: 'btn center', onclick: function () { Sound.play('blip'); go('about'); }
       }, [h('strong', { text: ui('about') })])
@@ -478,9 +568,262 @@
           state.ackRisk = true;
           Sound.play('select');
           save();
-          go(first ? (state.started ? 'routes' : 'hero') : 'title');
+          if (!first) { go('title'); return; }
+          if (!Auth.isSignedIn()) { form = {}; go(Auth.current() ? 'profile' : 'login'); return; }
+          go(state.started ? 'routes' : 'hero');
         }
       }, [h('strong', { text: first ? ui('riskAck') : ui('back') })])
+    ];
+  }
+
+
+  /* --------------------------------------------------------------- account */
+
+  function demoBanner() {
+    return h('div', { class: 'panel double demo' }, [
+      h('div', { class: 'label', style: 'background:var(--purple)', text: '⚠ ' + ui('demoMode') }),
+      h('p', { class: 'small', text: ui('demoNote') })
+    ]);
+  }
+
+  function screenLogin() {
+    var method = form.method || 'phone';
+
+    function tab(key, label) {
+      return h('div', {
+        class: 'chip' + (method === key ? ' on' : ''),
+        text: label,
+        onclick: function () {
+          form = { method: key, privacy: form.privacy };
+          Sound.play('blip');
+          render();
+        }
+      });
+    }
+
+    var body;
+    if (method === 'wechat') {
+      body = h('div', { class: 'panel double' }, [
+        h('div', { class: 'wechat-mark' }, [h('span', { text: '微信' })]),
+        h('p', { class: 'small', text: ui('wechatNote') }),
+        form.wechatNeeds ? h('ul', { class: 'needs' }, form.wechatNeeds.map(function (n) {
+          return h('li', { text: n });
+        })) : null,
+        h('button', {
+          class: 'btn primary center', onclick: function () {
+            if (!form.privacy) { toast(ui('errConsent')); Sound.play('bad'); return; }
+            var r = Auth.wechatSignIn();
+            form.wechatNeeds = r.needs;
+            Sound.play('bad');
+            render();
+          }
+        }, [h('strong', { text: ui('wechatGo') })])
+      ]);
+    } else {
+      var isPhone = method === 'phone';
+      body = h('div', { class: 'panel double' }, [
+        field({
+          key: method,
+          label: isPhone ? 'phoneLabel' : 'emailLabel',
+          hint: isPhone ? 'phoneHint' : null,
+          type: isPhone ? 'tel' : 'email',
+          inputmode: isPhone ? 'tel' : 'email',
+          autocomplete: isPhone ? 'tel' : 'email',
+          maxlength: isPhone ? 20 : 254,
+          required: true
+        }),
+        h('button', {
+          class: 'btn center small-btn', onclick: function () {
+            var r = Auth.sendCode(method, form[method]);
+            if (!r.ok) { form.errors = {}; form.errors[method] = r.error; Sound.play('bad'); render(); return; }
+            form.errors = null;
+            form.sent = true;
+            form.demoCode = r.demoCode;
+            Sound.play('good');
+            render();
+          }
+        }, [h('strong', { text: ui('sendCode') })]),
+
+        form.sent ? h('div', { class: 'democode' }, [
+          h('span', { class: 'riskbadge', style: 'background:var(--purple)', text: ui('demoCodeIs') }),
+          h('span', { class: 'code', text: form.demoCode })
+        ]) : null,
+
+        form.sent ? field({
+          key: 'code', label: 'codeLabel', type: 'text',
+          inputmode: 'numeric', maxlength: 6, autocomplete: 'one-time-code', required: true
+        }) : null
+      ]);
+    }
+
+    return [
+      h('div', { class: 'panel double' }, [
+        h('div', { class: 'eyebrow', text: ui('signIn') }),
+        h('div', { class: 'h-title', text: ui('loginTitle') })
+      ]),
+      demoBanner(),
+      h('div', { class: 'tabs' }, [
+        tab('phone', ui('byPhone')),
+        tab('email', ui('byEmail')),
+        tab('wechat', ui('byWechat'))
+      ]),
+      body,
+      privacyPanel(),
+      checkRow('privacy', 'consentLabel'),
+      method !== 'wechat' ? h('button', {
+        class: 'btn primary center', onclick: function () {
+          if (!form.privacy) { toast(ui('errConsent')); Sound.play('bad'); return; }
+          var r = Auth.verifyCode(form.code);
+          if (!r.ok) {
+            form.errors = { code: r.error };
+            Sound.play('bad');
+            render();
+            return;
+          }
+          Auth.signIn(r.method, r.identifier, { privacy: true });
+          Sound.play('caught');
+          form = {};
+          go('profile');
+        }
+      }, [h('strong', { text: ui('verifyGo') })]) : null,
+      h('button', {
+        class: 'btn center', onclick: function () { Sound.play('back'); form = {}; go('title'); }
+      }, [h('strong', { text: ui('back') })])
+    ];
+  }
+
+  function screenProfile() {
+    var acct = Auth.current();
+    if (!acct) return screenLogin();
+
+    /* Editing an existing profile starts from what is already stored. */
+    if (!form.loaded) {
+      var p0 = acct.profile || {};
+      form = {
+        loaded: true,
+        name: p0.name || '',
+        gender: p0.gender || 'private',
+        age: p0.age == null ? '' : String(p0.age),
+        nationality: p0.nationality || 'CN',
+        guardian: !!acct.consent.guardian
+      };
+    }
+
+    var minor = Auth.isMinor(form.age);
+
+    var genders = [
+      { value: 'male', text: ui('gMale') },
+      { value: 'female', text: ui('gFemale') },
+      { value: 'other', text: ui('gOther') },
+      { value: 'private', text: ui('gPrivate') }
+    ];
+    var nations = C.NATIONALITIES.map(function (n) {
+      return { value: n.code, text: state.lang === 'zh' ? n.zh : n.en };
+    }).concat([{ value: 'OTHER', text: ui('natOther') }]);
+
+    return [
+      h('div', { class: 'panel double' }, [
+        h('div', { class: 'eyebrow', text: ui('account') }),
+        h('div', { class: 'h-title', text: ui('profileTitle') }),
+        h('p', { class: 'small', style: 'margin-top:6px', text: ui('minimalNote') })
+      ]),
+      h('div', { class: 'panel double' }, [
+        field({ key: 'name', label: 'fName', maxlength: 40, autocomplete: 'name', required: true }),
+        selectField({ key: 'gender', label: 'fGender', options: genders }),
+        field({ key: 'age', label: 'fAge', type: 'text', inputmode: 'numeric', maxlength: 3, required: true }),
+        selectField({ key: 'nationality', label: 'fNationality', options: nations })
+      ]),
+      minor ? h('div', { class: 'panel double bad' }, [
+        h('div', { class: 'label', style: 'background:var(--red)', text: '⚠ ' + ui('fAge') }),
+        h('p', { class: 'small', text: ui('guardianWhy') }),
+        checkRow('guardian', 'guardianLabel')
+      ]) : null,
+      h('button', {
+        class: 'btn primary center', onclick: function () {
+          /* An under-14 age needs guardian consent (PIPL art. 31). Revealing
+             the block here rather than as the age is typed keeps focus where
+             the user put it, and re-rendering after the click has landed
+             cannot swallow it. */
+          if (Auth.isMinor(form.age) && !form.guardian) {
+            toast(ui('errGuardian'));
+            Sound.play('bad');
+            render();
+            return;
+          }
+          var r = Auth.saveProfile(form);
+          if (!r.ok) { form.errors = r.errors; Sound.play('bad'); render(); return; }
+          Sound.play('select');
+          form = {};
+          go('title');
+        }
+      }, [h('strong', { text: ui('saveProfile') })]),
+      acct.profile ? h('button', {
+        class: 'btn center', onclick: function () { Sound.play('back'); form = {}; go('account'); }
+      }, [h('strong', { text: ui('back') })]) : null
+    ];
+  }
+
+  function screenAccount() {
+    var acct = Auth.current();
+    if (!acct) { return screenLogin(); }
+    var p0 = acct.profile || {};
+
+    function row(labelKey, value) {
+      return h('div', { class: 'row' }, [
+        h('span', { text: ui(labelKey) }),
+        h('span', { class: 'val', text: value })
+      ]);
+    }
+
+    var nat = C.NATIONALITIES.filter(function (n) { return n.code === p0.nationality; })[0];
+    var genderText = { male: 'gMale', female: 'gFemale', other: 'gOther', private: 'gPrivate' }[p0.gender];
+
+    return [
+      h('div', { class: 'panel double' }, [
+        h('div', { class: 'eyebrow', text: ui('account') }),
+        h('div', { class: 'h-title', text: p0.name || '—' }),
+        h('div', { class: 'hr' }),
+        h('div', { class: 'breakdown' }, [
+          row('accountOf', ui(acct.method === 'phone' ? 'byPhone' : acct.method === 'email' ? 'byEmail' : 'byWechat') + '  ' + (acct.masked || '')),
+          row('fGender', genderText ? ui(genderText) : '—'),
+          row('fAge', p0.age == null ? '—' : String(p0.age)),
+          row('fNationality', nat ? (state.lang === 'zh' ? nat.zh : nat.en) : ui('natOther')),
+          row('joinedAt', (acct.createdAt || '').slice(0, 10))
+        ])
+      ]),
+      privacyPanel(),
+      h('button', {
+        class: 'btn center', onclick: function () { Sound.play('blip'); form = {}; go('profile'); }
+      }, [h('strong', { text: ui('editProfile') })]),
+      h('button', {
+        class: 'btn center', onclick: function () {
+          /* PIPL art. 45: the right to a copy of what is held about you. */
+          var data = JSON.stringify(Auth.exportData(), null, 2);
+          if (navigator.clipboard && navigator.clipboard.writeText) {
+            navigator.clipboard.writeText(data).then(function () { toast(ui('copied')); });
+          } else { toast(ui('copied')); }
+          Sound.play('good');
+        }
+      }, [h('strong', { text: ui('exportData') })]),
+      h('button', {
+        class: 'btn center', onclick: function () { Sound.play('back'); Auth.signOut(); go('title'); }
+      }, [h('strong', { text: ui('signOut') })]),
+      h('button', {
+        class: 'btn center danger', onclick: function () {
+          var alsoProgress = confirm(ui('deleteAsk'));
+          Auth.deleteAccount();
+          if (alsoProgress) {
+            try { localStorage.removeItem(SAVE_KEY); } catch (e) { /* ignore */ }
+            state = Object.assign(freshState(), { lang: state.lang, sound: state.sound });
+          }
+          toast(ui('deleted'));
+          Sound.play('gameover');
+          go('title');
+        }
+      }, [h('strong', { text: ui('deleteAcct') })]),
+      h('button', {
+        class: 'btn center', onclick: function () { Sound.play('back'); go('title'); }
+      }, [h('strong', { text: ui('back') })])
     ];
   }
 
@@ -1217,6 +1560,9 @@
     hero: screenHero,
     routes: screenRoutes,
     risk: screenRisk,
+    login: screenLogin,
+    profile: screenProfile,
+    account: screenAccount,
     map: screenMap,
     intro: screenIntro,
     scene: screenScene,
@@ -1251,6 +1597,7 @@
   /* ------------------------------------------------------------------- start */
 
   function init() {
+    Auth.load();
     load();
     Sound.setEnabled(state.sound);
     render();

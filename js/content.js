@@ -92,6 +92,96 @@
     reset:        { zh: '清除存档', en: 'ERASE SAVE' },
     resetAsk:     { zh: '确定要清除存档吗？', en: 'Erase your save file?' },
     dexEmpty:     { zh: '还没有收录任何条目。去创业吧！', en: 'Nothing logged yet. Go start a company.' },
+    signIn:       { zh: '登录 / 注册', en: 'SIGN IN' },
+    signOut:      { zh: '退出登录', en: 'SIGN OUT' },
+    account:      { zh: '我的账号', en: 'MY ACCOUNT' },
+    loginTitle:   { zh: '登录后开始', en: 'Sign in to start' },
+    byPhone:      { zh: '手机号', en: 'Phone' },
+    byEmail:      { zh: '邮箱', en: 'Email' },
+    byWechat:     { zh: '微信', en: 'WeChat' },
+    phoneLabel:   { zh: '手机号码', en: 'Mobile number' },
+    phoneHint:    { zh: '中国大陆 11 位，或加国家码如 +65…', en: 'Mainland 11-digit, or with a country code (+65…)' },
+    emailLabel:   { zh: '邮箱地址', en: 'Email address' },
+    codeLabel:    { zh: '验证码', en: 'Verification code' },
+    sendCode:     { zh: '获取验证码', en: 'Send code' },
+    resendIn:     { zh: '秒后可重发', en: 's until resend' },
+    verifyGo:     { zh: '验证并登录', en: 'Verify and sign in' },
+    wechatGo:     { zh: '使用微信登录', en: 'Continue with WeChat' },
+    wechatNote:   {
+      zh: '微信登录需要在微信开放平台注册应用，并由你的服务器完成 code 换取 access_token 的步骤——AppSecret 不能出现在前端。本项目只提供接入位置。',
+      en: 'WeChat sign-in needs an app registered on the WeChat Open Platform, with the code-to-access_token exchange done by your server: the AppSecret can never live in the front end. This project only marks the integration point.'
+    },
+    demoMode:     { zh: '演示模式', en: 'DEMO MODE' },
+    demoNote:     {
+      zh: '本项目没有后端。验证码在本地生成并直接显示在下方，不构成任何身份验证；所有资料只存在这台设备的浏览器里。',
+      en: 'There is no backend in this project. The code is generated locally and shown below — it authenticates nothing, and everything stays in this browser.'
+    },
+    demoCodeIs:   { zh: '演示验证码', en: 'Demo code' },
+    profileTitle: { zh: '完善资料', en: 'Your details' },
+    fName:        { zh: '姓名', en: 'Name' },
+    fGender:      { zh: '性别', en: 'Gender' },
+    fAge:         { zh: '年龄', en: 'Age' },
+    fNationality: { zh: '国籍', en: 'Nationality' },
+    gMale:        { zh: '男', en: 'Male' },
+    gFemale:      { zh: '女', en: 'Female' },
+    gOther:       { zh: '其他', en: 'Other' },
+    gPrivate:     { zh: '不愿透露', en: 'Prefer not to say' },
+    natOther:     { zh: '其他 / 未列出', en: 'Other / not listed' },
+    saveProfile:  { zh: '保存并开始', en: 'Save and start' },
+    editProfile:  { zh: '修改资料', en: 'Edit details' },
+    consentLabel: {
+      zh: '我已阅读并同意《隐私政策》，同意为创建账号和保存游戏进度处理上述个人信息',
+      en: 'I have read the privacy notice and agree to my information being processed to create an account and save my progress'
+    },
+    guardianLabel: {
+      zh: '我是该未成年人的父母或其他监护人，并同意上述处理',
+      en: 'I am the parent or guardian of this minor and consent to the processing above'
+    },
+    guardianWhy:  {
+      zh: '你填写的年龄不满 14 周岁。《个人信息保护法》第31条要求处理不满十四周岁未成年人的个人信息，必须取得父母或其他监护人的同意。',
+      en: 'The age given is under 14. Article 31 of the Personal Information Protection Law requires the consent of a parent or guardian before processing the personal information of anyone under fourteen.'
+    },
+    privacyTitle: { zh: '隐私政策（摘要）', en: 'Privacy notice (summary)' },
+    privacyBody: {
+      zh: [
+        '收集什么：登录标识（手机号或邮箱，微信登录时为 openid）、姓名、性别、年龄、国籍，以及你的游戏进度和图鉴。',
+        '为什么收集：创建账号、在多次访问之间保存进度。姓名用于称呼你；年龄用于判断是否需要监护人同意；性别和国籍用于内容统计，随时可以改成「不愿透露」或「其他」。',
+        '存在哪里：在这个演示版本里，全部只存在你这台设备的浏览器（localStorage）中，没有服务器，我们看不到，也不会上传。',
+        '你的权利：随时查阅、更正、导出和删除。「我的账号」页面里的删除是真删除，不是停用。',
+        '不做什么：不出售、不共享给第三方、不用于定向广告。'
+      ].join('\n\n'),
+      en: [
+        'What is collected: your sign-in identifier (phone, email, or a WeChat openid), name, gender, age, nationality, and your game progress and dex.',
+        'Why: to create an account and keep your progress across visits. The name is how the game addresses you; the age decides whether guardian consent is needed; gender and nationality are for content statistics and can be set to "prefer not to say" or "other" at any time.',
+        'Where it lives: in this demo build, entirely in this browser (localStorage). There is no server. It is not uploaded and we cannot see it.',
+        'Your rights: access, correct, export and delete at any time. Deletion on the account screen is real erasure, not deactivation.',
+        'What we do not do: no selling, no sharing with third parties, no targeted advertising.'
+      ].join('\n\n')
+    },
+    minimalNote:  {
+      zh: '按最小必要原则，只有姓名是必填；性别、年龄、国籍可以选择「不愿透露」或「其他」。',
+      en: 'Under data minimisation only the name is required; gender, age and nationality all offer "prefer not to say" or "other".'
+    },
+    accountOf:    { zh: '登录方式', en: 'Signed in with' },
+    joinedAt:     { zh: '注册时间', en: 'Joined' },
+    exportData:   { zh: '导出我的数据', en: 'EXPORT MY DATA' },
+    deleteAcct:   { zh: '注销账号并删除数据', en: 'DELETE ACCOUNT AND DATA' },
+    deleteAsk:    {
+      zh: '这会永久删除你的账号资料。要同时删除游戏进度和图鉴吗？点「确定」全部删除，点「取消」只删账号。',
+      en: 'This permanently deletes your account details. Also delete your game progress and dex? OK deletes everything; Cancel keeps the progress.'
+    },
+    deleted:      { zh: '已删除', en: 'Deleted' },
+    errRequired:  { zh: '必填', en: 'Required' },
+    errPhone:     { zh: '手机号格式不对', en: 'That does not look like a phone number' },
+    errEmail:     { zh: '邮箱格式不对', en: 'That does not look like an email address' },
+    errCode:      { zh: '请输入 6 位验证码', en: 'Enter the 6-digit code' },
+    errWrongCode: { zh: '验证码不对', en: 'Wrong code' },
+    errExpired:   { zh: '验证码已过期，请重新获取', en: 'Code expired — send a new one' },
+    errNoCode:    { zh: '请先获取验证码', en: 'Send yourself a code first' },
+    errName:      { zh: '姓名最长 40 个字符', en: 'Name can be at most 40 characters' },
+    errAge:       { zh: '请输入 1–120 之间的年龄', en: 'Enter an age between 1 and 120' },
+    errConsent:   { zh: '请先阅读并同意隐私政策', en: 'Please read and accept the privacy notice first' },
+    errGuardian:  { zh: '需要监护人同意才能继续', en: 'Guardian consent is required to continue' },
     riskTitle:    { zh: '开始之前，请先读这一页', en: 'Read this before you start' },
     riskAck:      { zh: '我明白了，开始游戏', en: 'Understood — start' },
     riskBtn:      { zh: '风险提示', en: 'RISK NOTICE' },
@@ -171,6 +261,56 @@
     }
   };
 
+  /* Nationality options. Sovereign states only — a nationality field is not
+     the place for regions — with a free-text escape hatch so nobody is forced
+     into a wrong answer by a list that missed them. */
+  var NATIONALITIES = [
+    ['CN', '中国', 'China'],
+    ['US', '美国', 'United States'],
+    ['GB', '英国', 'United Kingdom'],
+    ['CA', '加拿大', 'Canada'],
+    ['AU', '澳大利亚', 'Australia'],
+    ['NZ', '新西兰', 'New Zealand'],
+    ['JP', '日本', 'Japan'],
+    ['KR', '韩国', 'South Korea'],
+    ['SG', '新加坡', 'Singapore'],
+    ['MY', '马来西亚', 'Malaysia'],
+    ['TH', '泰国', 'Thailand'],
+    ['VN', '越南', 'Vietnam'],
+    ['ID', '印度尼西亚', 'Indonesia'],
+    ['PH', '菲律宾', 'Philippines'],
+    ['IN', '印度', 'India'],
+    ['PK', '巴基斯坦', 'Pakistan'],
+    ['RU', '俄罗斯', 'Russia'],
+    ['DE', '德国', 'Germany'],
+    ['FR', '法国', 'France'],
+    ['IT', '意大利', 'Italy'],
+    ['ES', '西班牙', 'Spain'],
+    ['PT', '葡萄牙', 'Portugal'],
+    ['NL', '荷兰', 'Netherlands'],
+    ['BE', '比利时', 'Belgium'],
+    ['CH', '瑞士', 'Switzerland'],
+    ['AT', '奥地利', 'Austria'],
+    ['SE', '瑞典', 'Sweden'],
+    ['NO', '挪威', 'Norway'],
+    ['DK', '丹麦', 'Denmark'],
+    ['FI', '芬兰', 'Finland'],
+    ['IE', '爱尔兰', 'Ireland'],
+    ['PL', '波兰', 'Poland'],
+    ['TR', '土耳其', 'Türkiye'],
+    ['IL', '以色列', 'Israel'],
+    ['AE', '阿联酋', 'United Arab Emirates'],
+    ['SA', '沙特阿拉伯', 'Saudi Arabia'],
+    ['EG', '埃及', 'Egypt'],
+    ['ZA', '南非', 'South Africa'],
+    ['NG', '尼日利亚', 'Nigeria'],
+    ['KE', '肯尼亚', 'Kenya'],
+    ['BR', '巴西', 'Brazil'],
+    ['MX', '墨西哥', 'Mexico'],
+    ['AR', '阿根廷', 'Argentina'],
+    ['CL', '智利', 'Chile']
+  ].map(function (r) { return { code: r[0], zh: r[1], en: r[2] }; });
+
   /* Order here is the order they appear on the route select screen, and it
      drives dex numbering: the first campaign's creatures are numbered first. */
   var CAMPAIGNS = [foreign, solo];
@@ -184,6 +324,7 @@
     UI: UI,
     AS_OF: AS_OF,
     RISK: RISK,
+    NATIONALITIES: NATIONALITIES,
     CAMPAIGNS: CAMPAIGNS,
     campaign: campaign
   };
