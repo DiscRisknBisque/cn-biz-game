@@ -1,9 +1,17 @@
 /*
- * audio.js — chiptune blips synthesised on the fly.
+ * audio.js — chiptune blips synthesised on the fly, plus one sampled sting.
  *
- * No sound files: everything is square/triangle waves from an AudioContext,
- * which keeps the game a handful of text files. Browsers will not let audio
- * start before a gesture, so the context is created lazily on first play.
+ * Almost everything here is square/triangle waves from an AudioContext, which
+ * is what keeps the game a handful of text files. The one exception is the sad
+ * trombone: a real recording, because a synthesised approximation of that
+ * particular joke is never as funny as the joke itself.
+ *
+ * The sample is optional at runtime. Opening index.html straight off the disk
+ * makes fetch() fail on the file:// origin, so anything sampled falls back to
+ * a synthesised sting rather than going silent.
+ *
+ * Browsers will not let audio start before a gesture, so the context is created
+ * lazily and samples are fetched on the first interaction.
  */
 (function (global) {
   'use strict';
@@ -64,8 +72,75 @@
     }
   };
 
+  /* ------------------------------------------------------------- samples */
+
+  var SAMPLES = {
+    /* Peaks at 0.275 in the file, so it needs lifting to sit with the blips. */
+    fail: { url: 'audio/sad-trombone.mp3', gain: 2.4, seconds: 2.4 }
+  };
+
+  function loadSample(name) {
+    var s = SAMPLES[name];
+    if (!s || s.buffer || s.pending || s.failed) return;
+    var c = ac();
+    if (!c) return;
+    s.pending = true;
+    fetch(s.url)
+      .then(function (r) {
+        if (!r.ok) throw new Error('HTTP ' + r.status);
+        return r.arrayBuffer();
+      })
+      .then(function (buf) { return c.decodeAudioData(buf); })
+      .then(function (audio) { s.buffer = audio; s.pending = false; })
+      .catch(function () {
+        /* file:// origin, offline, or a missing asset — use the synth instead. */
+        s.failed = true;
+        s.pending = false;
+      });
+  }
+
+  function preload() {
+    Object.keys(SAMPLES).forEach(loadSample);
+  }
+
+  function playSample(name) {
+    var s = SAMPLES[name];
+    var c = ac();
+    if (!s || !s.buffer || !c) return false;
+    var src = c.createBufferSource();
+    var g = c.createGain();
+    src.buffer = s.buffer;
+    g.gain.value = s.gain;
+    src.connect(g).connect(c.destination);
+    src.start();
+    return true;
+  }
+
+  /* Fetching needs no gesture, but decoding wants a context, and creating one
+     before an interaction is what browsers object to. */
+  function onFirstGesture() {
+    document.removeEventListener('pointerdown', onFirstGesture, true);
+    document.removeEventListener('keydown', onFirstGesture, true);
+    if (enabled) preload();
+  }
+  document.addEventListener('pointerdown', onFirstGesture, true);
+  document.addEventListener('keydown', onFirstGesture, true);
+
+  /* ------------------------------------------------------------------ api */
+
   function play(name) {
     if (!enabled) return;
+
+    if (SAMPLES[name]) {
+      loadSample(name);
+      if (playSample(name)) {
+        /* Pull the music down under the sting so the punchline lands. */
+        if (global.Music && global.Music.duck) global.Music.duck(SAMPLES[name].seconds);
+        return;
+      }
+      name = 'gameover';                       // the synthesised stand-in
+    }
+
     var fn = SFX[name];
     if (fn) { try { fn(); } catch (e) { /* audio is never worth crashing over */ } }
   }
@@ -75,7 +150,10 @@
        opening a second context. */
     context: ac,
     play: play,
+    preload: preload,
+    /* Exposed so tests can tell a real sample apart from the fallback. */
+    sampleReady: function (name) { return !!(SAMPLES[name] && SAMPLES[name].buffer); },
     isEnabled: function () { return enabled; },
-    setEnabled: function (v) { enabled = !!v; if (enabled) ac(); }
+    setEnabled: function (v) { enabled = !!v; if (enabled) { ac(); preload(); } }
   };
 })(window);

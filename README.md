@@ -17,9 +17,9 @@ Two routes, two kinds of founder:
 Every question is a real decision, every answer is followed by the rule that
 actually governs it and a citation you can go and read.
 
-Chinese by default, English one tap away. No build step, no dependencies, no
-image or audio files — the sprites and the soundtrack are both generated at
-runtime. Open `index.html` and play.
+Chinese by default, English one tap away. No build step and no dependencies:
+the sprites and the whole soundtrack are generated at runtime, and the only
+asset in the repository is one sampled sting. Open `index.html` and play.
 
 ---
 
@@ -179,6 +179,7 @@ a nationality field is not the place for regions.
 
 ```
 index.html             markup and script tags — that's the whole shell
+audio/                 the one sampled sound, and its credits
 css/style.css          pixel UI; light and dark, mobile first
 js/pixel.js            sprite data as character grids, canvas renderer, shiny palette
 js/audio.js            chiptune SFX synthesised from oscillators
@@ -240,6 +241,34 @@ silence, `|` as a bar line that is stripped before parsing:
 Playback is a lookahead scheduler riding the audio clock rather than
 `setInterval`, so the beat does not drift. Music and sound effects have separate
 toggles — plenty of people want the blips but not a loop — and both persist.
+
+### The one sample
+
+Every sound effect is synthesised too, with a single exception: `audio/sad-trombone.mp3`,
+the wah-wah-wah sting. A synthesised approximation of that particular joke is
+never as funny as the joke itself.
+
+It plays on the two moments that are actually a loss — a creature escaping, and
+a losing ending — and not on individual wrong answers, where a 2.4-second sting
+would talk over the legal tip you are meant to be reading and would wear out
+across 52 scenes. Moving it there is a one-word change in `screenFeedback`.
+
+While it plays, `Music.duck()` pulls the soundtrack down underneath it so the
+punchline lands, then brings it back.
+
+The sample is **optional at runtime**. Opening `index.html` off the disk makes
+`fetch()` fail on the `file://` origin, so the game falls back to a synthesised
+sting rather than going quiet — which also means deleting the file is a
+complete and safe way to remove it.
+
+> **Check the licence before publishing.** `audio/sad-trombone.mp3` was supplied
+> as an upload and its provenance has not been verified. The wah-wah sting is
+> widely circulated under a range of licences — some public domain, some CC-BY,
+> some not redistributable at all. See `audio/CREDITS.md`.
+
+The file was trimmed of 1.25 s of trailing silence by dropping whole MPEG
+frames, so nothing was re-encoded and the audio is bit-identical up to the cut:
+142 KB to 96 KB.
 
 `npm run sim` parses the scores and fails on an unreadable note, a channel that
 is a token short of the others, or a part that opens on a sustain (which loops

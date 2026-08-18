@@ -355,6 +355,21 @@
     stopLoop();
   }
 
+  /* Briefly pull the music down so a sting can be heard over it, then bring it
+     back. Used by the fail sound; harmless if nothing is playing. */
+  function duck(seconds) {
+    var c = ctx();
+    if (!c || !master) return;
+    var now = c.currentTime;
+    var g = master.gain;
+    var back = now + (seconds || 2) * 0.85;
+    g.cancelScheduledValues(now);
+    g.setValueAtTime(g.value, now);
+    g.linearRampToValueAtTime(0.18, now + 0.08);
+    g.setValueAtTime(0.18, back);
+    g.linearRampToValueAtTime(0.9, back + 0.5);
+  }
+
   function setEnabled(v) {
     enabled = !!v;
     if (!enabled) { stopLoop(); return; }
@@ -394,6 +409,7 @@
     renderOffline: renderOffline,
     play: play,
     stop: stop,
+    duck: duck,
     current: function () { return current; },
     isEnabled: function () { return enabled; },
     setEnabled: setEnabled

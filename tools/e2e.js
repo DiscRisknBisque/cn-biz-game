@@ -428,6 +428,68 @@ var LEGACY_SAVE = {
   check('scenes switch to the quieter theme',
         (await page.evaluate(function () { return window.Music.current(); })) === 'scene');
 
+  /* ---- the fail sting ---------------------------------------------------- */
+
+  await page.goto(BASE + '/index.html');
+  await pause(250);
+  await page.click('.logo');                    // gesture, so audio may start
+  await pause(600);                             // give the sample time to fetch
+
+  check('the fail sample loads',
+        (await page.evaluate(function () { return window.Sound.sampleReady('fail'); })) === true);
+
+  /* Playing it should use the buffer, not the synthesised stand-in, and should
+     pull the music down underneath it. */
+  var sting = await page.evaluate(async function () {
+    var proto = (window.AudioContext || window.webkitAudioContext).prototype;
+    var buffers = 0, oscs = 0;
+    var ob = proto.createBufferSource, oo = proto.createOscillator;
+    proto.createBufferSource = function () { buffers++; return ob.call(this); };
+    proto.createOscillator = function () { oscs++; return oo.call(this); };
+
+    window.Music.play('map');
+    await new Promise(function (r) { setTimeout(r, 120); });
+    var before = oscs;
+
+    window.Sound.play('fail');
+    await new Promise(function (r) { setTimeout(r, 200); });
+
+    proto.createBufferSource = ob;
+    proto.createOscillator = oo;
+    return { buffers: buffers, oscsDuringSting: oscs - before };
+  });
+  check('the sting plays the sample rather than the synth fallback', sting.buffers >= 1);
+
+  /* With the file unreachable it must still make a noise, not fall silent. */
+  var fellBack = await page.evaluate(async function () {
+    window.Sound.play('__reset__');
+    var proto = (window.AudioContext || window.webkitAudioContext).prototype;
+    var oscs = 0;
+    var oo = proto.createOscillator;
+    proto.createOscillator = function () { oscs++; return oo.call(this); };
+    /* Simulate a sample that never arrived, the way file:// leaves it. */
+    window.Sound.play('gameover');
+    await new Promise(function (r) { setTimeout(r, 150); });
+    proto.createOscillator = oo;
+    return oscs;
+  });
+  check('the synthesised fallback still makes a sound', fellBack > 0);
+
+  /* Muting silences the sting too. */
+  var mutedBuffers = await page.evaluate(async function () {
+    window.Sound.setEnabled(false);
+    var proto = (window.AudioContext || window.webkitAudioContext).prototype;
+    var buffers = 0;
+    var ob = proto.createBufferSource;
+    proto.createBufferSource = function () { buffers++; return ob.call(this); };
+    window.Sound.play('fail');
+    await new Promise(function (r) { setTimeout(r, 150); });
+    proto.createBufferSource = ob;
+    window.Sound.setEnabled(true);
+    return buffers;
+  });
+  check('muting sound effects silences the sting', mutedBuffers === 0);
+
   /* ---- account management ------------------------------------------------ */
 
   await page.goto(BASE + '/index.html');

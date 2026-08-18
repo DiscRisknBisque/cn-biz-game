@@ -1174,7 +1174,8 @@
     var caught = state.dex[ch.id] === 'caught';
     var entry = dexEntry(ch.id);
 
-    playOnce('capture:' + ch.id + ':' + view.runPoints, view.shiny || caught ? 'caught' : 'bad');
+    /* Catching it is a jingle; letting it go gets the trombone. */
+    playOnce('capture:' + ch.id + ':' + view.runPoints, view.shiny || caught ? 'caught' : 'fail');
 
     return [
       h('div', { class: 'stage-wrap' }, [
@@ -1354,7 +1355,7 @@
     var ending = endingFor(score);
     var mine = dexOf(camp.id);
 
-    playOnce('result:' + camp.id, score >= 55 ? 'fanfare' : 'gameover');
+    playOnce('result:' + camp.id, score >= 55 ? 'fanfare' : 'fail');
 
     var rows = camp.chapters.map(function (ch) {
       var got = r.cleared[ch.id];
