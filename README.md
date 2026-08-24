@@ -17,6 +17,9 @@ Two routes, two kinds of founder:
 Every question is a real decision, every answer is followed by the rule that
 actually governs it and a citation you can go and read.
 
+There is also a single-round English MVP level for foreign founders. It follows
+one lawsuit from setup habits to evidence, risk, locked actions and outcome.
+
 Chinese by default, English one tap away. No build step, no dependencies, no
 image or audio files — open `index.html` and play.
 
@@ -37,8 +40,8 @@ the middle of the window. Progress is saved to `localStorage`.
 
 ## What's in it
 
-52 scenarios across two routes. Progress is tracked per route; both fill the
-same dex.
+52 scenarios across two routes, plus one single-round MVP level. Progress is
+tracked per route; both routes fill the same dex.
 
 ### 外国人来华创业 — Founding as a Foreigner
 
@@ -136,6 +139,7 @@ index.html             markup and script tags — that's the whole shell
 css/style.css          pixel UI; light and dark, mobile first
 js/pixel.js            sprite data as character grids, canvas renderer, shiny palette
 js/audio.js            chiptune SFX synthesised from oscillators
+js/level01.js          single-round MVP level: setup, evidence, locked action, outcome
 js/campaign-foreign.js the 外国人来华创业 route
 js/campaign-solo.js    the 一人公司 route
 js/content.js          shared UI strings, and the campaign list
@@ -176,6 +180,10 @@ the right call, 1 is survivable but costly, 0 is how people get hurt — plus `f
 deltas for the four stats, a `verdict`, a `tip` explaining the actual rule, and a
 `law` citation. To add a scene, append to a chapter's `scenes` array; nothing
 else needs to change.
+
+Single-round MVP levels live in `js/level01.js` and use a different shape:
+`setup` grants evidence, `decision` branches can require that evidence, and a
+locked branch shows the missing-proof hint before the player chooses an action.
 
 A campaign is self-contained: chapters, a boss, dex metadata, rare encounters, a
 secret and its own endings. **Adding a third route means adding one file and one

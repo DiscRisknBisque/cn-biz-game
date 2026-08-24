@@ -198,6 +198,103 @@ function checkContent() {
     });
   });
 
+  function texts(value) {
+    if (value && typeof value === 'object') return ['zh', 'en'].map(function (lang) { return value[lang]; });
+    return [value];
+  }
+
+  function text(where, value) {
+    if (value && typeof value === 'object') {
+      ['zh', 'en'].forEach(function (lang) {
+        if (!value[lang] || !String(value[lang]).trim()) problems.push(where + ': missing ' + lang);
+      });
+      return;
+    }
+    if (!value || !String(value).trim()) problems.push(where + ': missing text');
+  }
+
+  function noTax(where, value) {
+    texts(value).forEach(function (v) {
+      if (/\b(tax|VAT|IIT|CIT)\b|20%/.test(String(v || ''))) {
+        problems.push(where + ': player-facing level text must not compute or display tax');
+      }
+    });
+  }
+
+  (C.LEVELS || []).forEach(function (level) {
+    var tag = 'level/' + level.id;
+    var evidence = {};
+    var outcomes = {};
+
+    if (!level.id) problems.push('level: missing id');
+    if (typeof level.order !== 'number') problems.push(tag + ': order must be numeric');
+    text(tag + '.title', level.title);
+    text(tag + '.audience', level.audience);
+    text(tag + '.scenario', level.scenario);
+    text(tag + '.riskInsight', level.riskInsight);
+    noTax(tag + '.scenario', level.scenario);
+    noTax(tag + '.riskInsight', level.riskInsight);
+
+    if (!level.characters || !level.characters.length) problems.push(tag + ': needs characters');
+    (level.characters || []).forEach(function (c, i) {
+      text(tag + '.character' + i + '.name', c.name);
+      text(tag + '.character' + i + '.role', c.role);
+      if (c.line) noTax(tag + '.character' + i + '.line', c.line);
+    });
+
+    (level.availableEvidence || []).forEach(function (ev) {
+      if (!ev.id) problems.push(tag + ': evidence missing id');
+      if (evidence[ev.id]) problems.push(tag + ': duplicate evidence "' + ev.id + '"');
+      evidence[ev.id] = true;
+      text(tag + '.evidence.' + ev.id, ev.label);
+      noTax(tag + '.evidence.' + ev.id, ev.label);
+      if ('redFlag' in ev && ev.redFlag !== true) problems.push(tag + '.evidence.' + ev.id + ': redFlag must be true or absent');
+    });
+
+    text(tag + '.setup.question', level.setup && level.setup.question);
+    if (!level.setup || !level.setup.branches || !level.setup.branches.length) problems.push(tag + ': setup needs branches');
+    ((level.setup && level.setup.branches) || []).forEach(function (branch) {
+      text(tag + '.setup.' + branch.id + '.label', branch.label);
+      noTax(tag + '.setup.' + branch.id + '.label', branch.label);
+      (branch.setsEvidence || []).forEach(function (id) {
+        if (!evidence[id]) problems.push(tag + '.setup.' + branch.id + ': sets unknown evidence "' + id + '"');
+      });
+    });
+
+    (level.outcomes || []).forEach(function (outcome) {
+      outcomes[outcome.id] = true;
+      if (['good', 'risky', 'bad'].indexOf(outcome.tone) < 0) problems.push(tag + '.outcome.' + outcome.id + ': invalid tone');
+      text(tag + '.outcome.' + outcome.id + '.result', outcome.result);
+      text(tag + '.outcome.' + outcome.id + '.explanation', outcome.explanation);
+      text(tag + '.outcome.' + outcome.id + '.hook', outcome.hook);
+      noTax(tag + '.outcome.' + outcome.id + '.result', outcome.result);
+      noTax(tag + '.outcome.' + outcome.id + '.explanation', outcome.explanation);
+      noTax(tag + '.outcome.' + outcome.id + '.hook', outcome.hook);
+
+      var basis = outcome.legalBasis || {};
+      ['jurisdiction', 'citation', 'effectiveDate', 'reviewedBy', 'lastUpdated', 'verifyWith'].forEach(function (k) {
+        text(tag + '.outcome.' + outcome.id + '.legalBasis.' + k, basis[k]);
+      });
+      if (basis.reviewedBy && texts(basis.reviewedBy).some(function (v) { return String(v || '').indexOf('pending') < 0; })) {
+        problems.push(tag + '.outcome.' + outcome.id + ': legalBasis.reviewedBy must remain pending before lawyer review');
+      }
+    });
+
+    text(tag + '.decision.question', level.decision && level.decision.question);
+    if (!level.decision || !level.decision.branches || !level.decision.branches.length) problems.push(tag + ': decision needs branches');
+    ((level.decision && level.decision.branches) || []).forEach(function (branch) {
+      text(tag + '.decision.' + branch.id + '.label', branch.label);
+      noTax(tag + '.decision.' + branch.id + '.label', branch.label);
+      if (!outcomes[branch.leadsTo]) problems.push(tag + '.decision.' + branch.id + ': leads to unknown outcome "' + branch.leadsTo + '"');
+      (branch.requiresEvidence || []).forEach(function (id) {
+        if (!evidence[id]) problems.push(tag + '.decision.' + branch.id + ': requires unknown evidence "' + id + '"');
+      });
+      if (branch.requiresEvidence && branch.requiresEvidence.length && !branch.disabledHint) {
+        problems.push(tag + '.decision.' + branch.id + ': evidence-locked branches need disabledHint');
+      }
+    });
+  });
+
   return problems;
 }
 
@@ -263,7 +360,8 @@ if (problems.length) {
     dex += unitsOf(camp).length + (camp.bonusDex ? 1 : 0) + camp.rares.length + 1;
   });
   console.log('Content OK — ' + C.CAMPAIGNS.length + ' campaigns, ' + scenes +
-              ' scenes, ' + dex + ' dex entries.\n');
+              ' scenes, ' + dex + ' dex entries, ' + (C.LEVELS || []).length +
+              ' single-round levels.\n');
 }
 
 function row(label, r, max) {

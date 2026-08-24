@@ -31,6 +31,12 @@
     };
   }
 
+  function freshLevels() {
+    var unlocked = {};
+    if (C.LEVELS && C.LEVELS[0]) unlocked[C.LEVELS[0].id] = true;
+    return { unlocked: unlocked, cleared: {} };
+  }
+
   function freshState() {
     return {
       /* The game is Chinese-first by design; the toggle is one tap away. */
@@ -41,6 +47,7 @@
       ackRisk: false,       // has the risk notice been read at least once
       campaign: null,       // null until a route is picked
       runs: {},             // campaign id -> run
+      levels: freshLevels(), // single-round levels: unlocks and outcomes
       dex: {},              // dex id -> 'seen' | 'caught'
       shiny: {}             // dex id -> true, earned by a flawless chapter
     };
@@ -53,7 +60,8 @@
   /* Transient per-screen data that should never be persisted. */
   var view = {
     screen: 'title', chapter: null, sceneIdx: 0,
-    picked: null, applied: null, runPoints: 0, settlement: null
+    picked: null, applied: null, runPoints: 0, settlement: null,
+    level: null, evidenceState: null, setupBranch: null, outcome: null
   };
 
   function save() {
@@ -93,6 +101,9 @@
         base.runs[id] = Object.assign(freshRun(), base.runs[id]);
         base.runs[id].stats = Object.assign({}, B.START, base.runs[id].stats);
       });
+      base.levels = Object.assign(freshLevels(), base.levels || {});
+      base.levels.unlocked = Object.assign(freshLevels().unlocked, base.levels.unlocked || {});
+      base.levels.cleared = Object.assign({}, base.levels.cleared || {});
 
       state = base;
       /* Write the migrated shape straight back so the old one stops lingering
@@ -126,6 +137,8 @@
     return obj[state.lang] != null ? obj[state.lang] : (obj.zh || obj.en || '');
   }
   function ui(key) { return T(C.UI[key]); }
+  function L(obj) { return typeof obj === 'string' ? obj : T(obj); }
+  function lv(en, zh) { return state.lang === 'zh' ? zh : en; }
 
   function h(tag, props, kids) {
     var el = document.createElement(tag);
@@ -573,13 +586,37 @@
         h('p', { class: 'small', text: T(camp.blurb) })
       ]);
     });
+    var levelCards = (C.LEVELS || []).map(function (level) {
+      var locked = !(state.levels && state.levels.unlocked && state.levels.unlocked[level.id]);
+      var cleared = state.levels && state.levels.cleared && state.levels.cleared[level.id];
+      var badge = locked ? ui('locked') : cleared ? ui('cleared') : lv('LEVEL ' + level.order, '第' + level.order + '关');
+
+      return h('div', {
+        class: 'route mini' + (locked ? ' locked' : '') + (cleared ? ' sel' : ''),
+        onclick: function () {
+          if (locked) { Sound.play('bad'); return; }
+          Sound.play('select');
+          startLevel(level);
+        }
+      }, [
+        h('div', { class: 'route-head' }, [
+          sprite(level.icon || 'commingle', 4),
+          h('div', { class: 'route-txt' }, [
+            h('div', { class: 'route-title', text: L(level.title) }),
+            h('div', { class: 'route-sub', text: L(level.audience) })
+          ]),
+          h('div', { class: 'route-badge', text: badge })
+        ]),
+        h('p', { class: 'small', text: L(level.scenario) })
+      ]);
+    });
 
     return [
       h('div', { class: 'panel double' }, [
         h('div', { class: 'eyebrow', text: ui('chooseRoute') }),
         h('div', { class: 'h-sub', text: ui('routeHint') })
       ])
-    ].concat(cards, [
+    ].concat(levelCards, cards, [
       h('div', { class: 'gap' }),
       h('button', {
         class: 'btn center', onclick: function () { Sound.play('back'); go('title'); }
@@ -673,6 +710,266 @@
       h('button', {
         class: 'btn primary center', onclick: function () { Sound.play('select'); view.screen = 'scene'; render(); }
       }, [h('strong', { text: ui('next') })])
+    ];
+  }
+
+  /* -------------------------------------------------------- single levels */
+
+  function startLevel(level) {
+    view.level = level;
+    view.evidenceState = {};
+    view.setupBranch = null;
+    view.outcome = null;
+    view.screen = 'levelScenario';
+    render();
+  }
+
+  function startLevelDecision(branch) {
+    view.setupBranch = branch;
+    view.evidenceState = {};
+    (branch.setsEvidence || []).forEach(function (id) { view.evidenceState[id] = true; });
+    Sound.play('select');
+    view.screen = 'levelEvidence';
+    render();
+  }
+
+  function levelOutcome(level, id) {
+    for (var i = 0; i < level.outcomes.length; i++) {
+      if (level.outcomes[i].id === id) return level.outcomes[i];
+    }
+    return null;
+  }
+
+  function levelNo(level) {
+    return lv('LEVEL ' + level.order, '第' + level.order + '关');
+  }
+
+  var SKILL_LABELS = {
+    legalJudgment: { zh: '法律判断', en: 'legal judgment' },
+    evidenceAwareness: { zh: '证据意识', en: 'evidence awareness' },
+    riskControl: { zh: '风险控制', en: 'risk control' },
+    negotiation: { zh: '谈判', en: 'negotiation' }
+  };
+
+  function skillLabel(skill) {
+    return T(SKILL_LABELS[skill]) || skill;
+  }
+
+  function toneLabel(tone) {
+    var labels = {
+      good: { zh: '较好', en: 'GOOD' },
+      risky: { zh: '有风险', en: 'RISKY' },
+      bad: { zh: '不利', en: 'BAD' }
+    };
+    return T(labels[tone]) || tone.toUpperCase();
+  }
+
+  function hasLevelEvidence(branch) {
+    var need = branch.requiresEvidence || [];
+    for (var i = 0; i < need.length; i++) {
+      if (!view.evidenceState || !view.evidenceState[need[i]]) return false;
+    }
+    return true;
+  }
+
+  function pickLevelAction(branch) {
+    var level = view.level;
+    var outcome = levelOutcome(level, branch.leadsTo);
+    if (!outcome) return;
+    view.outcome = outcome;
+    if (!state.levels) state.levels = freshLevels();
+    state.levels.cleared[level.id] = outcome.tone;
+    if (level.unlocksLevelId) state.levels.unlocked[level.unlocksLevelId] = true;
+    Sound.play(outcome.tone === 'good' ? 'good' : outcome.tone === 'risky' ? 'blip' : 'bad');
+    save();
+    view.screen = 'levelOutcome';
+    render();
+  }
+
+  function screenLevelScenario() {
+    var level = view.level || (C.LEVELS && C.LEVELS[0]);
+    if (!level) return screenTitle();
+    playOnce('levelScenario:' + level.id, 'appear');
+    return [
+      h('div', { class: 'panel double center' }, [
+        h('div', { class: 'eyebrow', text: levelNo(level) }),
+        h('div', { class: 'h-title', text: L(level.title) }),
+        h('div', { class: 'h-sub', text: L(level.audience) })
+      ]),
+      h('div', { class: 'stage-wrap' }, [
+        h('div', { class: 'stage' }, [sprite(level.icon || 'commingle', 7)]),
+        h('div', { class: 'ground' })
+      ]),
+      h('div', { class: 'panel double' }, [
+        h('div', { class: 'label', text: lv('SCENARIO', '情境') }),
+        h('p', { class: 'prose', text: L(level.scenario) })
+      ]),
+      h('button', {
+        class: 'btn primary center',
+        onclick: function () { Sound.play('select'); view.screen = 'levelCharacters'; render(); }
+      }, [h('strong', { text: lv('Meet the characters', '认识人物') })])
+    ];
+  }
+
+  function screenLevelCharacters() {
+    var level = view.level;
+    return [
+      h('div', { class: 'panel double' }, [
+        h('div', { class: 'eyebrow', text: L(level.title) }),
+        h('div', { class: 'h-title', text: lv('Meet the characters', '认识人物') })
+      ])
+    ].concat(level.characters.map(function (c) {
+      return h('div', { class: 'panel double' }, [
+        h('div', { class: 'scoreline' }, [
+          h('span', { class: 'stat-num', text: L(c.name) }),
+          h('span', { text: L(c.role) })
+        ]),
+        c.line ? h('p', { class: 'prose', style: 'margin-top:8px', text: '"' + L(c.line) + '"' }) : null
+      ]);
+    }), [
+      h('button', {
+        class: 'btn primary center',
+        onclick: function () { Sound.play('select'); view.screen = 'levelSetup'; render(); }
+      }, [h('strong', { text: ui('next') })])
+    ]);
+  }
+
+  function screenLevelSetup() {
+    var level = view.level;
+    return [
+      h('div', { class: 'panel double' }, [
+        h('div', { class: 'label tip', text: lv('SETUP', '设置') }),
+        h('div', { class: 'h-title', text: L(level.setup.question) }),
+        h('p', { class: 'small', style: 'margin-top:6px', text: L(level.setup.context) })
+      ])
+    ].concat(level.setup.branches.map(function (branch, i) {
+      return h('button', {
+        class: 'btn choice',
+        onclick: function () { startLevelDecision(branch); }
+      }, [
+        h('span', { class: 'idx', text: String(i + 1) }),
+        h('span', { text: L(branch.label) })
+      ]);
+    }));
+  }
+
+  function screenLevelEvidence() {
+    var level = view.level;
+    return [
+      h('div', { class: 'panel double' }, [
+        h('div', { class: 'label', text: lv('COLLECT EVIDENCE', '搜集证据') }),
+        h('div', { class: 'h-title', text: lv('What is in your file?', '你手里有什么材料？') }),
+        h('p', { class: 'small', text: lv('The setup choice seeded this evidence. The missing pieces cannot be created at the courthouse.', '前面的设置选择决定了这些证据。缺失的材料不能到法庭上才补出来。') })
+      ]),
+      h('div', { class: 'evidence-list' }, level.availableEvidence.map(function (ev) {
+        var present = !!(view.evidenceState && view.evidenceState[ev.id]);
+        var cls = 'evidence ' + (present ? (ev.redFlag ? 'redflag' : 'present') : 'missing');
+        var status = present ? (ev.redFlag ? lv('RED FLAG', '不利证据') : lv('READY', '可用')) : lv('MISSING', '缺失');
+        return h('div', { class: cls }, [
+          h('span', { class: 'tag', text: status }),
+          h('span', { text: L(ev.label) })
+        ]);
+      })),
+      h('button', {
+        class: 'btn primary center',
+        onclick: function () { Sound.play('select'); view.screen = 'levelRisk'; render(); }
+      }, [h('strong', { text: lv('Grasp the risk', '判断风险') })])
+    ];
+  }
+
+  function screenLevelRisk() {
+    var level = view.level;
+    return [
+      h('div', { class: 'panel double risknote' }, [
+        h('div', { class: 'label', style: 'background:var(--red)', text: lv('RISK INSIGHT', '风险判断') }),
+        h('p', { class: 'prose', text: L(level.riskInsight) })
+      ]),
+      h('div', { class: 'panel double' }, [
+        h('div', { class: 'riskline' }, [
+          h('span', { class: 'riskbadge', style: 'background:' + C.RISK.civil.colour, text: T(C.RISK.civil.label) }),
+          h('span', { class: 'small', text: T(C.RISK.civil.desc) })
+        ])
+      ]),
+      h('button', {
+        class: 'btn primary center',
+        onclick: function () { Sound.play('select'); view.screen = 'levelDecision'; render(); }
+      }, [h('strong', { text: lv('Choose an action', '选择行动') })])
+    ];
+  }
+
+  function screenLevelDecision() {
+    var level = view.level;
+    return [
+      h('div', { class: 'panel double' }, [
+        h('div', { class: 'label tip', text: lv('DECISION', '行动选择') }),
+        h('div', { class: 'h-title', text: L(level.decision.question) }),
+        h('p', { class: 'small', style: 'margin-top:6px', text: L(level.decision.context) })
+      ])
+    ].concat(level.decision.branches.map(function (branch, i) {
+      var locked = !hasLevelEvidence(branch);
+      return h('button', {
+        class: 'btn choice' + (locked ? ' locked-choice' : ''),
+        disabled: locked ? true : null,
+        onclick: locked ? null : function () { pickLevelAction(branch); }
+      }, [
+        h('span', { class: 'idx', text: String(i + 1) }),
+        h('span', { text: L(branch.label) }),
+        locked ? h('span', { class: 'sub', text: lv('LOCKED - ', '未解锁：') + L(branch.disabledHint || { en: 'Missing evidence.', zh: '缺少证据。' }) }) : null
+      ]);
+    }));
+  }
+
+  function screenLevelOutcome() {
+    var level = view.level;
+    var outcome = view.outcome || level.outcomes[0];
+    var basis = outcome.legalBasis;
+    var toneClass = outcome.tone === 'good' ? 'good' : outcome.tone === 'risky' ? 'tint' : 'bad';
+
+    function row(label, value) {
+      return h('div', { class: 'row' }, [
+        h('span', { text: label }),
+        h('span', { class: 'val', text: value })
+      ]);
+    }
+
+    return [
+      h('div', { class: 'panel double ' + toneClass }, [
+        h('div', { class: 'label', text: toneLabel(outcome.tone) }),
+        h('div', { class: 'h-title', text: L(outcome.result) }),
+        h('p', { class: 'prose', style: 'margin-top:8px', text: L(outcome.explanation) })
+      ]),
+      h('div', { class: 'panel double good' }, [
+        h('div', { class: 'label tip', text: lv('SKILL GAIN', '能力提升') }),
+        h('div', { class: 'tagrow' }, outcome.skillGain.map(function (s) {
+          return h('span', { class: 'tag own', text: skillLabel(s) });
+        })),
+        h('p', { class: 'small', style: 'margin-top:10px', text: L(outcome.hook) })
+      ]),
+      h('div', { class: 'panel double' }, [
+        h('div', { class: 'label law', text: lv('CREDIBILITY', '内容可信度') }),
+        h('div', { class: 'breakdown' }, [
+          row(lv('Jurisdiction', '法域'), L(basis.jurisdiction)),
+          row(lv('Effective', '生效日期'), basis.effectiveDate),
+          row(lv('Reviewed', '审核状态'), L(basis.reviewedBy)),
+          row(lv('Updated', '更新日期'), basis.lastUpdated),
+          row(lv('Verify with', '复核方式'), L(basis.verifyWith))
+        ]),
+        h('div', { class: 'hr' }),
+        h('p', { class: 'small', text: L(basis.citation) }),
+        basis.exceptions ? h('p', { class: 'small', style: 'margin-top:8px', text: L(basis.exceptions) }) : null
+      ]),
+      level.unlocksLevelId ? h('div', { class: 'panel double tint' }, [
+        h('div', { class: 'label', text: lv('UNLOCKED', '已解锁') }),
+        h('p', { class: 'prose', text: lv('Next level: ', '下一关：') + level.unlocksLevelId })
+      ]) : null,
+      h('button', {
+        class: 'btn primary center',
+        onclick: function () { Sound.play('select'); startLevel(level); }
+      }, [h('strong', { text: lv('Replay level', '重玩本关') })]),
+      h('button', {
+        class: 'btn center',
+        onclick: function () { Sound.play('back'); go('routes'); }
+      }, [h('strong', { text: ui('back') })])
     ];
   }
 
@@ -1219,6 +1516,13 @@
     risk: screenRisk,
     map: screenMap,
     intro: screenIntro,
+    levelScenario: screenLevelScenario,
+    levelCharacters: screenLevelCharacters,
+    levelSetup: screenLevelSetup,
+    levelEvidence: screenLevelEvidence,
+    levelRisk: screenLevelRisk,
+    levelDecision: screenLevelDecision,
+    levelOutcome: screenLevelOutcome,
     scene: screenScene,
     feedback: screenFeedback,
     capture: screenCapture,
@@ -1240,7 +1544,7 @@
 
   /* Number keys pick answers; useful on desktop, harmless on phones. */
   document.addEventListener('keydown', function (e) {
-    if (view.screen !== 'scene') return;
+    if (view.screen !== 'scene' && view.screen !== 'levelSetup' && view.screen !== 'levelDecision') return;
     var n = parseInt(e.key, 10);
     if (n >= 1 && n <= 3) {
       var btns = document.querySelectorAll('.btn.choice');

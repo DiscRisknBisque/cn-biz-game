@@ -8,12 +8,13 @@
  */
 (function (root, factory) {
   var api = factory(
+    typeof module === 'object' && module.exports ? require('./level01.js') : root.Level01,
     typeof module === 'object' && module.exports ? require('./campaign-foreign.js') : root.CampaignForeign,
     typeof module === 'object' && module.exports ? require('./campaign-solo.js') : root.CampaignSolo
   );
   if (typeof module === 'object' && module.exports) module.exports = api;
   else root.Content = api;
-})(typeof self !== 'undefined' ? self : this, function (foreign, solo) {
+})(typeof self !== 'undefined' ? self : this, function (level01, foreign, solo) {
   'use strict';
 
   var UI = {
@@ -174,6 +175,7 @@
   /* Order here is the order they appear on the route select screen, and it
      drives dex numbering: the first campaign's creatures are numbered first. */
   var CAMPAIGNS = [foreign, solo];
+  var LEVELS = [level01];
 
   function campaign(id) {
     for (var i = 0; i < CAMPAIGNS.length; i++) if (CAMPAIGNS[i].id === id) return CAMPAIGNS[i];
@@ -185,6 +187,7 @@
     AS_OF: AS_OF,
     RISK: RISK,
     CAMPAIGNS: CAMPAIGNS,
+    LEVELS: LEVELS,
     campaign: campaign
   };
 });

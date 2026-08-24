@@ -212,6 +212,7 @@ canvas.sprite { image-rendering: pixelated; image-rendering: crisp-edges; }
 .btn.choice.correct { background: color-mix(in srgb, var(--green) 26%, var(--panel)); }
 .btn.choice.wrong   { background: color-mix(in srgb, var(--red) 22%, var(--panel)); }
 .btn.choice.dim     { opacity: 0.55; }
+.btn.choice.locked-choice { background: color-mix(in srgb, var(--slate) 12%, var(--panel)); }
 
 /* --- typography ----------------------------------------------------------- */
 
@@ -443,6 +444,30 @@ h1, h2, h3 { font-weight: 800; line-height: 1.3; }
   border-top: 3px dotted color-mix(in srgb, var(--ink) 30%, transparent);
 }
 
+/* --- single-round level --------------------------------------------------- */
+
+.evidence-list {
+  display: grid;
+  gap: 9px;
+}
+
+.evidence {
+  display: flex;
+  align-items: flex-start;
+  gap: 9px;
+  padding: 10px 12px;
+  margin: 3px;
+  background: var(--panel);
+  box-shadow:
+     0 -3px 0 0 var(--ink), 0 3px 0 0 var(--ink),
+     -3px 0 0 0 var(--ink), 3px 0 0 0 var(--ink);
+  font-size: 13px;
+}
+.evidence.present { background: color-mix(in srgb, var(--green) 14%, var(--panel)); }
+.evidence.redflag { background: color-mix(in srgb, var(--red) 13%, var(--panel)); }
+.evidence.missing { opacity: 0.62; }
+.evidence .tag { flex: none; margin-top: 1px; }
+
 .advice {
   margin: 4px 0 0;
   padding-left: 22px;
@@ -469,6 +494,8 @@ h1, h2, h3 { font-weight: 800; line-height: 1.3; }
 }
 .route:active { transform: translateY(4px); }
 .route.sel { background: color-mix(in srgb, var(--gold) 20%, var(--panel)); }
+.route.locked { opacity: 0.5; cursor: default; }
+.route.mini { background: color-mix(in srgb, var(--blue) 8%, var(--panel)); }
 .route-head { display: flex; align-items: center; gap: 11px; margin-bottom: 8px; }
 .route-head canvas { flex: none; }
 .route-txt { flex: 1; min-width: 0; }
