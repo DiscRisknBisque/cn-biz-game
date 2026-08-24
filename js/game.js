@@ -176,6 +176,17 @@
     Sound.play(sfx);
   }
 
+  /* Which bed plays where. The front-of-house screens — title, the character
+     picker, about — share the title theme; everything you actually play sits
+     under the main one. The risk notice is deliberately absent: it is reachable
+     from the topbar at any point, so it keeps whatever was already playing
+     rather than yanking a player mid-chapter back to the title music. */
+  var FRONT_SCREENS = { title: 1, hero: 1, about: 1 };
+  function updateMusic() {
+    if (view.screen === 'risk') return;
+    Sound.music(FRONT_SCREENS[view.screen] ? 'title' : 'main');
+  }
+
   var toastTimer = null;
   function toast(msg) {
     var el = document.getElementById('toast');
@@ -1040,7 +1051,7 @@
       }
     }
 
-    Sound.play(view.rare ? 'caught' : choice.score === 2 ? 'good' : choice.score === 1 ? 'blip' : 'hurt');
+    Sound.play(view.rare ? 'caught' : choice.score === 2 ? 'good' : choice.score === 1 ? 'blip' : 'wrong');
     save();
     view.screen = 'feedback';
     render();
@@ -1116,7 +1127,7 @@
     var caught = state.dex[ch.id] === 'caught';
     var entry = dexEntry(ch.id);
 
-    playOnce('capture:' + ch.id + ':' + view.runPoints, view.shiny || caught ? 'caught' : 'bad');
+    playOnce('capture:' + ch.id + ':' + view.runPoints, view.shiny || caught ? 'caught' : 'wrong');
 
     return [
       h('div', { class: 'stage-wrap' }, [
@@ -1532,6 +1543,8 @@
   };
 
   function render() {
+    updateMusic();
+
     var app = document.getElementById('app');
     app.innerHTML = '';
     app.appendChild(topbar());

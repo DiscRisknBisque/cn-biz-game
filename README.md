@@ -21,7 +21,8 @@ There is also a single-round English MVP level for foreign founders. It follows
 one lawsuit from setup habits to evidence, risk, locked actions and outcome.
 
 Chinese by default, English one tap away. No build step, no dependencies, no
-image or audio files — open `index.html` and play.
+image files — open `index.html` and play. The only assets are three music
+tracks; the sprites are character grids and the effects are oscillators.
 
 ---
 
@@ -138,13 +139,16 @@ disclaimer with it so a screenshot cannot read as a compliance certificate.
 index.html             markup and script tags — that's the whole shell
 css/style.css          pixel UI; light and dark, mobile first
 js/pixel.js            sprite data as character grids, canvas renderer, shiny palette
-js/audio.js            chiptune SFX synthesised from oscillators
+js/audio.js            chiptune SFX from oscillators, plus the music beds
 js/level01.js          single-round MVP level: setup, evidence, locked action, outcome
 js/campaign-foreign.js the 外国人来华创业 route
 js/campaign-solo.js    the 一人公司 route
 js/content.js          shared UI strings, and the campaign list
 js/balance.js          the numbers, kept separate so they can be simulated
 js/game.js             state machine and rendering
+music/music-title.wav  title theme — title, character select, about
+music/music-main.mp3   main theme — everywhere you actually play
+music/wrong.mp3        the sting for a wrong answer or a missed catch
 tools/simulate.js      plays every route headlessly; checks content and balance
 tools/e2e.js           drives the real game in a real browser
 ```
@@ -239,9 +243,10 @@ faster than discovering by hand that a perfect run ends broke and exhausted.
 ## Browser support
 
 Anything current. It uses `color-mix()` in CSS and `Object.assign` in JS, so
-roughly Safari 16.2+, Chrome 111+, Firefox 113+. Sound needs a tap first, as
-browsers require; `prefers-reduced-motion` turns off the bobbing and the
-typewriter caret.
+roughly Safari 16.2+, Chrome 111+, Firefox 113+. Sound and music need a tap
+first, as browsers require — the music starts itself on the first one rather
+than waiting to be asked again; `prefers-reduced-motion` turns off the bobbing
+and the typewriter caret.
 
 ## Licence
 
