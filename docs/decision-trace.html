@@ -1,0 +1,990 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="《测测你适不适合在中国做企业主》的决策结构：进入前的四道门、一道题的决策流、章节结算算式、图鉴的三条获取路径，以及两条路线的全部章节。">
+<title>企业主闯关决策图</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,700;12..96,800&family=JetBrains+Mono:wght@400;600&family=Public+Sans:wght@400;600&display=swap">
+
+<style>
+  /* ── tokens ─────────────────────────────────────────────────────────
+     Light is the base. Dark redefines only these, twice: once for the
+     un-stamped system default, once for an explicit toggle.            */
+  :root {
+    --ink:        #1B1A22;   /* near-black, violet bias — chosen, not inherited */
+    --ink-2:      #56525F;
+    --ink-3:      #86818F;
+    --paper:      #F2EFE4;   /* drafting paper, cooler than the game's cream */
+    --panel:      #FCFAF3;
+    --panel-2:    #E9E5D6;
+    --rule:       #CFC9B6;
+    --rule-hard:  #1B1A22;
+
+    --criminal:   #C93B26;
+    --tax:        #B04E18;
+    --admin:      #A97C05;
+    --civil:      #24619F;
+    --status:     #6B41B5;
+
+    --flow:       #24619F;   /* the one hue spent on the diagrams */
+    --on-accent:  #FCFAF3;
+
+    --shadow:     rgba(27, 26, 34, .22);
+
+    --f-display: "Bricolage Grotesque", "PingFang SC", "Microsoft YaHei", sans-serif;
+    --f-body:    "Public Sans", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", "Noto Sans SC", sans-serif;
+    --f-mono:    "JetBrains Mono", ui-monospace, "DejaVu Sans Mono", monospace;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --ink:       #EDE9F2;
+      --ink-2:     #A9A3B6;
+      --ink-3:     #776F87;
+      --paper:     #141319;
+      --panel:     #1D1C25;
+      --panel-2:   #262532;
+      --rule:      #363442;
+      --rule-hard: #4A4757;
+
+      --criminal:  #F0705C;
+      --tax:       #E28A4C;
+      --admin:     #E5BC3E;
+      --civil:     #6BA6E8;
+      --status:    #A98AE0;
+
+      --flow:      #6BA6E8;
+      --on-accent: #141319;
+
+      --shadow:    rgba(0, 0, 0, .55);
+    }
+  }
+  :root[data-theme="dark"] {
+    --ink:       #EDE9F2;
+    --ink-2:     #A9A3B6;
+    --ink-3:     #776F87;
+    --paper:     #141319;
+    --panel:     #1D1C25;
+    --panel-2:   #262532;
+    --rule:      #363442;
+    --rule-hard: #4A4757;
+
+    --criminal:  #F0705C;
+    --tax:       #E28A4C;
+    --admin:     #E5BC3E;
+    --civil:     #6BA6E8;
+    --status:    #A98AE0;
+
+    --flow:      #6BA6E8;
+    --on-accent: #141319;
+
+    --shadow:    rgba(0, 0, 0, .55);
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--paper);
+    color: var(--ink);
+    font-family: var(--f-body);
+    font-size: 15px;
+    line-height: 1.7;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .wrap {
+    max-width: 1120px;
+    margin: 0 auto;
+    padding: 56px 24px 96px;
+    display: flex;
+    flex-direction: column;
+    gap: 64px;
+  }
+
+  /* ── shared chrome ──────────────────────────────────────────────── */
+
+  .eyebrow {
+    font-family: var(--f-mono);
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: .16em;
+    text-transform: uppercase;
+    color: var(--ink-3);
+  }
+
+  h1 {
+    font-family: var(--f-display);
+    font-weight: 800;
+    font-size: clamp(34px, 6vw, 58px);
+    line-height: 1.06;
+    letter-spacing: -.015em;
+    text-wrap: balance;
+    margin: 14px 0 0;
+  }
+
+  h2 {
+    font-family: var(--f-display);
+    font-weight: 700;
+    font-size: clamp(21px, 3vw, 27px);
+    line-height: 1.2;
+    letter-spacing: -.01em;
+    text-wrap: balance;
+  }
+
+  h3 {
+    font-family: var(--f-display);
+    font-weight: 700;
+    font-size: 16px;
+    line-height: 1.3;
+  }
+
+  p { max-width: 68ch; }
+  .lede { font-size: 17px; color: var(--ink-2); max-width: 60ch; }
+
+  /* Hard-edged panels with an offset shadow — the game's own chrome,
+     carried into its documentation. No radii anywhere. */
+  .panel {
+    background: var(--panel);
+    border: 2px solid var(--rule-hard);
+    box-shadow: 5px 5px 0 0 var(--shadow);
+    padding: 22px;
+  }
+
+  section { display: flex; flex-direction: column; gap: 20px; }
+
+  /* A flex or grid child will not shrink below its content's intrinsic width
+     unless told to, which stops overflow-x:auto containers from ever
+     scrolling — the wide diagrams and tables would push the whole page
+     sideways instead of scrolling inside their own frame. */
+  .wrap > *, section > *, .cols > * { min-width: 0; }
+
+  .sec-head { display: flex; flex-direction: column; gap: 7px; }
+  .sec-head .num {
+    font-family: var(--f-mono);
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: .16em;
+    color: var(--flow);
+  }
+
+  /* ── header ─────────────────────────────────────────────────────── */
+
+  header { display: flex; flex-direction: column; gap: 26px; }
+
+  .stats {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(148px, 1fr));
+    gap: 0;
+    border: 2px solid var(--rule-hard);
+    box-shadow: 5px 5px 0 0 var(--shadow);
+    background: var(--panel);
+  }
+  .stat { padding: 16px 18px; border-right: 2px solid var(--rule-hard); }
+  .stat:last-child { border-right: 0; }
+  .stat b {
+    display: block;
+    font-family: var(--f-display);
+    font-weight: 800;
+    font-size: 30px;
+    line-height: 1;
+    font-variant-numeric: tabular-nums;
+  }
+  .stat span {
+    display: block;
+    margin-top: 6px;
+    font-family: var(--f-mono);
+    font-size: 10.5px;
+    letter-spacing: .1em;
+    text-transform: uppercase;
+    color: var(--ink-3);
+  }
+  @media (max-width: 640px) {
+    .stat { border-right: 0; border-bottom: 2px solid var(--rule-hard); }
+    .stat:last-child { border-bottom: 0; }
+  }
+
+  /* ── figures ────────────────────────────────────────────────────── */
+
+  figure {
+    background: var(--panel);
+    border: 2px solid var(--rule-hard);
+    box-shadow: 5px 5px 0 0 var(--shadow);
+    padding: 22px 22px 18px;
+    overflow-x: auto;
+  }
+  figure svg { display: block; width: 100%; min-width: 620px; height: auto; }
+  figcaption {
+    margin-top: 16px;
+    padding-top: 13px;
+    border-top: 1px solid var(--rule);
+    font-size: 13.5px;
+    color: var(--ink-2);
+    max-width: 78ch;
+  }
+
+  .node-fill  { fill: var(--panel-2); }
+  .node-line  { stroke: currentColor; stroke-width: 2; }
+  .node-key   { fill: var(--flow); }
+  .flow-line  { stroke: currentColor; stroke-width: 2; fill: none; }
+  .flow-key   { stroke: var(--flow); stroke-width: 2.5; fill: none; }
+  .dash       { stroke-dasharray: 6 5; }
+  .t          { font-family: var(--f-mono); font-size: 12.5px; fill: currentColor; }
+  .t-lg       { font-family: var(--f-body); font-size: 14px; font-weight: 600; fill: currentColor; }
+  .t-sm       { font-family: var(--f-mono); font-size: 11px; fill: var(--ink-3); }
+  .t-arrow    { font-family: var(--f-mono); font-size: 11px; fill: var(--ink-2); }
+  .t-on-key   { fill: var(--on-accent); }
+
+  /* ── data tables ────────────────────────────────────────────────── */
+
+  .tbl-wrap { overflow-x: auto; border: 2px solid var(--rule-hard); box-shadow: 5px 5px 0 0 var(--shadow); background: var(--panel); }
+  table { border-collapse: collapse; width: 100%; min-width: 700px; }
+  th, td { text-align: left; padding: 11px 14px; border-bottom: 1px solid var(--rule); vertical-align: top; }
+  thead th {
+    font-family: var(--f-mono);
+    font-size: 10.5px;
+    font-weight: 600;
+    letter-spacing: .1em;
+    text-transform: uppercase;
+    color: var(--ink-3);
+    background: var(--panel-2);
+    border-bottom: 2px solid var(--rule-hard);
+    white-space: nowrap;
+  }
+  tbody tr:last-child td { border-bottom: 0; }
+  td.num, th.num { font-family: var(--f-mono); font-variant-numeric: tabular-nums; white-space: nowrap; }
+  td .ch-title { font-weight: 600; }
+  td .ch-sub { color: var(--ink-2); font-size: 13px; }
+  .mono { font-family: var(--f-mono); font-variant-numeric: tabular-nums; }
+
+  /* ── chips ──────────────────────────────────────────────────────── */
+
+  .chips { display: flex; flex-wrap: wrap; gap: 4px; }
+  .chip {
+    font-family: var(--f-mono);
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: .06em;
+    padding: 2px 6px;
+    border: 1.5px solid currentColor;
+    white-space: nowrap;
+  }
+  .c-criminal { color: var(--criminal); }
+  .c-tax      { color: var(--tax); }
+  .c-admin    { color: var(--admin); }
+  .c-civil    { color: var(--civil); }
+  .c-status   { color: var(--status); }
+  .c-rare     { color: var(--status); border-style: dashed; }
+  .c-vol      { color: var(--tax); border-style: dashed; }
+
+  /* ── two-column blocks ──────────────────────────────────────────── */
+
+  .cols { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; }
+
+  /* A deliberate 2-up ratio, but only once there is room for it. */
+  .cols.ratio { grid-template-columns: 1fr; }
+  @media (min-width: 760px) {
+    .cols.ratio { grid-template-columns: minmax(280px, .9fr) minmax(320px, 1.1fr); }
+  }
+
+  .formula {
+    font-family: var(--f-mono);
+    font-size: 13px;
+    line-height: 2;
+    background: var(--panel-2);
+    border-left: 4px solid var(--flow);
+    padding: 14px 16px;
+    overflow-x: auto;
+  }
+  .formula b { color: var(--flow); font-weight: 600; }
+
+  ul.tight { list-style: none; display: flex; flex-direction: column; gap: 9px; }
+  ul.tight li { padding-left: 20px; position: relative; font-size: 14px; }
+  ul.tight li::before {
+    content: "";
+    position: absolute;
+    left: 0; top: .62em;
+    width: 8px; height: 8px;
+    background: var(--flow);
+  }
+
+  .band { display: flex; flex-direction: column; gap: 0; border: 2px solid var(--rule-hard); box-shadow: 5px 5px 0 0 var(--shadow); background: var(--panel); }
+  .band-row { display: grid; grid-template-columns: 62px 78px 1fr; align-items: center; gap: 0; border-bottom: 1px solid var(--rule); }
+  .band-row:last-child { border-bottom: 0; }
+  .band-grade {
+    font-family: var(--f-display);
+    font-weight: 800;
+    font-size: 26px;
+    text-align: center;
+    padding: 12px 0;
+    border-right: 1px solid var(--rule);
+    align-self: stretch;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .band-score { font-family: var(--f-mono); font-size: 12px; color: var(--ink-2); padding: 0 14px; border-right: 1px solid var(--rule); align-self: stretch; display: flex; align-items: center; }
+  .band-names { padding: 10px 14px; display: flex; flex-direction: column; gap: 2px; font-size: 13.5px; }
+  .band-names span:first-child { font-weight: 600; }
+  .band-names span:last-child { color: var(--ink-2); }
+
+  .note {
+    border-left: 4px solid var(--tax);
+    background: var(--panel-2);
+    padding: 14px 16px;
+    font-size: 13.5px;
+    color: var(--ink-2);
+  }
+  .note b { color: var(--ink); font-weight: 600; }
+
+  footer {
+    border-top: 2px solid var(--rule-hard);
+    padding-top: 20px;
+    font-family: var(--f-mono);
+    font-size: 11.5px;
+    color: var(--ink-3);
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px 22px;
+  }
+
+  a { color: var(--flow); }
+  :focus-visible { outline: 3px solid var(--flow); outline-offset: 3px; }
+
+  @media (prefers-reduced-motion: no-preference) {
+    section, header { animation: rise .5s cubic-bezier(.2,.7,.3,1) both; }
+    section:nth-of-type(1) { animation-delay: .04s; }
+    section:nth-of-type(2) { animation-delay: .08s; }
+    section:nth-of-type(3) { animation-delay: .12s; }
+    @keyframes rise { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header>
+    <div>
+      <div class="eyebrow">测测你适不适合在中国做企业主 · 决策结构</div>
+      <h1>企业主闯关决策图</h1>
+    </div>
+    <p class="lede">
+      这份图把游戏拆成四层：进入前的门、一道题的决策流、章节结算的算式、以及两条路线的全部章节。
+      所有数字都是从 <span class="mono">js/</span> 里直接导出的，不是估算。
+    </p>
+
+    <div class="stats">
+      <div class="stat"><b>2</b><span>条路线</span></div>
+      <div class="stat"><b>52</b><span>个场景</span></div>
+      <div class="stat"><b>156</b><span>个选项</span></div>
+      <div class="stat"><b>29</b><span>只图鉴</span></div>
+      <div class="stat"><b>10</b><span>个结局</span></div>
+    </div>
+  </header>
+
+  <!-- ── 1 ────────────────────────────────────────────────────────── -->
+  <section>
+    <div class="sec-head">
+      <div class="num">01 / 进入</div>
+      <h2>看到第一道题之前，有四道门</h2>
+      <p>每一道门都会写进存档，所以只挡第一次。中途清存档会重新走一遍。</p>
+    </div>
+
+    <figure>
+      <svg viewBox="0 0 1000 214" role="img"
+           aria-label="进入流程：标题、风险提示、登录注册、完善资料、选角色、选路线六个界面依次相连，每一步各自写入存档的一个字段。">
+        <defs>
+          <marker id="a1" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+            <path d="M0 0 L10 5 L0 10 z" fill="currentColor"/>
+          </marker>
+          <marker id="a1k" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+            <path d="M0 0 L10 5 L0 10 z" fill="var(--flow)"/>
+          </marker>
+        </defs>
+
+        <!-- nodes -->
+        <g>
+          <rect class="node-fill node-line" x="20"  y="56" width="140" height="54"/>
+          <text class="t-lg" x="90"  y="88" text-anchor="middle">标题</text>
+
+          <rect class="node-key" x="180" y="56" width="140" height="54"/>
+          <text class="t-lg t-on-key" x="250" y="88" text-anchor="middle">风险提示</text>
+
+          <rect class="node-fill node-line" x="340" y="56" width="140" height="54"/>
+          <text class="t-lg" x="410" y="88" text-anchor="middle">登录 · 注册</text>
+
+          <rect class="node-fill node-line" x="500" y="56" width="140" height="54"/>
+          <text class="t-lg" x="570" y="88" text-anchor="middle">完善资料</text>
+
+          <rect class="node-fill node-line" x="660" y="56" width="140" height="54"/>
+          <text class="t-lg" x="730" y="88" text-anchor="middle">选角色</text>
+
+          <rect class="node-fill node-line" x="820" y="56" width="140" height="54"/>
+          <text class="t-lg" x="890" y="88" text-anchor="middle">选路线</text>
+        </g>
+
+        <!-- arrows -->
+        <g>
+          <line class="flow-key" x1="160" y1="83" x2="176" y2="83" marker-end="url(#a1k)"/>
+          <line class="flow-line" x1="320" y1="83" x2="336" y2="83" marker-end="url(#a1)"/>
+          <line class="flow-line" x1="480" y1="83" x2="496" y2="83" marker-end="url(#a1)"/>
+          <line class="flow-line" x1="640" y1="83" x2="656" y2="83" marker-end="url(#a1)"/>
+          <line class="flow-line" x1="800" y1="83" x2="816" y2="83" marker-end="url(#a1)"/>
+        </g>
+
+        <!-- what each gate demands -->
+        <g>
+          <text class="t-arrow" x="250" y="34" text-anchor="middle">首次必读</text>
+          <text class="t-arrow" x="410" y="34" text-anchor="middle">手机 / 邮箱 / 微信</text>
+          <text class="t-arrow" x="570" y="34" text-anchor="middle">姓名 · 性别 · 年龄 · 国籍</text>
+          <text class="t-arrow" x="890" y="34" text-anchor="middle">两条路线进度独立</text>
+        </g>
+
+        <!-- what each gate persists -->
+        <g>
+          <line x1="250" y1="118" x2="250" y2="136" class="flow-line dash"/>
+          <line x1="410" y1="118" x2="410" y2="136" class="flow-line dash"/>
+          <line x1="570" y1="118" x2="570" y2="136" class="flow-line dash"/>
+          <line x1="890" y1="118" x2="890" y2="136" class="flow-line dash"/>
+
+          <text class="t-sm" x="250" y="154" text-anchor="middle">ackRisk = true</text>
+          <text class="t-sm" x="410" y="154" text-anchor="middle">consent.privacy</text>
+          <text class="t-sm" x="570" y="154" text-anchor="middle">account.profile</text>
+          <text class="t-sm" x="570" y="172" text-anchor="middle">&lt;14 岁另需监护人同意</text>
+          <text class="t-sm" x="890" y="154" text-anchor="middle">campaign = foreign | solo</text>
+        </g>
+
+        <text class="t-sm" x="20" y="200">虚线 = 写入 localStorage 的字段</text>
+      </svg>
+      <figcaption>
+        风险提示是唯一被着色的一步：它必须先于任何法律内容出现，读过一次后仍可从顶栏的 ⚠ 随时回看。
+        登录之所以在资料之前，是因为验证成功才创建账号，资料是补在已存在的账号上的。
+      </figcaption>
+    </figure>
+  </section>
+
+  <!-- ── 2 ────────────────────────────────────────────────────────── -->
+  <section>
+    <div class="sec-head">
+      <div class="num">02 / 核心循环</div>
+      <h2>一道题里到底发生了什么</h2>
+      <p>这是整个游戏重复 52 次的那个循环。三个选项的差别不只是分数，还决定四个数值往哪走、以及会不会掉出一只稀有精灵。</p>
+    </div>
+
+    <figure>
+      <svg viewBox="0 0 1000 508" role="img"
+           aria-label="一道题的决策流：出题后三选一，得分 2、1、0 分别对应不同的数值增减，都汇入反馈页；反馈页再回到下一题，或在本章最后一题后进入本章结算。">
+        <defs>
+          <marker id="a2" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+            <path d="M0 0 L10 5 L0 10 z" fill="currentColor"/>
+          </marker>
+          <marker id="a2k" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+            <path d="M0 0 L10 5 L0 10 z" fill="var(--flow)"/>
+          </marker>
+        </defs>
+
+        <!-- 出题 -->
+        <rect class="node-fill node-line" x="24" y="212" width="150" height="62"/>
+        <text class="t-lg" x="99" y="238" text-anchor="middle">出题</text>
+        <text class="t-sm" x="99" y="258" text-anchor="middle">场景 + 三选项</text>
+
+        <!-- choices -->
+        <rect class="node-fill node-line" x="246" y="36" width="212" height="70"/>
+        <text class="t" x="262" y="60">◎ 正确</text>
+        <text class="t-sm" x="262" y="80">score 2 · 合规 ↑ 声誉 ↑</text>
+        <text class="t-sm" x="262" y="96">可触发稀有精灵</text>
+
+        <rect class="node-fill node-line" x="246" y="208" width="212" height="70"/>
+        <text class="t" x="262" y="232">△ 尚可</text>
+        <text class="t-sm" x="262" y="252">score 1 · 小幅波动</text>
+        <text class="t-sm" x="262" y="268">不触发稀有</text>
+
+        <rect class="node-fill node-line" x="246" y="380" width="212" height="70"/>
+        <text class="t" x="262" y="404">✕ 危险</text>
+        <text class="t-sm" x="262" y="424">score 0 · 合规 ↓↓</text>
+        <text class="t-sm" x="262" y="440">现金常常 ↑（这是陷阱）</text>
+
+        <!-- fan out -->
+        <path class="flow-line" d="M174 243 C 208 243, 210 71, 242 71"  marker-end="url(#a2)"/>
+        <line class="flow-line" x1="174" y1="243" x2="242" y2="243" marker-end="url(#a2)"/>
+        <path class="flow-line" d="M174 243 C 208 243, 210 415, 242 415" marker-end="url(#a2)"/>
+
+        <!-- feedback -->
+        <rect class="node-key" x="530" y="168" width="210" height="150"/>
+        <text class="t-lg t-on-key" x="546" y="196">反馈页</text>
+        <text class="t-sm t-on-key" x="546" y="220" style="fill:var(--on-accent);opacity:.85">结论 · 这一步错在哪</text>
+        <text class="t-sm t-on-key" x="546" y="240" style="fill:var(--on-accent);opacity:.85">法律小贴士</text>
+        <text class="t-sm t-on-key" x="546" y="260" style="fill:var(--on-accent);opacity:.85">法律依据（条文出处）</text>
+        <text class="t-sm t-on-key" x="546" y="280" style="fill:var(--on-accent);opacity:.85">风险类型徽章</text>
+        <text class="t-sm t-on-key" x="546" y="300" style="fill:var(--on-accent);opacity:.85">政策易变标记（6 处）</text>
+
+        <!-- converge -->
+        <path class="flow-line" d="M458 71  C 496 71, 494 200, 526 200"  marker-end="url(#a2)"/>
+        <line class="flow-line" x1="458" y1="243" x2="526" y2="243" marker-end="url(#a2)"/>
+        <path class="flow-line" d="M458 415 C 496 415, 494 286, 526 286" marker-end="url(#a2)"/>
+        <text class="t-arrow" x="492" y="152" text-anchor="middle">数值即时生效</text>
+
+        <!-- settlement -->
+        <rect class="node-fill node-line" x="800" y="212" width="176" height="62"/>
+        <text class="t-lg" x="888" y="238" text-anchor="middle">本章结算</text>
+        <text class="t-sm" x="888" y="258" text-anchor="middle">捕获判定 + 季度账</text>
+
+        <line class="flow-key" x1="740" y1="243" x2="796" y2="243" marker-end="url(#a2k)"/>
+        <text class="t-arrow" x="746" y="228" text-anchor="middle">本章最后一题</text>
+
+        <!-- loop back -->
+        <path class="flow-line dash" d="M635 318 L635 470 L99 470 L99 278" marker-end="url(#a2)"/>
+        <text class="t-arrow" x="368" y="492" text-anchor="middle">还有下一题 · 回到出题</text>
+
+        <text class="t-sm" x="24" y="24">每章 3 题（签证章 6 题）· BOSS 章 3–4 题</text>
+      </svg>
+      <figcaption>
+        反馈页是这个游戏真正的产品：三个选项的价值不在分数，而在于每次选完都强制显示条文出处和风险类型。
+        危险选项通常会<strong>增加现金</strong>——这是刻意设计的，合规的代价在当期总是看起来更贵。
+      </figcaption>
+    </figure>
+
+    <div class="cols">
+      <div class="panel">
+        <h3>选项如何影响数值</h3>
+        <p style="margin-top:10px;font-size:14px;color:var(--ink-2)">
+          场景里写的是「感觉」上的增减，引擎再按每项数值的系数缩放，免得 52 道题之后所有条都撞到上下限。
+        </p>
+        <div class="formula" style="margin-top:14px">
+          实际变化 = 场景写的值 × <b>系数</b><br>
+          现金 <b>0.55</b> · 合规 <b>0.32</b> · 声誉 <b>0.42</b> · 精力 <b>0.55</b>
+        </div>
+        <p style="margin-top:12px;font-size:13.5px;color:var(--ink-2)">
+          起始值：现金 120 · 合规 50 · 声誉 50 · 精力 100。合规与声誉上限 100，现金上限 200。
+        </p>
+      </div>
+
+      <div class="panel">
+        <h3>BOSS 章的差别</h3>
+        <p style="margin-top:10px;font-size:14px;color:var(--ink-2)">
+          同一个循环，多了一条血条。答对削减「稽查进度」，答错则反过来扣自己的精力。
+        </p>
+        <div class="formula" style="margin-top:14px">
+          score 2 → 稽查 <b>−30</b><br>
+          score 1 → 稽查 <b>−12</b><br>
+          score 0 → 稽查 不变，自己 <b>精力 −8</b>
+        </div>
+        <p style="margin-top:12px;font-size:13.5px;color:var(--ink-2)">
+          外国人篇 BOSS 4 题（满分 8），一人公司篇 3 题（满分 6）。
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── 3 ────────────────────────────────────────────────────────── -->
+  <section>
+    <div class="sec-head">
+      <div class="num">03 / 章节结算</div>
+      <h2>过完一章，账要结一次</h2>
+      <p>这一步是把「合规」从一个抽象分数变成真金白银的地方，也是唯一会主动扣钱的机制。</p>
+    </div>
+
+    <div class="cols">
+      <div class="panel">
+        <h3>季度结算的四项</h3>
+        <div class="formula" style="margin-top:14px">
+          休整恢复　精力 <b>+8</b><br>
+          经营收入　现金 <b>+4 + 10 × 本章正确率</b><br>
+          罚款滞纳　现金 <b>−(42 − 合规) × 0.7</b><br>
+          善后救火　精力 <b>−(42 − 合规) × 0.35</b>
+        </div>
+        <p style="margin-top:12px;font-size:13.5px;color:var(--ink-2)">
+          后两项只在<strong>合规低于 42</strong> 时触发。合规越低，扣得越多——所以短期靠危险选项攒下的现金，会在结算时被慢慢收回去。
+        </p>
+      </div>
+
+      <div class="panel">
+        <h3>为什么要有这一步</h3>
+        <ul class="tight" style="margin-top:14px">
+          <li>没有它，走合规路线的玩家会一路亏钱，通关时弹尽粮绝</li>
+          <li>有了它，「合规」不再只是一个分数，而是每季度真实的现金流差异</li>
+          <li>罚款用的是<strong>上一章结束时</strong>的合规值，所以补救永远慢一拍——和现实一致</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── 4 ────────────────────────────────────────────────────────── -->
+  <section>
+    <div class="sec-head">
+      <div class="num">04 / 收集</div>
+      <h2>图鉴的三条获取路径互不相同</h2>
+      <p>这是设计上最关键的分岔：三种触发条件奖励三种不同的玩法，所以重玩才有意义。</p>
+    </div>
+
+    <figure>
+      <svg viewBox="0 0 1000 292" role="img"
+           aria-label="图鉴三条获取路径的对比：章节精灵看本章累计得分，稀有精灵看某一道指定题是否答对，隐藏条目看本篇是否已全部收服。">
+        <defs>
+          <marker id="a3" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+            <path d="M0 0 L10 5 L0 10 z" fill="currentColor"/>
+          </marker>
+          <marker id="a3k" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+            <path d="M0 0 L10 5 L0 10 z" fill="var(--flow)"/>
+          </marker>
+        </defs>
+
+        <!-- column headers -->
+        <text class="t-sm" x="24"  y="24">触发条件</text>
+        <text class="t-sm" x="470" y="24">结果</text>
+        <text class="t-sm" x="768" y="24">额外</text>
+
+        <!-- lane 1 -->
+        <rect class="node-fill node-line" x="24" y="42" width="360" height="58"/>
+        <text class="t" x="40" y="68">章节精灵 · 17 只</text>
+        <text class="t-sm" x="40" y="88">本章累计得分 ≥ 捕获线</text>
+
+        <line class="flow-line" x1="384" y1="71" x2="462" y2="71" marker-end="url(#a3)"/>
+        <text class="t-arrow" x="423" y="60" text-anchor="middle">达线</text>
+
+        <rect class="node-fill node-line" x="466" y="42" width="230" height="58"/>
+        <text class="t" x="482" y="68">收服</text>
+        <text class="t-sm" x="482" y="88">未达线 → 只记「见过」</text>
+
+        <line class="flow-key" x1="696" y1="71" x2="760" y2="71" marker-end="url(#a3k)"/>
+        <text class="t-arrow" x="728" y="60" text-anchor="middle">满分</text>
+
+        <rect class="node-key" x="764" y="42" width="212" height="58"/>
+        <text class="t t-on-key" x="780" y="68">✦ 闪光个体</text>
+        <text class="t-sm t-on-key" x="780" y="88" style="fill:var(--on-accent);opacity:.85">换一套色相的同一只</text>
+
+        <!-- lane 2 -->
+        <rect class="node-fill node-line" x="24" y="126" width="360" height="58"/>
+        <text class="t" x="40" y="152">稀有精灵 · 10 只</text>
+        <text class="t-sm" x="40" y="172">某一道<tspan style="font-weight:600">指定</tspan>的题答对（与总分无关）</text>
+
+        <line class="flow-line" x1="384" y1="155" x2="462" y2="155" marker-end="url(#a3)"/>
+        <text class="t-arrow" x="423" y="144" text-anchor="middle">立即</text>
+
+        <rect class="node-fill node-line" x="466" y="126" width="230" height="58"/>
+        <text class="t" x="482" y="152">当场收服</text>
+        <text class="t-sm" x="482" y="172">反馈页弹独立横幅</text>
+
+        <line class="flow-line dash" x1="696" y1="155" x2="760" y2="155" marker-end="url(#a3)"/>
+        <text class="t-arrow" x="728" y="144" text-anchor="middle">漏掉了</text>
+
+        <rect class="node-fill node-line" x="764" y="126" width="212" height="58"/>
+        <text class="t" x="780" y="152">重玩仍可补</text>
+        <text class="t-sm" x="780" y="172">奖励精准，不是平均分</text>
+
+        <!-- lane 3 -->
+        <rect class="node-fill node-line" x="24" y="210" width="360" height="58"/>
+        <text class="t" x="40" y="236">隐藏条目 · 2 只</text>
+        <text class="t-sm" x="40" y="256">本篇其余条目<tspan style="font-weight:600">全部</tspan>收服</text>
+
+        <line class="flow-line" x1="384" y1="239" x2="462" y2="239" marker-end="url(#a3)"/>
+        <text class="t-arrow" x="423" y="228" text-anchor="middle">集齐</text>
+
+        <rect class="node-fill node-line" x="466" y="210" width="230" height="58"/>
+        <text class="t" x="482" y="236">自动出现</text>
+        <text class="t-sm" x="482" y="256">律师 / 会计师</text>
+
+        <line class="flow-line dash" x1="696" y1="239" x2="760" y2="239" marker-end="url(#a3)"/>
+        <rect class="node-fill node-line" x="764" y="210" width="212" height="58"/>
+        <text class="t" x="780" y="236">全书的题眼</text>
+        <text class="t-sm" x="780" y="256">「唯一站在你这边的」</text>
+      </svg>
+      <figcaption>
+        三条路径的触发条件分别是<strong>累计</strong>、<strong>单点</strong>和<strong>完成度</strong>。
+        章节精灵奖励整体表现，稀有精灵奖励在某一个具体知识点上没含糊，隐藏条目奖励把一整篇打透——这三种动机不重叠，所以 29 只是有梯度的，不是一个长列表。
+      </figcaption>
+    </figure>
+
+    <div class="note">
+      <b>编号是连续的。</b>外国人篇占 001–017，一人公司篇接着占 018–029。两条路线共用一本图鉴，
+      所以玩完一条之后，图鉴上那一整块空号本身就是继续玩下去的理由。
+    </div>
+  </section>
+
+  <!-- ── 5 ────────────────────────────────────────────────────────── -->
+  <section>
+    <div class="sec-head">
+      <div class="num">05 / 路线 A</div>
+      <h2>外国人来华创业 · 8 章 + 年终大考</h2>
+      <p>满分 62。第一章是唯一的 6 题章节——签证身份是绝大多数人还没开始就走错的地方。</p>
+    </div>
+
+    <div class="tbl-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th class="num">章</th>
+            <th>标题</th>
+            <th>精灵</th>
+            <th class="num">题数</th>
+            <th class="num">捕获线</th>
+            <th>风险类型</th>
+            <th>特殊</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td class="num">1</td>
+            <td><div class="ch-title">落地</div><div class="ch-sub">签证身份与工作许可</div></td>
+            <td>签证兽</td><td class="num">6</td><td class="num">10 / 12</td>
+            <td><div class="chips"><span class="chip c-admin">行政</span><span class="chip c-status">资格</span><span class="chip c-criminal">刑事</span></div></td>
+            <td><div class="chips"><span class="chip c-vol">政策易变 ×1</span></div></td>
+          </tr>
+          <tr>
+            <td class="num">2</td>
+            <td><div class="ch-title">立业</div><div class="ch-sub">公司形式与市场准入</div></td>
+            <td>执照龙</td><td class="num">3</td><td class="num">5 / 6</td>
+            <td><div class="chips"><span class="chip c-admin">行政</span><span class="chip c-civil">民事</span></div></td>
+            <td><div class="chips"><span class="chip c-rare">负面清单蛇</span><span class="chip c-vol">政策易变</span></div></td>
+          </tr>
+          <tr>
+            <td class="num">3</td>
+            <td><div class="ch-title">印章</div><div class="ch-sub">注册、治理与法定代表人</div></td>
+            <td>印章怪</td><td class="num">3</td><td class="num">5 / 6</td>
+            <td><div class="chips"><span class="chip c-civil">民事</span><span class="chip c-status">资格</span><span class="chip c-admin">行政</span><span class="chip c-tax">税务</span></div></td>
+            <td><div class="chips"><span class="chip c-rare">限高锁</span></div></td>
+          </tr>
+          <tr>
+            <td class="num">4</td>
+            <td><div class="ch-title">钱流</div><div class="ch-sub">银行开户与跨境资金</div></td>
+            <td>外汇鲸</td><td class="num">3</td><td class="num">5 / 6</td>
+            <td><div class="chips"><span class="chip c-admin">行政</span><span class="chip c-criminal">刑事</span><span class="chip c-tax">税务</span></div></td>
+            <td>—</td>
+          </tr>
+          <tr>
+            <td class="num">5</td>
+            <td><div class="ch-title">税务</div><div class="ch-sub">发票、申报与个税</div></td>
+            <td>发票精</td><td class="num">3</td><td class="num">5 / 6</td>
+            <td><div class="chips"><span class="chip c-tax">税务</span><span class="chip c-criminal">刑事</span><span class="chip c-status">资格</span></div></td>
+            <td>—</td>
+          </tr>
+          <tr>
+            <td class="num">6</td>
+            <td><div class="ch-title">用人</div><div class="ch-sub">劳动合同与社会保险</div></td>
+            <td>社保灵</td><td class="num">3</td><td class="num">5 / 6</td>
+            <td><div class="chips"><span class="chip c-civil">民事</span><span class="chip c-admin">行政</span></div></td>
+            <td><div class="chips"><span class="chip c-rare">双倍工资鬼</span></div></td>
+          </tr>
+          <tr>
+            <td class="num">7</td>
+            <td><div class="ch-title">护城河</div><div class="ch-sub">商标、版权与专利</div></td>
+            <td>商标鸟</td><td class="num">3</td><td class="num">5 / 6</td>
+            <td><div class="chips"><span class="chip c-civil">民事</span></div></td>
+            <td><div class="chips"><span class="chip c-rare">抢注鸦</span></div></td>
+          </tr>
+          <tr>
+            <td class="num">8</td>
+            <td><div class="ch-title">数据</div><div class="ch-sub">网络与个人信息合规</div></td>
+            <td>数据蛛</td><td class="num">3</td><td class="num">5 / 6</td>
+            <td><div class="chips"><span class="chip c-admin">行政</span><span class="chip c-criminal">刑事</span></div></td>
+            <td><div class="chips"><span class="chip c-rare">出境门</span><span class="chip c-vol">政策易变</span></div></td>
+          </tr>
+          <tr style="background:var(--panel-2)">
+            <td class="num">★</td>
+            <td><div class="ch-title">年终大考</div><div class="ch-sub">一年的选择，今天结账</div></td>
+            <td>稽查熊</td><td class="num">4</td><td class="num">6 / 8</td>
+            <td><div class="chips"><span class="chip c-criminal">刑事</span><span class="chip c-tax">税务</span><span class="chip c-civil">民事</span><span class="chip c-status">资格</span></div></td>
+            <td><div class="chips"><span class="chip c-rare">虚开鬼</span></div></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="note">
+      通关后另送<strong>注销鬼</strong>（No.010）——出去比进来难，是这条路线留到最后才说的一句话。集齐 001–016 解锁<strong>律师</strong>（No.017）。
+    </div>
+  </section>
+
+  <!-- ── 6 ────────────────────────────────────────────────────────── -->
+  <section>
+    <div class="sec-head">
+      <div class="num">06 / 路线 B</div>
+      <h2>一人公司 · 6 章 + 穿透</h2>
+      <p>满分 42。整条线围绕《公司法》第 23 条第 3 款展开：一人公司股东<strong>举证不能</strong>就要承担连带责任。</p>
+    </div>
+
+    <div class="tbl-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th class="num">章</th>
+            <th>标题</th>
+            <th>精灵</th>
+            <th class="num">题数</th>
+            <th class="num">捕获线</th>
+            <th>风险类型</th>
+            <th>特殊</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td class="num">1</td>
+            <td><div class="ch-title">开张</div><div class="ch-sub">你到底是个什么身份</div></td>
+            <td>个体龟</td><td class="num">3</td><td class="num">5 / 6</td>
+            <td><div class="chips"><span class="chip c-admin">行政</span><span class="chip c-tax">税务</span><span class="chip c-civil">民事</span></div></td>
+            <td>—</td>
+          </tr>
+          <tr>
+            <td class="num">2</td>
+            <td><div class="ch-title">防火墙</div><div class="ch-sub">有限责任不是自动的</div></td>
+            <td>混同鬼</td><td class="num">3</td><td class="num">5 / 6</td>
+            <td><div class="chips"><span class="chip c-tax">税务</span><span class="chip c-civil">民事</span></div></td>
+            <td><div class="chips"><span class="chip c-rare">借款鬼</span></div></td>
+          </tr>
+          <tr>
+            <td class="num">3</td>
+            <td><div class="ch-title">记账</div><div class="ch-sub">钱怎么进来，怎么出去</div></td>
+            <td>双税兽</td><td class="num">3</td><td class="num">5 / 6</td>
+            <td><div class="chips"><span class="chip c-tax">税务</span><span class="chip c-criminal">刑事</span></div></td>
+            <td><div class="chips"><span class="chip c-vol">政策易变 ×2</span></div></td>
+          </tr>
+          <tr>
+            <td class="num">4</td>
+            <td><div class="ch-title">代码</div><div class="ch-sub">你写的东西到底是谁的</div></td>
+            <td>归属灵</td><td class="num">3</td><td class="num">5 / 6</td>
+            <td><div class="chips"><span class="chip c-civil">民事</span></div></td>
+            <td><div class="chips"><span class="chip c-rare">职务影</span><span class="chip c-rare">传染藤</span></div></td>
+          </tr>
+          <tr>
+            <td class="num">5</td>
+            <td><div class="ch-title">上线</div><div class="ch-sub">AI 产品的合规门槛</div></td>
+            <td>备案眼</td><td class="num">3</td><td class="num">5 / 6</td>
+            <td><div class="chips"><span class="chip c-admin">行政</span></div></td>
+            <td><div class="chips"><span class="chip c-rare">标识印</span><span class="chip c-vol">政策易变</span></div></td>
+          </tr>
+          <tr>
+            <td class="num">6</td>
+            <td><div class="ch-title">收摊</div><div class="ch-sub">不做了之后的事</div></td>
+            <td>僵尸户</td><td class="num">3</td><td class="num">5 / 6</td>
+            <td><div class="chips"><span class="chip c-admin">行政</span><span class="chip c-status">资格</span><span class="chip c-tax">税务</span><span class="chip c-civil">民事</span></div></td>
+            <td>—</td>
+          </tr>
+          <tr style="background:var(--panel-2)">
+            <td class="num">★</td>
+            <td><div class="ch-title">穿透</div><div class="ch-sub">有人要越过公司来找你</div></td>
+            <td>穿透兽</td><td class="num">3</td><td class="num">5 / 6</td>
+            <td><div class="chips"><span class="chip c-civil">民事</span><span class="chip c-tax">税务</span><span class="chip c-criminal">刑事</span></div></td>
+            <td>—</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="note">
+      集齐 018–028 解锁<strong>会计师</strong>（No.029）：「一人公司最便宜的一份保险」。这条路线没有额外赠送条目，
+      因为「收摊」已经把退出讲完了。
+    </div>
+  </section>
+
+  <!-- ── 7 ────────────────────────────────────────────────────────── -->
+  <section>
+    <div class="sec-head">
+      <div class="num">07 / 结局</div>
+      <h2>最终分怎么算，落在哪一档</h2>
+      <p>答题正确率占四分之三，剩下四分之一来自贯穿全程的合规与声誉——所以临时抱佛脚救不回一路踩坑的账。</p>
+    </div>
+
+    <div class="cols ratio">
+      <div class="panel">
+        <h3>算式</h3>
+        <div class="formula" style="margin-top:14px">
+          答题分率 = 得分 / 满分 × 100<br><br>
+          最终分 = 答题分率 × <b>0.75</b><br>
+          　　　　+ 合规 × <b>0.15</b><br>
+          　　　　+ 声誉 × <b>0.10</b>
+        </div>
+        <p style="margin-top:12px;font-size:13.5px;color:var(--ink-2)">
+          外国人篇满分 62，一人公司篇满分 42。两条线用同一套档位，所以分数可以横向比较。
+        </p>
+      </div>
+
+      <div class="band">
+        <div class="band-row">
+          <div class="band-grade" style="color:var(--civil)">S</div>
+          <div class="band-score">≥ 88</div>
+          <div class="band-names"><span>合规大师</span><span>干净的一人公司</span></div>
+        </div>
+        <div class="band-row">
+          <div class="band-grade">A</div>
+          <div class="band-score">≥ 72</div>
+          <div class="band-names"><span>稳健创业者</span><span>稳的个体开发者</span></div>
+        </div>
+        <div class="band-row">
+          <div class="band-grade">B</div>
+          <div class="band-score">≥ 55</div>
+          <div class="band-names"><span>摸着石头过河</span><span>能跑，但墙上有裂缝</span></div>
+        </div>
+        <div class="band-row">
+          <div class="band-grade" style="color:var(--tax)">C</div>
+          <div class="band-score">≥ 35</div>
+          <div class="band-names"><span>高危选手</span><span>这层壳形同虚设</span></div>
+        </div>
+        <div class="band-row">
+          <div class="band-grade" style="color:var(--criminal)">D</div>
+          <div class="band-score">≥ 0</div>
+          <div class="band-names"><span>已被限制高消费</span><span>判决：由你个人承担</span></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="note">
+      <b>模拟跑出来的实际落点：</b>全对 S（100 分）；全错 D（外国人篇 1 分 / 一人公司篇 0 分）；
+      每题随机三选一，平均 34 分和 31 分，落在 C–D。「只挑看起来省钱的选项」也是 D——这一条是刻意校准的。
+    </div>
+  </section>
+
+  <!-- ── 8 ────────────────────────────────────────────────────────── -->
+  <section>
+    <div class="sec-head">
+      <div class="num">08 / 现状</div>
+      <h2>从这张图上能看出的几件事</h2>
+      <p>下面是结构本身暴露出来的观察，不是已排期的计划。</p>
+    </div>
+
+    <div class="cols">
+      <div class="panel">
+        <h3>两条线的密度不一样</h3>
+        <p style="margin-top:10px;font-size:14px;color:var(--ink-2)">
+          外国人篇 62 分、31 题、17 只图鉴；一人公司篇 42 分、21 题、12 只。
+          后者章节更少但每章更重（防火墙一章几乎撑起整条线的论点）。如果要补，最自然的位置是
+          <strong>「接单与合同」</strong>——委托开发著作权归属现在只在第四章带过一句。
+        </p>
+      </div>
+
+      <div class="panel">
+        <h3>稀有精灵的分布偏斜</h3>
+        <p style="margin-top:10px;font-size:14px;color:var(--ink-2)">
+          外国人篇 8 章里只有 4 章有稀有精灵，钱流、税务两章一只都没有——而这两章恰恰是风险最高的。
+          一人公司篇则集中在第四章（两只）。补齐分布能让每一章都有「精准作答」的理由。
+        </p>
+      </div>
+
+      <div class="panel">
+        <h3>政策易变只标了 6 处</h3>
+        <p style="margin-top:10px;font-size:14px;color:var(--ink-2)">
+          内容截止 2026 年 8 月。标记集中在增值税门槛、核定征收、负面清单、数据出境阈值、免签和 AI 标识。
+          税收优惠类的题目还有几道其实也该标——这是下次更新法条时顺手要做的事。
+        </p>
+      </div>
+
+      <div class="panel">
+        <h3>结构上可以再加一条线</h3>
+        <p style="margin-top:10px;font-size:14px;color:var(--ink-2)">
+          一条路线是自包含的（章节 + BOSS + 图鉴数据 + 稀有 + 隐藏 + 结局），
+          加第三条只需要新增一个 <span class="mono">campaign-*.js</span> 并在 <span class="mono">CAMPAIGNS</span> 里加一项，引擎不用动。
+          图鉴编号会自动往后接。
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <footer>
+    <span>数据导出自 js/content.js · campaign-foreign.js · campaign-solo.js · balance.js</span>
+    <span>内容截止 2026 年 8 月</span>
+    <span>本图描述游戏结构，不构成法律意见</span>
+  </footer>
+
+</div>
+
+</body>
+</html>
