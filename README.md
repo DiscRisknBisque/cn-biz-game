@@ -175,6 +175,23 @@ and the flow implements the client half of what holding them requires:
 Nationality is a list of sovereign states plus a free-text escape hatch —
 a nationality field is not the place for regions.
 
+## A second build: the WeChat mini-program
+
+`wechat/` holds a separate, English-language build for foreign founders, on a
+different level model: a **setup choice made before the conflict** silently
+decides which options are open once the lawsuit starts, so a branch is locked by
+bookkeeping the player did not know mattered. Level 1 covers Art. 23(3) of the
+Company Law — the reversed burden of proof for a one-person company.
+
+It shares nothing with the HTML5 game above except this repository. See
+[`wechat/README.md`](wechat/README.md) for why it is a 小程序 rather than a
+小游戏, what has and has not been verified, and the pending legal-review gate.
+
+```bash
+npm run level:check   # structural validation of the level data
+npm run level:test    # drives the flow in a real browser (expects `npm run serve`)
+```
+
 ## Layout
 
 ```

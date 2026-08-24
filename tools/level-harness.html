@@ -1,0 +1,272 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Level Harness</title>
+<!-- Stops the browser asking for /favicon.ico, which the dev server 404s. -->
+<link rel="icon" href="data:,">
+<style>
+  /* A faithful preview of pages/level/level.wxss, at 750rpx = 375px, so the
+     flow can be exercised without WeChat DevTools. Kept visually in step with
+     the WXSS on purpose — if they drift, this stops being useful. */
+  :root { --ink:#1C1B20; --paper:#F7F5F0; --panel:#FFFDF8; --rule:#DCD6C8;
+          --muted:#8B8578; --green:#2C6E63; --amber:#C88A22; --red:#B23A2E; }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background:#2A2A30; color:var(--ink); font:15px/1.7 -apple-system,"Segoe UI",Roboto,sans-serif;
+         display:flex; justify-content:center; padding:24px 12px 60px; gap:20px; flex-wrap:wrap; }
+  .phone { width:375px; background:var(--paper); border:8px solid #111; border-radius:26px;
+           overflow:hidden; display:flex; flex-direction:column; align-self:flex-start; }
+  .bar { background:#F7F5F0; border-bottom:1px solid var(--rule); text-align:center;
+         padding:10px; font-size:14px; font-weight:600; }
+  .page { padding:16px 16px 48px; display:flex; flex-direction:column; }
+
+  .review { background:#FDF3E3; border:1px solid var(--amber); border-left:5px solid var(--amber);
+            padding:11px 12px; margin-bottom:14px; }
+  .review-tag { display:block; font-size:11px; letter-spacing:1px; font-weight:600; color:#8A5D10; margin-bottom:4px; }
+  .review-body { display:block; font-size:12.5px; color:#6B5326; line-height:1.6; }
+
+  .progress { display:flex; align-items:center; margin-bottom:18px; }
+  .progress-bar { flex:1; height:4px; background:#E4DFD3; overflow:hidden; }
+  .progress-fill { height:100%; background:var(--green); transition:width .25s; }
+  .progress-text { margin-left:9px; font-size:11px; color:var(--muted); font-variant-numeric:tabular-nums; }
+
+  .eyebrow { display:block; font-size:11px; letter-spacing:1px; text-transform:uppercase;
+             color:var(--muted); margin:4px 0 7px; }
+  .h1 { font-size:26px; line-height:1.2; font-weight:700; letter-spacing:-.3px; }
+  .h2 { font-size:19px; line-height:1.32; font-weight:700; margin-bottom:4px; }
+  .audience { display:block; font-size:12.5px; color:var(--muted); margin:5px 0 13px; }
+  .body { font-size:15px; line-height:1.75; }
+  .context { display:block; font-size:13px; color:#6E6A61; margin-bottom:12px; }
+
+  .card { background:var(--panel); border:1px solid var(--rule); padding:13px; margin-bottom:15px; }
+  .card.insight { border-left:5px solid var(--green); background:#F1F7F5; }
+  .card.hook { background:#F4F2EC; border-style:dashed; }
+
+  .person { margin-bottom:13px; }
+  .person:last-child { margin-bottom:8px; }
+  .person-name { font-weight:600; font-size:14.5px; }
+  .person-role { font-size:11.5px; color:var(--muted); margin-left:7px; }
+  .person-line { display:block; margin-top:4px; font-size:13.5px; color:#4A4740; line-height:1.62; }
+
+  .ev { display:flex; align-items:flex-start; padding:8px 0; border-bottom:1px solid #EFEADC; }
+  .ev:last-child { border-bottom:0; }
+  .ev-mark { flex:none; width:20px; height:20px; line-height:20px; text-align:center; font-size:12px;
+             font-weight:700; color:var(--panel); background:var(--green); margin-right:9px; }
+  .ev-red .ev-mark { background:var(--red); }
+  .ev-label { display:block; font-size:14px; line-height:1.55; }
+  .ev-note { display:block; font-size:12px; color:var(--red); margin-top:2px; }
+
+  .btn { display:block; width:100%; margin:0 0 10px; padding:13px 14px; font:inherit; font-size:14.5px;
+         line-height:1.55; text-align:left; color:var(--ink); background:var(--panel);
+         border:1px solid var(--ink); border-radius:0; cursor:pointer; }
+  .btn.primary { background:var(--green); color:var(--panel); border-color:var(--green);
+                 text-align:center; font-weight:600; }
+  .btn.choice { display:flex; align-items:center; justify-content:space-between; gap:9px; }
+  .btn.locked { color:#9A958A; background:#F0EDE4; border-color:#D3CDBF; border-style:dashed; }
+  .choice-lock { flex:none; font-size:11px; letter-spacing:.5px; color:#9A958A; }
+  .locked-notice { background:#F4F2EC; border-left:4px solid #9A958A; padding:10px 11px;
+                   font-size:13px; color:#4A4740; line-height:1.62; margin-top:3px; }
+  .nav { margin-top:6px; }
+  .link { font-size:13px; color:var(--green); text-decoration:underline; cursor:pointer; }
+
+  .verdict { padding:15px 14px; margin-bottom:16px; border:1px solid; }
+  .verdict-tag { display:inline-block; font-size:11px; letter-spacing:1px; text-transform:uppercase;
+                 font-weight:700; margin-bottom:6px; }
+  .verdict-result { display:block; font-size:16.5px; line-height:1.5; font-weight:600; }
+  .verdict-good { background:#EEF6F3; border-color:var(--green); }
+  .verdict-good .verdict-tag { color:#22594F; }
+  .verdict-risky { background:#FDF3E3; border-color:var(--amber); }
+  .verdict-risky .verdict-tag { color:#8A5D10; }
+  .verdict-bad { background:#FBEFEC; border-color:var(--red); }
+  .verdict-bad .verdict-tag { color:#8E2A21; }
+
+  .basis { background:#F4F2EC; }
+  .basis-row { display:flex; padding:7px 0; border-bottom:1px solid #E4DFD3; }
+  .basis-row:last-child { border-bottom:0; }
+  .basis-key { flex:none; width:95px; font-size:11.5px; color:var(--muted); letter-spacing:.5px; }
+  .basis-val { flex:1; font-size:12.5px; line-height:1.6; color:#3A3730; }
+
+  .skills { display:flex; flex-wrap:wrap; margin-bottom:15px; }
+  .skill { font-size:11.5px; letter-spacing:.5px; padding:4px 8px; margin:0 6px 6px 0;
+           color:#22594F; background:#EEF6F3; border:1px solid var(--green); }
+
+  /* Debug rail — harness only, never part of the mini-program. */
+  .rail { width:300px; color:#D6D2C8; font:12px/1.6 ui-monospace,monospace; align-self:flex-start; }
+  .rail h3 { font-size:11px; letter-spacing:1px; text-transform:uppercase; color:#8E897E; margin-bottom:8px; }
+  .rail pre { background:#1E1E24; border:1px solid #3A3A44; padding:10px; white-space:pre-wrap; word-break:break-all; }
+</style>
+</head>
+<body>
+
+<div class="phone">
+  <div class="bar" id="navbar">Whose money is it?</div>
+  <div class="page" id="page"></div>
+</div>
+
+<div class="rail">
+  <h3>Engine state</h3>
+  <pre id="dbg"></pre>
+</div>
+
+<script src="../wechat/shared/level-engine.js"></script>
+<script src="../wechat/shared/levels/level-01.js"></script>
+<script src="../wechat/shared/levels/index.js"></script>
+<script>
+(function () {
+  'use strict';
+  var E = window.LevelEngine;
+  var level = window.LevelRegistry.first;
+  var state = E.begin(level);
+  var lockedNotice = '';
+
+  var page = document.getElementById('page');
+  var dbg = document.getElementById('dbg');
+  document.getElementById('navbar').textContent = level.title;
+
+  function esc(s) {
+    return String(s).replace(/[&<>"]/g, function (c) {
+      return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c];
+    });
+  }
+
+  function reviewBanner() {
+    if (!E.pendingReview(level).length) return '';
+    return '<div class="review" id="review">' +
+      '<span class="review-tag">NOT YET REVIEWED</span>' +
+      '<span class="review-body">A licensed PRC lawyer has not signed off on this level\'s legal content yet. ' +
+      'Treat it as a teaching scenario, not advice.</span></div>';
+  }
+
+  function progress() {
+    var i = E.PHASES.indexOf(state.phase);
+    return '<div class="progress"><div class="progress-bar"><div class="progress-fill" style="width:' +
+      ((i + 1) / E.PHASES.length * 100) + '%"></div></div>' +
+      '<span class="progress-text">' + (i + 1) + ' / ' + E.PHASES.length + '</span></div>';
+  }
+
+  function render() {
+    var h = reviewBanner() + progress();
+
+    if (state.phase === 'scenario') {
+      h += '<span class="eyebrow">The situation</span>' +
+           '<div class="h1">' + esc(level.title) + '</div>' +
+           '<span class="audience">' + esc(level.audience) + '</span>' +
+           '<div class="card"><span class="body">' + esc(level.scenario) + '</span></div>' +
+           '<span class="eyebrow">Who you\'re dealing with</span><div class="card">' +
+           level.characters.map(function (c) {
+             return '<div class="person"><div><span class="person-name">' + esc(c.name) +
+               '</span><span class="person-role">' + esc(c.role) + '</span></div>' +
+               (c.line ? '<span class="person-line">“' + esc(c.line) + '”</span>' : '') + '</div>';
+           }).join('') + '</div>' +
+           '<button class="btn primary" data-act="next">Start</button>';
+
+    } else if (state.phase === 'setup') {
+      h += '<span class="eyebrow">Before any of this happened</span>' +
+           '<div class="h2">' + esc(level.setup.question) + '</div>' +
+           (level.setup.context ? '<span class="context">' + esc(level.setup.context) + '</span>' : '') +
+           level.setup.branches.map(function (b) {
+             return '<button class="btn choice" data-act="setup" data-id="' + b.id + '">' +
+               esc(b.label) + '</button>';
+           }).join('') +
+           '<div class="nav"><span class="link" data-act="back">Back</span></div>';
+
+    } else if (state.phase === 'evidence') {
+      h += '<span class="eyebrow">What you can actually put in front of a court</span>' +
+           '<div class="h2">Your evidence</div><div class="card">' +
+           E.heldEvidence(level, state).map(function (e) {
+             return '<div class="ev' + (e.redFlag ? ' ev-red' : '') + '">' +
+               '<span class="ev-mark">' + (e.redFlag ? '!' : '✓') + '</span><div>' +
+               '<span class="ev-label">' + esc(e.label) + '</span>' +
+               (e.redFlag ? '<span class="ev-note">This one works against you.</span>' : '') +
+               '</div></div>';
+           }).join('') + '</div>' +
+           '<button class="btn primary" data-act="next">Continue</button>' +
+           '<div class="nav"><span class="link" data-act="back">Change how I ran the money</span></div>';
+
+    } else if (state.phase === 'risk') {
+      h += '<span class="eyebrow">The thing to understand</span>' +
+           '<div class="card insight"><span class="body">' + esc(level.riskInsight) + '</span></div>' +
+           '<button class="btn primary" data-act="next">Face the judge</button>';
+
+    } else if (state.phase === 'decision') {
+      h += '<span class="eyebrow">In court</span>' +
+           '<div class="h2">' + esc(level.decision.question) + '</div>' +
+           (level.decision.context ? '<span class="context">' + esc(level.decision.context) + '</span>' : '') +
+           E.decisionBranches(level, state).map(function (b) {
+             return '<button class="btn choice' + (b.locked ? ' locked' : '') +
+               '" data-act="decide" data-id="' + b.id + '">' +
+               '<span class="choice-label">' + esc(b.label) + '</span>' +
+               (b.locked ? '<span class="choice-lock">Locked</span>' : '') + '</button>';
+           }).join('') +
+           (lockedNotice ? '<div class="locked-notice" id="locknote">' + esc(lockedNotice) + '</div>' : '');
+
+    } else if (state.phase === 'outcome') {
+      var o = E.outcome(level, state);
+      var tag = o.tone === 'good' ? 'Held' : o.tone === 'risky' ? 'Exposed' : 'Liable';
+      var lb = o.legalBasis;
+      var rows = [
+        ['Jurisdiction', lb.jurisdiction], ['Provision', lb.citation],
+        ['In force from', lb.effectiveDate], ['Limits', lb.exceptions],
+        ['Reviewed by', lb.reviewedBy], ['Confirm with', lb.verifyWith],
+        ['Last updated', lb.lastUpdated]
+      ].filter(function (r) { return r[1]; });
+
+      h += '<div class="verdict verdict-' + o.tone + '" id="verdict">' +
+           '<span class="verdict-tag">' + tag + '</span>' +
+           '<span class="verdict-result">' + esc(o.result) + '</span></div>' +
+           '<span class="eyebrow">Why</span>' +
+           '<div class="card"><span class="body">' + esc(o.explanation) + '</span></div>' +
+           '<span class="eyebrow">What this rests on</span><div class="card basis">' +
+           rows.map(function (r) {
+             return '<div class="basis-row"><span class="basis-key">' + esc(r[0]) +
+               '</span><span class="basis-val">' + esc(r[1]) + '</span></div>';
+           }).join('') + '</div>' +
+           '<span class="eyebrow">You picked up</span><div class="skills">' +
+           o.skillGain.map(function (s) { return '<span class="skill">' + esc(s) + '</span>'; }).join('') +
+           '</div><div class="card hook"><span class="body">' + esc(o.hook) + '</span></div>' +
+           '<button class="btn primary" data-act="nextlevel">Next level</button>' +
+           '<button class="btn" data-act="replay">Run it again, differently</button>';
+    }
+
+    page.innerHTML = h;
+    dbg.textContent = JSON.stringify({
+      phase: state.phase,
+      setup: state.setupBranchId,
+      evidence: state.evidenceState,
+      decision: state.decisionBranchId,
+      outcome: state.outcomeId,
+      reviewPending: E.pendingReview(level).length
+    }, null, 1);
+  }
+
+  page.addEventListener('click', function (ev) {
+    var el = ev.target.closest('[data-act]');
+    if (!el) return;
+    var act = el.dataset.act;
+
+    if (act === 'next') { E.advance(level, state); lockedNotice = ''; }
+    else if (act === 'back') { E.back(level, state); lockedNotice = ''; }
+    else if (act === 'setup') { E.chooseSetup(level, state, el.dataset.id); }
+    else if (act === 'decide') {
+      var row = E.decisionBranches(level, state).filter(function (b) { return b.id === el.dataset.id; })[0];
+      if (row && row.locked) { lockedNotice = row.hint; }
+      else { E.chooseDecision(level, state, el.dataset.id); lockedNotice = ''; }
+    }
+    else if (act === 'replay') { state = E.begin(level); lockedNotice = ''; }
+    else if (act === 'nextlevel') { alert('Next level coming soon'); return; }
+
+    render();
+  });
+
+  /* Exposed for the automated walk in tools/test-level-flow.js. */
+  window.__harness = {
+    reset: function () { state = E.begin(level); lockedNotice = ''; render(); },
+    state: function () { return state; }
+  };
+
+  render();
+})();
+</script>
+</body>
+</html>

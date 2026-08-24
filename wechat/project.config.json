@@ -1,0 +1,18 @@
+{
+  "description": "Legal-scenario mini-program for foreign founders in China.",
+  "appid": "REPLACE_WITH_YOUR_APPID",
+  "projectname": "know-before-you-owe",
+  "miniprogramRoot": "./",
+  "compileType": "miniprogram",
+  "libVersion": "latest",
+  "setting": {
+    "urlCheck": true,
+    "es6": true,
+    "enhance": true,
+    "postcss": true,
+    "minified": true,
+    "coverView": true,
+    "nodeModules": false,
+    "checkInvalidKey": true
+  }
+}

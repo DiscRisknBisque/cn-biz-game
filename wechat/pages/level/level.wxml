@@ -1,0 +1,162 @@
+<view class="page">
+
+  <!-- Unreviewed legal content announces itself, on every phase, undismissable. -->
+  <view class="review" wx:if="{{reviewPending.length}}">
+    <text class="review-tag">NOT YET REVIEWED</text>
+    <text class="review-body">A licensed PRC lawyer has not signed off on this level's legal content yet. Treat it as a teaching scenario, not advice.</text>
+  </view>
+
+  <view class="progress">
+    <view class="progress-bar">
+      <view class="progress-fill" style="width: {{(phaseIndex + 1) / phaseCount * 100}}%"></view>
+    </view>
+    <text class="progress-text">{{phaseIndex + 1}} / {{phaseCount}}</text>
+  </view>
+
+  <!-- ── 1. scenario + characters ─────────────────────────────────────── -->
+  <block wx:if="{{phase === 'scenario'}}">
+    <text class="eyebrow">The situation</text>
+    <text class="h1">{{level.title}}</text>
+    <text class="audience">{{level.audience}}</text>
+
+    <view class="card">
+      <text class="body">{{level.scenario}}</text>
+    </view>
+
+    <text class="eyebrow">Who you're dealing with</text>
+    <view class="card cast">
+      <view class="person" wx:for="{{level.characters}}" wx:key="id">
+        <view class="person-head">
+          <text class="person-name">{{item.name}}</text>
+          <text class="person-role">{{item.role}}</text>
+        </view>
+        <text class="person-line" wx:if="{{item.line}}">“{{item.line}}”</text>
+      </view>
+    </view>
+
+    <button class="btn primary" bindtap="onNext">Start</button>
+  </block>
+
+  <!-- ── 2. setup ─────────────────────────────────────────────────────── -->
+  <block wx:elif="{{phase === 'setup'}}">
+    <text class="eyebrow">Before any of this happened</text>
+    <text class="h2">{{level.setup.question}}</text>
+    <text class="context" wx:if="{{level.setup.context}}">{{level.setup.context}}</text>
+
+    <button
+      class="btn choice"
+      wx:for="{{level.setup.branches}}"
+      wx:key="id"
+      data-id="{{item.id}}"
+      bindtap="onChooseSetup">{{item.label}}</button>
+
+    <view class="nav"><text class="link" bindtap="onBack">Back</text></view>
+  </block>
+
+  <!-- ── 3. evidence ──────────────────────────────────────────────────── -->
+  <block wx:elif="{{phase === 'evidence'}}">
+    <text class="eyebrow">What you can actually put in front of a court</text>
+    <text class="h2">Your evidence</text>
+
+    <view class="card">
+      <view class="ev {{item.redFlag ? 'ev-red' : ''}}" wx:for="{{heldEvidence}}" wx:key="id">
+        <text class="ev-mark">{{item.redFlag ? '!' : '✓'}}</text>
+        <view class="ev-text">
+          <text class="ev-label">{{item.label}}</text>
+          <text class="ev-note" wx:if="{{item.redFlag}}">This one works against you.</text>
+        </view>
+      </view>
+    </view>
+
+    <button class="btn primary" bindtap="onNext">Continue</button>
+    <view class="nav"><text class="link" bindtap="onBack">Change how I ran the money</text></view>
+  </block>
+
+  <!-- ── 4. risk ──────────────────────────────────────────────────────── -->
+  <block wx:elif="{{phase === 'risk'}}">
+    <text class="eyebrow">The thing to understand</text>
+    <view class="card insight">
+      <text class="body">{{level.riskInsight}}</text>
+    </view>
+    <button class="btn primary" bindtap="onNext">Face the judge</button>
+  </block>
+
+  <!-- ── 5. decision ──────────────────────────────────────────────────── -->
+  <block wx:elif="{{phase === 'decision'}}">
+    <text class="eyebrow">In court</text>
+    <text class="h2">{{level.decision.question}}</text>
+    <text class="context" wx:if="{{level.decision.context}}">{{level.decision.context}}</text>
+
+    <button
+      class="btn choice {{item.locked ? 'locked' : ''}}"
+      wx:for="{{branches}}"
+      wx:key="id"
+      data-id="{{item.id}}"
+      bindtap="onChooseDecision">
+      <text class="choice-label">{{item.label}}</text>
+      <text class="choice-lock" wx:if="{{item.locked}}">Locked</text>
+    </button>
+
+    <view class="locked-notice" wx:if="{{lockedNotice}}">
+      <text>{{lockedNotice}}</text>
+    </view>
+  </block>
+
+  <!-- ── 6. outcome + legal explanation ───────────────────────────────── -->
+  <block wx:elif="{{phase === 'outcome' && outcome}}">
+    <view class="verdict verdict-{{outcome.tone}}">
+      <text class="verdict-tag">{{outcome.tone === 'good' ? 'Held' : outcome.tone === 'risky' ? 'Exposed' : 'Liable'}}</text>
+      <text class="verdict-result">{{outcome.result}}</text>
+    </view>
+
+    <text class="eyebrow">Why</text>
+    <view class="card">
+      <text class="body">{{outcome.explanation}}</text>
+    </view>
+
+    <text class="eyebrow">What this rests on</text>
+    <view class="card basis">
+      <view class="basis-row">
+        <text class="basis-key">Jurisdiction</text>
+        <text class="basis-val">{{outcome.legalBasis.jurisdiction}}</text>
+      </view>
+      <view class="basis-row">
+        <text class="basis-key">Provision</text>
+        <text class="basis-val">{{outcome.legalBasis.citation}}</text>
+      </view>
+      <view class="basis-row">
+        <text class="basis-key">In force from</text>
+        <text class="basis-val">{{outcome.legalBasis.effectiveDate}}</text>
+      </view>
+      <view class="basis-row" wx:if="{{outcome.legalBasis.exceptions}}">
+        <text class="basis-key">Limits</text>
+        <text class="basis-val">{{outcome.legalBasis.exceptions}}</text>
+      </view>
+      <view class="basis-row">
+        <text class="basis-key">Reviewed by</text>
+        <text class="basis-val">{{outcome.legalBasis.reviewedBy}}</text>
+      </view>
+      <view class="basis-row">
+        <text class="basis-key">Confirm with</text>
+        <text class="basis-val">{{outcome.legalBasis.verifyWith}}</text>
+      </view>
+      <view class="basis-row">
+        <text class="basis-key">Last updated</text>
+        <text class="basis-val">{{outcome.legalBasis.lastUpdated}}</text>
+      </view>
+    </view>
+
+    <text class="eyebrow">You picked up</text>
+    <view class="skills">
+      <text class="skill" wx:for="{{outcome.skillGain}}" wx:key="*this">{{item}}</text>
+    </view>
+
+    <view class="card hook">
+      <text class="body">{{outcome.hook}}</text>
+    </view>
+
+    <button class="btn primary" bindtap="onNextLevel">Next level</button>
+    <button class="btn" bindtap="onReplay">Run it again, differently</button>
+  </block>
+
+</view>
