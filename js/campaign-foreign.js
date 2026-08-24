@@ -311,6 +311,38 @@
           }
         },
         {
+          risk: ['admin'],
+          prompt: {
+            zh: '你把成都外资公司登记材料交给中介。中介清单里没有"登记联络员"。你问是不是可以先不填，等窗口要求再补。',
+            en: 'You give the Chengdu FIE registration package to your agent. Their checklist has no "registration liaison". You ask whether you can leave it blank and add it only if the registry asks.'
+          },
+          choices: [
+            {
+              text: { zh: '不行。按全国统一登记规范，外资企业登记必须指定一名中国籍自然人作为登记联络员', en: 'No. Under the national registration standard, an FIE must designate a Chinese natural person as its registration liaison' },
+              score: 2, fx: { cash: -2, comp: 18, rep: 4, energy: -6 },
+              verdict: { zh: '正确。这不是成都加码，是全国统一要求；少这个人，材料会被驳回或要求补正。', en: 'Correct. This is not a Chengdu add-on. It is a national requirement. Without this person, the package can be rejected or sent back for correction.' }
+            },
+            {
+              text: { zh: '中介没说就不用准备，窗口要了再找', en: 'If the agent did not mention it, do not prepare it. Find someone only if the registry asks' },
+              score: 0, fx: { cash: 2, comp: -20, rep: -8, energy: -10 },
+              verdict: { zh: '等窗口才找人，常见结果是补正、重新排期，最后把签证停留时间耗光。', en: 'Waiting until review is a common way to trigger corrections, lose your slot, and run out your visa stay.' }
+            },
+            {
+              text: { zh: '先随便写一个中国朋友的名字，后面再换', en: 'Put down any Chinese friend for now and change it later' },
+              score: 1, fx: { cash: 0, comp: -8, rep: -4, energy: -4 },
+              verdict: { zh: '登记联络员要真实、可联系、愿意配合。随便填会把信任和流程都弄坏。', en: 'The liaison must be real, reachable and willing to cooperate. A random name damages both trust and process.' }
+            }
+          ],
+          tip: {
+            zh: '2026 年 7 月起实施的外商投资企业登记管理新规和全国统一登记规范，将登记联络员列为外商投资企业登记材料中的固定项。登记联络员须为中国籍自然人，用于接收登记机关通知、配合材料补正和后续联系。成都、西安等地按同一全国规范执行，并不是某个城市单独增加的条件。很多中介只核名称、地址、股东身份证明和章程，漏掉联络员；等到现场或线上审核才补，会造成材料被驳回、补正或延期。外国创始人还要把签证停留期限一起倒排，别让一个漏项把人拖到必须先出境。',
+            en: 'From July 2026, the new FIE registration rules and the national unified registration standard make the registration liaison a fixed item in the registration package. The liaison must be a Chinese natural person. This person receives registry notices, helps with corrections and stays reachable for later contact. Chengdu, Xi\'an and other cities follow the same national standard. It is not a local Chengdu condition. Many agents check only the name, address, shareholder ID documents and articles, and miss the liaison. If this is found only during online or counter review, the package can be rejected, corrected or delayed. A foreign founder must also work backwards from the visa stay. Do not let one missing item force you to leave before incorporation is done.'
+          },
+          law: {
+            zh: '2026 年 7 月起实施的外商投资企业登记管理新规；全国统一登记规范；《市场主体登记管理条例》',
+            en: 'FIE registration rules in force from July 2026; national unified registration standard; Regulations on Registration of Market Entities'
+          }
+        },
+        {
           risk: ['civil'],
           prompt: {
             zh: '注册资本填多少？中介说"认缴制，随便写，写 1000 万显得有实力"。',
@@ -1198,8 +1230,8 @@
     entity: {
       type: { zh: '市场准入', en: 'MARKET ACCESS' }, danger: 3, rarity: 1,
       weak: {
-        zh: '注册前核对最新版负面清单，选对主体形式，注册资本按真实需要填并确保五年内实缴',
-        en: 'Check the current negative list before registering, pick the right vehicle, and set capital you can actually pay up within five years'
+        zh: '注册前核对最新版负面清单，选对主体形式，提前指定中国籍登记联络员，注册资本按真实需要填并确保五年内实缴',
+        en: 'Check the current negative list before registering, pick the right vehicle, designate a Chinese registration liaison early, and set capital you can actually pay up within five years'
       }
     },
     chop: {
@@ -1442,8 +1474,8 @@
        result page that only says "consult a lawyer" is not advice. */
     advice: [
       {
-        zh: '找一位做外商投资的律师问三件事：你的行业在不在最新版负面清单上、主体形式怎么选、你本人的工作许可走哪条路径。这三件事定错了，后面全要返工。',
-        en: 'Ask a foreign-investment lawyer three things: whether your sector is on the current negative list, which vehicle to use, and which work-permit route applies to you. Get these wrong and everything after them has to be redone.'
+        zh: '找一位做外商投资的律师问四件事：你的行业在不在最新版负面清单上、主体形式怎么选、登记联络员由谁担任、你本人的工作许可走哪条路径。这四件事定错了，后面全要返工。',
+        en: 'Ask a foreign-investment lawyer four things: whether your sector is on the current negative list, which vehicle to use, who will act as registration liaison, and which work-permit route applies to you. Get these wrong and everything after them has to be redone.'
       },
       {
         zh: '第一年就找一家能出规范报表的代理记账，并坚持"付款必要发票"。第二年的汇算清缴会告诉你这个习惯值多少钱。',
