@@ -10,7 +10,8 @@
     "test": "node tools/simulate.js",
     "music": "node tools/render-music.js",
     "level:check": "node tools/validate-levels.js",
-    "level:test": "node tools/test-level-flow.js"
+    "level:test": "node tools/test-level-flow.js",
+    "endings": "node tools/dump-endings.js --write"
   },
   "devDependencies": {
     "playwright": "^1.49.0"
