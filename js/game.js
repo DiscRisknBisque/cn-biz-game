@@ -105,6 +105,11 @@
       base.levels = Object.assign(freshLevels(), base.levels || {});
       base.levels.unlocked = Object.assign(freshLevels().unlocked, base.levels.unlocked || {});
       base.levels.cleared = Object.assign({}, base.levels.cleared || {});
+      if (base.levels.unlocked['lvl-02-tbd'] || base.levels.cleared['lvl-01-wfoe-commingling']) {
+        migrated = true;
+        base.levels.unlocked['lvl-02-labor-no-contract'] = true;
+        delete base.levels.unlocked['lvl-02-tbd'];
+      }
 
       state = base;
       /* Write the migrated shape straight back so the old one stops lingering
