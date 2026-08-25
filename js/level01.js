@@ -58,8 +58,8 @@
       rarity: 2,
       from: text('Level 1 · The Burden', '第 1 关 · 举证责任'),
       note: text(
-        'A deer-shaped spirit born when the founder\'s wallet and the company\'s wallet stop having a real line between them. It looks harmless until a creditor asks the court to pierce the shell.',
-        '当创始人的钱包和公司的钱包失去真实边界时，它就会出现。它看上去像一只无害的小鹿，直到债权人要求法院穿透这层公司外壳。'
+        'It appears when the founder\'s wallet and the company\'s wallet lose their real boundary. It is a beautiful butterfly with deadly swirls on its wings, pulling your personal assets and company debts together.',
+        '当创始人的钱包和公司的钱包失去真实边界时，它就会出现。它是一只美丽的蝴蝶，翅膀上有着致命的漩涡，将你的个人财产与公司债务卷到一起。'
       ),
       weak: text(
         'Separate bank accounts, no crossover, and a fund-flow audit that can prove the line.',
