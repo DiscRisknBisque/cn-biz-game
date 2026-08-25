@@ -49,6 +49,24 @@
       '你的 WFOE 欠供应商 18 万元货款，现在付不出来。供应商起诉后，对方律师提出一个让你意外的说法：公司的钱和你自己的钱其实是一锅钱，所以这笔债应当由你个人承担。在中国，一人公司案件里，法律不是让债权人证明你混同，而是让你证明你没有混同。'
     ),
 
+    dexEntry: {
+      id: 'lvl-01-wfoe-commingling',
+      monster: 'commingle',
+      name: text('Whose money is it?', '这是谁的钱？'),
+      type: text('EVIDENCE', '证据'),
+      danger: 4,
+      rarity: 2,
+      from: text('Level 1 · The Burden', '第 1 关 · 举证责任'),
+      note: text(
+        'A deer-shaped spirit born when the founder\'s wallet and the company\'s wallet stop having a real line between them. It looks harmless until a creditor asks the court to pierce the shell.',
+        '当创始人的钱包和公司的钱包失去真实边界时，它就会出现。它看上去像一只无害的小鹿，直到债权人要求法院穿透这层公司外壳。'
+      ),
+      weak: text(
+        'Separate bank accounts, no crossover, and a fund-flow audit that can prove the line.',
+        '账户分开、流水不交叉，并保留能证明边界的资金流审计。'
+      )
+    },
+
     characters: [
       {
         id: 'creditor-lawyer',

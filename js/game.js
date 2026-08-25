@@ -253,6 +253,23 @@
       list.push(Object.assign({ campaign: camp.id, secret: true }, camp.secret));
     });
 
+    (C.LEVELS || []).forEach(function (level, i) {
+      var d = level.dexEntry;
+      if (!d) return;
+      list.push({
+        id: d.id || level.id,
+        monster: d.monster || level.icon,
+        name: d.name || level.title,
+        note: d.note || level.scenario,
+        campaign: 'levels',
+        from: d.from || { zh: '第' + (i + 1) + '关 · ' + level.title.zh, en: 'Level ' + (i + 1) + ' · ' + level.title.en },
+        type: d.type,
+        danger: d.danger,
+        rarity: d.rarity,
+        weak: d.weak
+      });
+    });
+
     list.forEach(function (e, i) { e.no = i + 1; });
     return list;
   })();
@@ -823,6 +840,10 @@
     if (!state.levels) state.levels = freshLevels();
     state.levels.cleared[level.id] = outcome.tone;
     if (level.unlocksLevelId) state.levels.unlocked[level.unlocksLevelId] = true;
+    if (level.dexEntry) {
+      var dexId = level.dexEntry.id || level.id;
+      state.dex[dexId] = outcome.tone === 'good' ? 'caught' : 'seen';
+    }
     save();
     Sound.play(outcome.tone === 'good' ? 'caught' : 'bad');
     view.screen = 'levelBattleResult';
@@ -1428,6 +1449,15 @@
 
     /* Grouped by route so the dex reads as two collections, not one long list. */
     var sections = [];
+    var levelEntries = dexOf('levels').filter(DEX_FILTERS[filter]);
+    if (levelEntries.length) {
+      var allLevels = dexOf('levels');
+      sections.push(h('div', { class: 'dexsection' }, [
+        h('span', { text: lv('Sample Levels', '单关样例') }),
+        h('span', { class: 'stat-num', text: caughtCount(allLevels) + '/' + allLevels.length })
+      ]));
+      sections.push(h('div', { class: 'dexgrid' }, levelEntries.map(cell)));
+    }
     C.CAMPAIGNS.forEach(function (camp) {
       var entries = dexOf(camp.id).filter(DEX_FILTERS[filter]);
       if (!entries.length) return;
