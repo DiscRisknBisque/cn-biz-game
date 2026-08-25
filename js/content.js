@@ -21,7 +21,7 @@
   var UI = {
     title:        { zh: '测测你适不适合', en: 'Can You Really' },
     title2:       { zh: '在中国做企业主', en: 'Run a Business in China?' },
-    tagline:      { zh: '法律闯关小游戏 · 三条创业路线', en: 'A pixel quiz on Chinese business law — three routes' },
+    tagline:      { zh: '法律闯关小游戏 · 两条路线，一场加试', en: 'A pixel quiz on Chinese business law — two routes, one exam' },
     start:        { zh: '开始游戏', en: 'START' },
     continueGame: { zh: '继续游戏', en: 'CONTINUE' },
     newGame:      { zh: '重新开始', en: 'NEW GAME' },
@@ -127,11 +127,11 @@
       ].join('\n\n')
     },
     aboutBody: {
-      zh: '三条路线，三种创业者。「外国人来华创业」从签证一路走到数据合规；「一人公司」写给用 AI 做出产品、开始收钱、但还没注册任何主体的独立开发者；「法庭大闯关」把一人公司和第一次招人放到庭审里再练一遍。每一关都是真实的坑，选对了收服法律精灵，选错了……年底见。三条路线共用一本图鉴。',
-      en: "Three routes, three kinds of founder. The foreigner\u2019s route runs from the visa queue to data compliance. The one-person-company route is for solo builders who shipped something with AI, started taking money, and have not registered anything. Courtroom Challenge puts the one-person company and the first hire back in a hearing. Every scene is a hole real people have fallen into. Answer well and you befriend the creature; answer badly and you will meet it again in December. All three routes fill the same dex."
+      zh: '两条创业路线，一场庭审加试。「外国人来华创业」从签证一路走到数据合规；「一人公司」写给用 AI 做出产品、开始收钱、但还没注册任何主体的独立开发者。「法庭大闯关」不是第三种创业者，而是把前面学过的规则再放到庭审里考一遍：财产混同对应一人公司「防火墙」，书面劳动合同对应外国人「用人」。选对了收服法律精灵，选错了……年底见。进度彼此独立，图鉴共通。',
+      en: "Two founder routes, then a courtroom exam. The foreigner\u2019s route runs from the visa queue to data compliance. The one-person-company route is for solo builders who shipped something with AI, started taking money, and have not registered anything. Courtroom Challenge is not a third kind of founder. It puts two rules you already met back in a hearing: property commingling after The Firewall, and the written labor contract after Hiring. Answer well and you befriend the creature; answer badly and you will meet it again in December. Separate progress, one shared dex."
     },
     chooseRoute:  { zh: '选择路线', en: 'CHOOSE A ROUTE' },
-    routeHint:    { zh: '三条路线进度独立，图鉴共通', en: 'Separate progress, one shared dex' },
+    routeHint:    { zh: '两条路线进度独立；法庭大闯关是加试，图鉴共通', en: 'Two routes, then an exam. One shared dex' },
     switchRoute:  { zh: '换条路线', en: 'SWITCH ROUTE' },
     routeCleared: { zh: '已通关', en: 'CLEARED' },
     routeNew:     { zh: '未开始', en: 'NOT STARTED' }
@@ -185,10 +185,10 @@
   var LEVEL_PACK = {
     id: 'courtroom',
     title: { zh: '法庭大闯关', en: 'Courtroom Challenge' },
-    subtitle: { zh: '两关 · 举证与书面合同', en: 'Two levels · proof and paperwork' },
+    subtitle: { zh: '加试 · 混同与书面合同', en: 'Exam · commingling and the written contract' },
     blurb: {
-      zh: '同一条闯关线：先证明公司的钱不是你的钱，再证明第一份用工手续写在纸上。两关共用一本图鉴分区。',
-      en: 'One challenge line: first prove the company money is not your money, then prove the first hire went on paper. Both levels share one dex section.'
+      zh: '先完成对应章节，再上庭。财产混同对应「一人公司 · 防火墙」；书面合同对应「外国人来华创业 · 用人」。不是第三种创业者，是同一条规则的庭审加试。',
+      en: 'Clear the matching chapter first, then go to the hearing. Property commingling follows The One-Person Company · The Firewall. The written contract follows Founding as a Foreigner · Hiring. This is an exam, not a third kind of founder.'
     },
     icon: 'commingle'
   };

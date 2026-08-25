@@ -38,7 +38,8 @@
     id: 'lvl-01-wfoe-commingling',
     order: 1,
     theme: 'company-law-fdi',
-    title: text('Courtroom Challenge', '法庭大闯关'),
+    requiresChapter: { campaign: 'solo', chapter: 'solo-veil' },
+    title: text('Whose money is it?', '这是谁的钱？'),
     audience: text(
       'WFOE debt crisis',
       'WFOE的债务大危机'
@@ -425,6 +426,6 @@
       }
     ],
 
-    unlocksLevelId: 'lvl-02-labor-no-contract'
+    unlocksLevelId: null
   };
 });

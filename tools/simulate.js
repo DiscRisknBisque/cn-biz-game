@@ -235,6 +235,18 @@ function checkContent() {
 
     if (!level.id) problems.push('level: missing id');
     if (typeof level.order !== 'number') problems.push(tag + ': order must be numeric');
+    if (level.requiresChapter) {
+      var req = level.requiresChapter;
+      var camp = C.CAMPAIGNS.filter(function (c) { return c.id === req.campaign; })[0];
+      if (!camp) {
+        problems.push(tag + ': requiresChapter.campaign "' + req.campaign + '" is not a campaign');
+      } else {
+        var units = camp.chapters.concat(camp.boss ? [camp.boss] : []);
+        if (!units.some(function (u) { return u.id === req.chapter; })) {
+          problems.push(tag + ': requiresChapter.chapter "' + req.chapter + '" is not in ' + req.campaign);
+        }
+      }
+    }
     text(tag + '.title', level.title);
     text(tag + '.audience', level.audience);
     text(tag + '.scenario', level.scenario);

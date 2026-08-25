@@ -24,8 +24,8 @@
     ),
     effectiveDate: '2008-01-01',
     exceptions: text(
-      'If the employer proves it asked the employee to sign within the first month and the employee refused for their own reasons, the double-wage claim is generally not supported under the good-faith principle. Double wages are computed on the agreed normal-time monthly wage, minus the single wage already paid.',
-      '用人单位能证明已在一个月内书面通知劳动者签订合同，而劳动者因自身原因拒绝签订的，双倍工资请求一般不予支持（诚信原则）。双倍工资以约定的正常工作时间月工资为基数，扣除已支付的一倍工资。'
+      'Some regional arbitration practice will refuse double wages if the employer proves it asked the employee to sign within the first month, in writing, and the employee refused for their own reasons. This is not a uniform statutory exception. Confirm locally. Double wages are computed on the agreed normal-time monthly wage, minus the single wage already paid.',
+      '部分地区仲裁实践认为：用人单位能证明已在一个月内书面催签，而劳动者因自身原因拒绝的，双倍工资请求一般不予支持。这不是全国统一的法定免责条款，须按当地口径核实。双倍工资以约定的正常工作时间月工资为基数，扣除已支付的一倍工资。'
     ),
     reviewedBy: text('pending — licensed PRC lawyer review required before publish', 'pending — 发布前须由中国执业律师审核'),
     lastUpdated: '2026-08-25',
@@ -39,6 +39,7 @@
     id: 'lvl-02-labor-no-contract',
     order: 2,
     theme: 'labor-workplace',
+    requiresChapter: { campaign: 'foreign', chapter: 'labor' },
     title: text('Nothing in writing', '空白合同'),
     audience: text(
       'Foreign founder who just made their first hire',
@@ -47,15 +48,15 @@
     icon: 'doublewage',
     risk: ['labor'],
     scenario: text(
-      'You hired Wei eight months ago on a handshake and an offer email. You paid her in full and on time and covered her social insurance from day one, but you never signed a written labor contract. You meant to formalize it later. She resigned and filed at labor arbitration for double wages for every unsigned month.',
-      '八个月前，你用握手和一封录用邮件招了薇。你每月足额按时发工资，从第一天就给她缴了社保，但一直没有签书面劳动合同，想着“以后再补手续”。她刚离职，并向劳动仲裁委申请未签合同期间的双倍工资。'
+      'You hired Wei eight months ago on a handshake and an offer email. Her agreed monthly wage was RMB 12,000. You paid her in full and on time and covered her social insurance from day one, but you never signed a written labor contract. You meant to formalize it later. She resigned and filed at labor arbitration for double wages for every unsigned month.',
+      '八个月前，你用握手和一封录用邮件招了薇。约定月工资 1.2 万元。你每月足额按时发工资，从第一天就给她缴了社保，但一直没有签书面劳动合同，想着“以后再补手续”。她刚离职，并向劳动仲裁委申请未签合同期间的双倍工资。'
     ),
 
     dexEntry: {
-      id: 'lvl-02-labor-no-contract',
+      id: 'doublewage',
       monster: 'doublewage',
-      name: text('Blank Contract Beast', '空白合同兽'),
-      type: text('LABOR', '劳动'),
+      name: text('DOUBLEWAGE', '双倍工资鬼'),
+      type: text('LABOUR', '劳动'),
       danger: 4,
       rarity: 2,
       from: text('Level 2 · Nothing in writing', '第 2 关 · 空白合同'),
@@ -241,8 +242,8 @@
               poise: -50,
               conviction: 35,
               response: text(
-                'Arbitrator, examining it: "A written contract, signed within the first month. Then there is no violation."\n\nMr. Zhou closes his folder. For once, precision has nowhere left to go.',
-                '仲裁员低头看材料：“书面合同，第一个月内签的。那就没有违法。”\n\n周先生合上文件夹。这一次，精确已经无路可走。'
+                'Arbitrator, examining it: "A written contract, signed within the first month. Then there is no violation. Wages and social insurance do not replace that signature — but you had the signature, so the double-wage claim fails."\n\nMr. Zhou closes his folder. For once, precision has nowhere left to go.',
+                '仲裁员低头看材料：“书面合同，第一个月内签的。那就没有违法。工资和社保都不能代替这一签——但你有这一签，所以双倍工资请求不能支持。”\n\n周先生合上文件夹。这一次，精确已经无路可走。'
               ),
               outcome: 'victory'
             }
@@ -267,8 +268,8 @@
               poise: -50,
               conviction: 35,
               response: text(
-                'Arbitrator, examining it: "A written contract, signed within the first month. Then there is no violation."\n\nMr. Zhou: "...No further questions."',
-                '仲裁员低头看材料：“书面合同，第一个月内签的。那就没有违法。”\n\n周先生：“……没有其他问题了。”'
+                'Arbitrator, examining it: "A written contract, signed within the first month. Then there is no violation. Wages and social insurance do not replace that signature — but you had the signature, so the double-wage claim fails."\n\nMr. Zhou: "...No further questions."',
+                '仲裁员低头看材料：“书面合同，第一个月内签的。那就没有违法。工资和社保都不能代替这一签——但你有这一签，所以双倍工资请求不能支持。”\n\n周先生：“……没有其他问题了。”'
               ),
               outcome: 'victory'
             },
@@ -320,7 +321,7 @@
             'Arbitrator: "The written labor contract was signed within the first month. The double-wage claim is not supported."\n\nYou were fine here because the paperwork existed. The law\'s clock starts on day one, not when things settle down.',
             '仲裁员：“书面劳动合同在第一个月内签订。双倍工资请求不能支持。”\n\n你过关，是因为手续当时就在。法律的计时从第一天开始，不是从“事情安顿下来”才开始。'
           ),
-          reward: text('+ Legal Judgment · + Risk Control · Captured: Blank Contract Beast', '+ 法律判断 · + 风险控制 · 捕获：空白合同兽'),
+          reward: text('+ Legal Judgment · + Risk Control · Captured: DOUBLEWAGE', '+ 法律判断 · + 风险控制 · 捕获：双倍工资鬼'),
           hook: text(
             'Your paperwork held this time. A lawyer can turn that into a clean template for every future hire.',
             '这次手续撑住了。律师可以把这份材料做成以后每次招人都能用的干净模板。'
@@ -333,7 +334,7 @@
             'Arbitrator: "You asked for the written contract in time, in writing, and the employee did not sign for her own reasons. On this record, the double-wage claim is not supported."\n\nThis defense worked, but only because the request was timely and documented. A verbal reminder would not have saved you.',
             '仲裁员：“你及时以书面方式要求订立合同，劳动者因自身原因未签。就现有记录，双倍工资请求不能支持。”\n\n这个抗辩成立，只是因为催签及时并且留了书面记录。口头催一句救不了你。'
           ),
-          reward: text('+ Legal Judgment · + Evidence Awareness · Captured: Blank Contract Beast', '+ 法律判断 · + 证据意识 · 捕获：空白合同兽'),
+          reward: text('+ Legal Judgment · + Evidence Awareness · Captured: DOUBLEWAGE', '+ 法律判断 · + 证据意识 · 捕获：双倍工资鬼'),
           hook: text(
             'This defense lives or dies on timing and records. A lawyer can set up the exact paper trail that holds.',
             '这个抗辩成败全看时间和留痕。律师可以帮你把经得住检验的书面流程搭好。'
@@ -343,10 +344,10 @@
           tone: 'bad',
           title: text('DEFEAT — Double wages.', '失败：双倍工资。'),
           body: text(
-            'Arbitrator: "The award: double wages for months two through eight. An additional RMB 84,000."\n\nYour phone lights up with a transfer draft for RMB 84,000. That is the price of a signature you never collected.',
-            '仲裁员：“裁决：第二个月至第八个月的双倍工资。额外 8.4 万元。”\n\n你的手机亮起一笔 8.4 万元的转账草稿。这就是你从未收齐的那一签的价格。'
+            'Arbitrator: "The award: double wages for months two through eight. Her monthly wage is RMB 12,000. The extra one-times wage for seven months is RMB 84,000."\n\nYour phone lights up with a transfer draft for RMB 84,000. That is the price of a signature you never collected.',
+            '仲裁员：“裁决：第二个月至第八个月的双倍工资。月工资 1.2 万元。七个月的一倍工资差额是 8.4 万元。”\n\n你的手机亮起一笔 8.4 万元的转账草稿。这就是你从未收齐的那一签的价格。'
           ),
-          reward: text('Seen: Blank Contract Beast', '见过：空白合同兽'),
+          reward: text('Seen: DOUBLEWAGE', '见过：双倍工资鬼'),
           hook: text(
             'Being generous does not discharge the duty to put the hire in writing within a month. Before your next hire, have a lawyer set up hiring paperwork that closes this gap.',
             '待人厚道，并不能免除一个月内订立书面合同的义务。下次招人之前，值得让律师把用工手续一次补齐。'
@@ -421,8 +422,8 @@
           '请求不能支持，因为你能证明及时催签、对方拒绝。'
         ),
         explanation: text(
-          'If the employer can show it requested the written contract within the first month and the employee declined for her own reasons, courts generally do not award double wages. This only works because your request was timely and in writing. A verbal reminder would not have saved you.',
-          '用人单位能证明已在第一个月内要求订立书面合同，而劳动者因自身原因拒绝的，法院一般不支持双倍工资。这能成立，只是因为你的催签及时并且是书面的。口头催一句救不了你。'
+          'Some regional practice will refuse double wages if the employer can show a timely written request and a refusal for the employee\'s own reasons. This is not a uniform national rule. This path only works because your request was timely and in writing. A verbal reminder would not have saved you.',
+          '部分地区实践认为：用人单位能证明及时书面催签、劳动者因自身原因拒绝的，可不支持双倍工资。这不是全国统一规则。这条路能走通，只是因为催签及时并且是书面的。口头催一句救不了你。'
         ),
         legalBasis: LABOR_CONTRACT_LAW_82,
         skillGain: ['evidenceAwareness', 'legalJudgment'],
@@ -435,8 +436,8 @@
         id: 'outcome-b-bad',
         tone: 'bad',
         result: text(
-          'Double wages awarded: months 2 through 8, an extra RMB 84,000.',
-          '裁决支付双倍工资：第 2 个月至第 8 个月，额外 8.4 万元。'
+          'Double wages awarded: months 2 through 8. Monthly wage RMB 12,000, so an extra RMB 84,000.',
+          '裁决支付双倍工资：第 2 个月至第 8 个月。月工资 1.2 万元，差额 8.4 万元。'
         ),
         explanation: text(
           'This surprises almost every first-time employer: being generous does not discharge the duty to put the hire in writing within a month, and the penalty is double wages for the unsigned period, up to 11 months. Pay, punctuality and social insurance do not replace the contract. It is preventable with a one-page contract on day one.',

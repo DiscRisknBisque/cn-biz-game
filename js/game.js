@@ -32,9 +32,7 @@
   }
 
   function freshLevels() {
-    var unlocked = {};
-    if (C.LEVELS && C.LEVELS[0]) unlocked[C.LEVELS[0].id] = true;
-    return { unlocked: unlocked, cleared: {} };
+    return { unlocked: {}, cleared: {} };
   }
 
   function freshState() {
@@ -105,11 +103,7 @@
       base.levels = Object.assign(freshLevels(), base.levels || {});
       base.levels.unlocked = Object.assign(freshLevels().unlocked, base.levels.unlocked || {});
       base.levels.cleared = Object.assign({}, base.levels.cleared || {});
-      if (base.levels.unlocked['lvl-02-tbd'] || base.levels.cleared['lvl-01-wfoe-commingling']) {
-        migrated = true;
-        base.levels.unlocked['lvl-02-labor-no-contract'] = true;
-        delete base.levels.unlocked['lvl-02-tbd'];
-      }
+      delete base.levels.unlocked['lvl-02-tbd'];
 
       state = base;
       /* Write the migrated shape straight back so the old one stops lingering
@@ -130,6 +124,35 @@
   }
 
   function runOf(id) { return state.runs[id] || null; }
+
+  function campaignById(id) {
+    for (var i = 0; i < C.CAMPAIGNS.length; i++) if (C.CAMPAIGNS[i].id === id) return C.CAMPAIGNS[i];
+    return null;
+  }
+
+  function chapterById(camp, id) {
+    if (!camp) return null;
+    var units = (camp.chapters || []).concat(camp.boss ? [camp.boss] : []);
+    for (var i = 0; i < units.length; i++) if (units[i].id === id) return units[i];
+    return null;
+  }
+
+  function isLevelUnlocked(level) {
+    var req = level && level.requiresChapter;
+    if (!req) return true;
+    var r = runOf(req.campaign);
+    return !!(r && r.cleared && Object.prototype.hasOwnProperty.call(r.cleared, req.chapter));
+  }
+
+  function levelLockHint(level) {
+    var req = level && level.requiresChapter;
+    if (!req) return lv('Locked', '未解锁');
+    var camp = campaignById(req.campaign);
+    var ch = chapterById(camp, req.chapter);
+    var campName = camp ? T(camp.title) : req.campaign;
+    var chName = ch ? T(ch.title) : req.chapter;
+    return lv('Clear ' + campName + ' · ' + chName + ' first', '先完成「' + campName + '」· ' + chName);
+  }
 
   function maxPoints(camp) {
     return camp.chapters.reduce(function (n, ch) { return n + ch.scenes.length * 2; }, 0)
@@ -258,11 +281,17 @@
       list.push(Object.assign({ campaign: camp.id, secret: true }, camp.secret));
     });
 
+    var seenDex = {};
+    list.forEach(function (e) { seenDex[e.id] = true; });
+
     (C.LEVELS || []).forEach(function (level, i) {
       var d = level.dexEntry;
       if (!d) return;
+      var id = d.id || level.id;
+      if (seenDex[id]) return;
+      seenDex[id] = true;
       list.push({
-        id: d.id || level.id,
+        id: id,
         monster: d.monster || level.icon,
         name: d.name || level.title,
         note: d.note || level.scenario,
@@ -625,11 +654,12 @@
     if (pack && (C.LEVELS || []).length) {
       var levels = C.LEVELS;
       var done = levels.filter(function (level) {
-        return state.levels && state.levels.cleared && state.levels.cleared[level.id];
+        return isLevelUnlocked(level) && state.levels && state.levels.cleared && state.levels.cleared[level.id];
       }).length;
+      var open = levels.filter(isLevelUnlocked).length;
       var badge = done === levels.length ? ui('routeCleared')
-                : done ? done + '/' + levels.length
-                : lv(levels.length + ' LEVELS', levels.length + ' 关');
+                : open ? done + '/' + levels.length
+                : lv('EXAM', '加试');
 
       packCard = h('div', {
         class: 'route' + (done === levels.length ? ' sel' : ''),
@@ -667,16 +697,16 @@
     var pack = C.LEVEL_PACK || { title: { zh: '法庭大闯关', en: 'Courtroom Challenge' } };
     var levels = C.LEVELS || [];
     var done = levels.filter(function (level) {
-      return state.levels && state.levels.cleared && state.levels.cleared[level.id];
+      return isLevelUnlocked(level) && state.levels && state.levels.cleared && state.levels.cleared[level.id];
     }).length;
 
     var nodes = levels.map(function (level) {
-      var locked = !(state.levels && state.levels.unlocked && state.levels.unlocked[level.id]);
-      var cleared = state.levels && state.levels.cleared && state.levels.cleared[level.id];
+      var locked = !isLevelUnlocked(level);
+      var cleared = !locked && state.levels && state.levels.cleared && state.levels.cleared[level.id];
       return h('div', {
         class: 'node' + (locked ? ' locked' : '') + (cleared ? ' done' : ''),
         onclick: function () {
-          if (locked) { Sound.play('bad'); return; }
+          if (locked) { Sound.play('bad'); toast(levelLockHint(level)); return; }
           Sound.play('select');
           startLevel(level);
         }
@@ -684,7 +714,7 @@
         h('div', { class: 'art' }, [sprite(level.icon || 'commingle', 3)]),
         h('div', { class: 'txt' }, [
           h('div', { class: 'n-title', text: levelNo(level) + ' · ' + L(level.title) }),
-          h('div', { class: 'n-sub', text: L(level.audience) })
+          h('div', { class: 'n-sub', text: locked ? levelLockHint(level) : L(level.audience) })
         ]),
         h('div', { class: 'n-badge', text: locked ? '🔒' : cleared ? '★' : '▶' })
       ]);
@@ -795,6 +825,11 @@
   /* -------------------------------------------------------- single levels */
 
   function startLevel(level) {
+    if (!isLevelUnlocked(level)) {
+      Sound.play('bad');
+      toast(levelLockHint(level));
+      return;
+    }
     view.level = level;
     view.evidenceState = {};
     view.setupBranch = null;
@@ -898,7 +933,8 @@
     if (level.unlocksLevelId) state.levels.unlocked[level.unlocksLevelId] = true;
     if (level.dexEntry) {
       var dexId = level.dexEntry.id || level.id;
-      state.dex[dexId] = outcome.tone === 'bad' ? 'seen' : 'caught';
+      var next = outcome.tone === 'bad' ? 'seen' : 'caught';
+      if (!(next === 'seen' && state.dex[dexId] === 'caught')) state.dex[dexId] = next;
     }
     save();
     Sound.play(outcome.tone === 'bad' ? 'bad' : 'caught');
@@ -1786,6 +1822,13 @@
 
     var idx = camp.chapters.indexOf(ch);
     if (idx >= 0 && idx === r.unlocked) r.unlocked = idx + 1;
+
+    (C.LEVELS || []).forEach(function (level) {
+      var req = level.requiresChapter;
+      if (!req || req.campaign !== camp.id || req.chapter !== ch.id) return;
+      if (prev != null) return;
+      toast(lv('Exam unlocked: ', '庭审加试已解锁：') + L(level.title));
+    });
 
     view.settlement = B.settle(r.stats, view.runPoints, max);
     view.secret = checkSecret(camp.id);
