@@ -133,67 +133,67 @@
 
     battle: {
       id: 'the-burden',
-      title: text('Courtroom Battle: The Burden', 'Courtroom Battle: The Burden'),
+      title: text('Courtroom Battle: The Burden', '法庭对战：举证责任'),
       rules: [
-        text('CREDIBILITY starts at 100. Wrong moves drain it. Hit 0 and you lose the exchange.', 'CREDIBILITY starts at 100. Wrong moves drain it. Hit 0 and you lose the exchange.'),
-        text('Ms. Han has POISE. The right evidence cracks it. Break her poise and you win.', 'Ms. Han has POISE. The right evidence cracks it. Break her poise and you win.'),
-        text('The Judge\'s conviction bar tilts toward whoever is landing hits.', 'The Judge\'s conviction bar tilts toward whoever is landing hits.')
+        text('CREDIBILITY starts at 100. Wrong moves drain it. Hit 0 and you lose the exchange.', '信誉值初始为 100。错误行动会扣信誉。降到 0 就输掉这次交锋。'),
+        text('Ms. Han has POISE. The right evidence cracks it. Break her poise and you win.', '韩律师有架势值。正确证据会击破她的架势。架势归零，你就赢。'),
+        text('The Judge\'s conviction bar tilts toward whoever is landing hits.', '法官心证条会向更有说服力的一方倾斜。')
       ],
       start: { credibility: 100, poise: 45, conviction: 30 },
       opening: {
-        title: text('ROUND 0 — Han opens', 'ROUND 0 — Han opens'),
+        title: text('ROUND 0 — Han opens', '第 0 回合：韩律师先攻'),
         line: text(
           'Ms. Han, unhurried: "Your Honor, the defendant\'s company can\'t pay. But let\'s be honest — there is no company. There\'s just him, and his money. Let him pay."\n\nJudge: "Response from the defense?"',
-          'Ms. Han, unhurried: "Your Honor, the defendant\'s company can\'t pay. But let\'s be honest — there is no company. There\'s just him, and his money. Let him pay."\n\nJudge: "Response from the defense?"'
+          '韩律师，不紧不慢：“审判长，被告公司付不起钱。但说到底，这里根本没有公司。只有他本人，和他的钱。让他本人还。”\n\n法官：“被告方回应？”'
         ),
-        effect: text('The Judge\'s conviction bar slides toward Han.', 'The Judge\'s conviction bar slides toward Han.'),
+        effect: text('The Judge\'s conviction bar slides toward Han.', '法官心证条向韩律师一侧滑动。'),
         next: 'round-1'
       },
       rounds: [
         {
           id: 'round-1',
-          title: text('ROUND 1 — The trap', 'ROUND 1 — The trap'),
-          attack: text('Judge: "Response from the defense?"', 'Judge: "Response from the defense?"'),
-          prompt: text('Choose your reply.', 'Choose your reply.'),
+          title: text('ROUND 1 — The trap', '第 1 回合：陷阱'),
+          attack: text('Judge: "Response from the defense?"', '法官：“被告方回应？”'),
+          prompt: text('Choose your reply.', '选择你的回应。'),
           options: [
             {
               kind: 'reply',
-              text: text('"That\'s for her to prove. She hasn\'t shown a single mixed transaction."', '"That\'s for her to prove. She hasn\'t shown a single mixed transaction."'),
+              text: text('"That\'s for her to prove. She hasn\'t shown a single mixed transaction."', '“这该由她证明。她连一笔混同交易都没拿出来。”'),
               result: 'MISS',
               tone: 'bad',
               credibility: -25,
               conviction: -18,
               response: text(
                 'Ms. Han, with a slow smile: "Prove? Oh — I don\'t have to."\n\nJudge: "Counsel is correct. This company has one shareholder. Under the Company Law, the burden is on you to prove the company\'s property is independent of your own. Not on her."\n\nYou realize you have been defending the wrong side of the net this whole time.',
-                'Ms. Han, with a slow smile: "Prove? Oh — I don\'t have to."\n\nJudge: "Counsel is correct. This company has one shareholder. Under the Company Law, the burden is on you to prove the company\'s property is independent of your own. Not on her."\n\nYou realize you have been defending the wrong side of the net this whole time.'
+                '韩律师慢慢笑了：“证明？我不用证明。”\n\n法官：“代理人说得对。该公司只有一个股东。依《公司法》，应由你证明公司财产独立于你个人财产。不是由她证明。”\n\n你突然意识到：你一直站错了防守位置。'
               ),
               next: 'round-2'
             },
             {
               kind: 'reply',
-              text: text('"The company is a separate legal person. Its debts are its own, not mine."', '"The company is a separate legal person. Its debts are its own, not mine."'),
+              text: text('"The company is a separate legal person. Its debts are its own, not mine."', '“公司是独立法人。公司债务属于公司，不属于我个人。”'),
               result: 'MISS',
               tone: 'bad',
               credibility: -25,
               conviction: -18,
               response: text(
                 'Ms. Han, with a slow smile: "Prove? Oh — I don\'t have to."\n\nJudge: "Counsel is correct. This company has one shareholder. Under the Company Law, the burden is on you to prove the company\'s property is independent of your own. Not on her."\n\nThe rule lands like a gut-punch: limited liability is not enough unless you can prove the line.',
-                'Ms. Han, with a slow smile: "Prove? Oh — I don\'t have to."\n\nJudge: "Counsel is correct. This company has one shareholder. Under the Company Law, the burden is on you to prove the company\'s property is independent of your own. Not on her."\n\nThe rule lands like a gut-punch: limited liability is not enough unless you can prove the line.'
+                '韩律师慢慢笑了：“证明？我不用证明。”\n\n法官：“代理人说得对。该公司只有一个股东。依《公司法》，应由你证明公司财产独立于你个人财产。不是由她证明。”\n\n这条规则像一记重拳砸下来：有限责任不够。你还必须证明那条边界存在。'
               ),
               next: 'round-2'
             },
             {
               kind: 'evidence',
               requiresEvidence: ['ev-audit-fundflow'],
-              lockedHint: text('Locked. You never kept a fund-flow audit.', 'Locked. You never kept a fund-flow audit.'),
-              text: text('[Evidence Card] Present the Fund-Flow Audit right now.', '[Evidence Card] Present the Fund-Flow Audit right now.'),
+              lockedHint: text('Locked. You never kept a fund-flow audit.', '未解锁。你没有保存资金流审计。'),
+              text: text('[Evidence Card] Present the Fund-Flow Audit right now.', '【证据卡】立刻提交资金流审计。'),
               result: 'CRITICAL',
               tone: 'good',
               poise: -15,
               conviction: 18,
               response: text(
                 'You: "Before counsel goes further — the court can see for itself."\n\nMs. Han, caught mid-breath: "...I haven\'t finished—"\n\nYou read the burden correctly. Han\'s poise cracks.',
-                'You: "Before counsel goes further — the court can see for itself."\n\nMs. Han, caught mid-breath: "...I haven\'t finished—"\n\nYou read the burden correctly. Han\'s poise cracks.'
+                '你：“在对方继续之前，请法庭先看这份材料。”\n\n韩律师话卡在半空：“……我还没说完——”\n\n你读懂了举证责任。韩律师的架势裂开了。'
               ),
               next: 'round-2'
             }
@@ -201,50 +201,50 @@
         },
         {
           id: 'round-2',
-          title: text('ROUND 2 — Your turn to prove', 'ROUND 2 — Your turn to prove'),
-          attack: text('Judge: "Evidence of separation. Now."', 'Judge: "Evidence of separation. Now."'),
-          prompt: text('Play the right card.', 'Play the right card.'),
+          title: text('ROUND 2 — Your turn to prove', '第 2 回合：轮到你证明'),
+          attack: text('Judge: "Evidence of separation. Now."', '法官：“证明财产独立。现在。”'),
+          prompt: text('Play the right card.', '打出正确证据卡。'),
           options: [
             {
               kind: 'evidence',
               requiresEvidence: ['ev-audit-fundflow'],
-              lockedHint: text('Locked. No fund-flow audit exists in your file.', 'Locked. No fund-flow audit exists in your file.'),
-              text: text('[Fund-Flow Audit] This audit traces every yuan — company in, company out. None of it ran through my accounts.', '[Fund-Flow Audit] This audit traces every yuan — company in, company out. None of it ran through my accounts.'),
+              lockedHint: text('Locked. No fund-flow audit exists in your file.', '未解锁。你的材料里没有资金流审计。'),
+              text: text('[Fund-Flow Audit] This audit traces every yuan — company in, company out. None of it ran through my accounts.', '【资金流审计】这份审计追踪了每一笔资金：公司进，公司出，没有经过我的个人账户。'),
               result: 'CRITICAL',
               tone: 'good',
               poise: -45,
               conviction: 35,
               response: text(
                 'Judge, studying it: "This traces the flow of funds, not merely the result."\n\nMs. Han: "That — that\'s only one year—"\n\nYou: "It shows the line you said didn\'t exist."\n\nGlass-crack. Ms. Han\'s poise breaks.',
-                'Judge, studying it: "This traces the flow of funds, not merely the result."\n\nMs. Han: "That — that\'s only one year—"\n\nYou: "It shows the line you said didn\'t exist."\n\nGlass-crack. Ms. Han\'s poise breaks.'
+                '法官低头看材料：“这追踪的是资金流向，不只是经营结果。”\n\n韩律师：“那……那也只是一年的——”\n\n你：“它证明了你说不存在的那条线。”\n\n玻璃碎裂声。韩律师架势崩溃。'
               ),
               outcome: 'victory'
             },
             {
               kind: 'evidence',
-              text: text('[P&L Books] Here are the company\'s books. It is profitable. It is real.', '[P&L Books] Here are the company\'s books. It is profitable. It is real.'),
+              text: text('[P&L Books] Here are the company\'s books. It is profitable. It is real.', '【盈亏账簿】这是公司的账。公司是盈利的，是真实存在的。'),
               result: 'MISS',
               tone: 'bad',
               credibility: -20,
               conviction: -15,
               response: text(
                 'Ms. Han, pouncing: "Profit and loss? That tells us the company made money. It tells us nothing about whose pocket it moved through."\n\nJudge: "...Counsel has a point. This does not address separation."\n\nThe right evidence is about the movement of money, not the bottom line.',
-                'Ms. Han, pouncing: "Profit and loss? That tells us the company made money. It tells us nothing about whose pocket it moved through."\n\nJudge: "...Counsel has a point. This does not address separation."\n\nThe right evidence is about the movement of money, not the bottom line.'
+                '韩律师立刻扑上来：“盈亏？这只能说明公司赚没赚钱。它不能说明钱经过了谁的口袋。”\n\n法官：“……代理人说得有道理。这不能证明财产独立。”\n\n正确证据要证明资金怎样流动，不是证明最后赚没赚钱。'
               ),
               next: 'round-2'
             },
             {
               kind: 'evidence',
               requiresEvidence: ['ev-separate-accounts'],
-              lockedHint: text('Locked. You never kept clean separate bank statements.', 'Locked. You never kept clean separate bank statements.'),
-              text: text('[Bank Statements] Separate accounts. No crossover.', '[Bank Statements] Separate accounts. No crossover.'),
+              lockedHint: text('Locked. You never kept clean separate bank statements.', '未解锁。你没有保存清楚分开的银行流水。'),
+              text: text('[Bank Statements] Separate accounts. No crossover.', '【银行流水】公司账户和个人账户彼此独立，没有交叉。'),
               result: 'HIT',
               tone: 'tint',
               poise: -20,
               conviction: 15,
               response: text(
                 'Ms. Han: "Statements can be curated. Where is the independent audit behind them?"\n\nHan staggers, but recovers. The combo is open: follow with the Fund-Flow Audit.',
-                'Ms. Han: "Statements can be curated. Where is the independent audit behind them?"\n\nHan staggers, but recovers. The combo is open: follow with the Fund-Flow Audit.'
+                '韩律师：“流水可以挑着交。背后的独立审计在哪里？”\n\n韩律师踉跄了一下，但还没倒下。连击窗口打开：继续打出资金流审计。'
               ),
               next: 'round-2-finisher'
             }
@@ -252,35 +252,35 @@
         },
         {
           id: 'round-2-finisher',
-          title: text('ROUND 2 — Finish the proof', 'ROUND 2 — Finish the proof'),
-          attack: text('Judge: "The statements help. I still need the flow."', 'Judge: "The statements help. I still need the flow."'),
-          prompt: text('Complete the combo.', 'Complete the combo.'),
+          title: text('ROUND 2 — Finish the proof', '第 2 回合：完成证明'),
+          attack: text('Judge: "The statements help. I still need the flow."', '法官：“流水有帮助。但我还需要资金流向。”'),
+          prompt: text('Complete the combo.', '完成连击。'),
           options: [
             {
               kind: 'evidence',
               requiresEvidence: ['ev-audit-fundflow'],
-              lockedHint: text('Locked. No fund-flow audit exists in your file.', 'Locked. No fund-flow audit exists in your file.'),
-              text: text('[Fund-Flow Audit] Here is the independent audit behind those statements.', '[Fund-Flow Audit] Here is the independent audit behind those statements.'),
+              lockedHint: text('Locked. No fund-flow audit exists in your file.', '未解锁。你的材料里没有资金流审计。'),
+              text: text('[Fund-Flow Audit] Here is the independent audit behind those statements.', '【资金流审计】这就是支撑这些流水的独立审计。'),
               result: 'CRITICAL',
               tone: 'good',
               poise: -45,
               conviction: 35,
               response: text(
                 'Judge: "This completes the picture."\n\nMs. Han sits. For the first time, she has nothing to say.',
-                'Judge: "This completes the picture."\n\nMs. Han sits. For the first time, she has nothing to say.'
+                '法官：“这就完整了。”\n\n韩律师坐下。第一次，她没有话说。'
               ),
               outcome: 'victory'
             },
             {
               kind: 'evidence',
-              text: text('[P&L Books] The company made money. That proves it is real.', '[P&L Books] The company made money. That proves it is real.'),
+              text: text('[P&L Books] The company made money. That proves it is real.', '【盈亏账簿】公司赚钱了。这证明公司真实存在。'),
               result: 'MISS',
               tone: 'bad',
               credibility: -20,
               conviction: -15,
               response: text(
                 'Judge: "Profit still does not prove separation."\n\nThe court is asking where the money moved, not whether the company earned any.',
-                'Judge: "Profit still does not prove separation."\n\nThe court is asking where the money moved, not whether the company earned any.'
+                '法官：“盈利仍然不能证明财产独立。”\n\n法庭问的是钱如何流动，不是公司有没有赚钱。'
               ),
               next: 'round-2-finisher'
             }
@@ -290,23 +290,23 @@
       outcomes: {
         victory: {
           tone: 'good',
-          title: text('VICTORY — Limited liability holds.', 'VICTORY — Limited liability holds.'),
+          title: text('VICTORY — Limited liability holds.', '胜利：有限责任成立。'),
           body: text(
             'Judge: "The court is satisfied the company\'s property is independent. The debt is the company\'s. The shareholder is not personally liable."\n\nYou won because you could prove separation — the exact thing the law puts on a sole shareholder. Limited liability held. It only holds when you can show the line.',
-            'Judge: "The court is satisfied the company\'s property is independent. The debt is the company\'s. The shareholder is not personally liable."\n\nYou won because you could prove separation — the exact thing the law puts on a sole shareholder. Limited liability held. It only holds when you can show the line.'
+            '法官：“本院确认公司财产独立。债务属于公司。股东不承担个人责任。”\n\n你赢了，因为你证明了财产独立。法律正是把这件事交给一人公司股东来证明。有限责任成立，但前提是你能证明那条边界。'
           ),
-          reward: text('+ Evidence Awareness · + Risk Control · Captured: Property-Commingling Beast', '+ Evidence Awareness · + Risk Control · Captured: Property-Commingling Beast'),
-          hook: text('Even a clean win is worth a lawyer\'s periodic structural check. Evidence standards shift.', 'Even a clean win is worth a lawyer\'s periodic structural check. Evidence standards shift.')
+          reward: text('+ Evidence Awareness · + Risk Control · Captured: Property-Commingling Beast', '+ 证据意识 · + 风险控制 · 捕获：财产混同兽'),
+          hook: text('Even a clean win is worth a lawyer\'s periodic structural check. Evidence standards shift.', '即使干净赢下，也值得让律师定期检查公司结构。证据标准会变化。')
         },
         defeat: {
           tone: 'bad',
-          title: text('DEFEAT — Personal liability.', 'DEFEAT — Personal liability.'),
+          title: text('DEFEAT — Personal liability.', '失败：个人承担责任。'),
           body: text(
             'Judge: "You cannot show the line. The presumption stands. You are personally liable for the company\'s debt."\n\nYour phone buzzes face-up on the table: personal account — frozen.\n\nFor a one-person company, the court assumes the money was mixed unless you disprove it. This was decided long before today, by how the money was run.',
-            'Judge: "You cannot show the line. The presumption stands. You are personally liable for the company\'s debt."\n\nYour phone buzzes face-up on the table: personal account — frozen.\n\nFor a one-person company, the court assumes the money was mixed unless you disprove it. This was decided long before today, by how the money was run.'
+            '法官：“你不能证明那条边界。推定成立。你对公司债务承担个人责任。”\n\n你的手机屏幕朝上震了一下：个人账户——已冻结。\n\n对一人公司来说，除非你反证，否则法院会按财产混同处理。结果不是今天才决定的，而是很早以前由你怎么管钱决定的。'
           ),
-          reward: text('The good news: this is completely preventable.', 'The good news: this is completely preventable.'),
-          hook: text('Worth having a lawyer review your structure before it is ever tested.', 'Worth having a lawyer review your structure before it is ever tested.')
+          reward: text('The good news: this is completely preventable.', '好消息是：这完全可以提前避免。'),
+          hook: text('Worth having a lawyer review your structure before it is ever tested.', '在结构真正被检验前，值得先让律师审查一次。')
         }
       }
     },

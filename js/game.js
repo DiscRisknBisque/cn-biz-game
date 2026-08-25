@@ -1014,10 +1014,19 @@
   function battleHud() {
     var st = view.battleState;
     return h('div', { class: 'panel double battle-hud' }, [
-      battleMeter('YOU · CREDIBILITY', st.credibility, 'cred'),
-      battleMeter('MS. HAN · POISE', st.poise, 'poise'),
-      battleMeter('JUDGE · CONVICTION', st.conviction, 'judge')
+      battleMeter(lv('YOU · CREDIBILITY', '你 · 信誉'), st.credibility, 'cred'),
+      battleMeter(lv('MS. HAN · POISE', '韩律师 · 架势'), st.poise, 'poise'),
+      battleMeter(lv('JUDGE · CONVICTION', '法官 · 心证'), st.conviction, 'judge')
     ]);
+  }
+
+  function battleResultLabel(result) {
+    var labels = {
+      MISS: lv('MISS', '未命中'),
+      HIT: lv('HIT', '命中'),
+      CRITICAL: lv('CRITICAL', '会心一击')
+    };
+    return labels[result] || result;
   }
 
   function battleOptionButton(option, i) {
@@ -1031,7 +1040,7 @@
       h('span', { text: L(option.text) }),
       locked ? h('span', {
         class: 'sub',
-        text: lv('LOCKED - ', '未解锁：') + L(option.lockedHint || { en: 'Missing evidence.', zh: 'Missing evidence.' })
+        text: lv('LOCKED - ', '未解锁：') + L(option.lockedHint || { en: 'Missing evidence.', zh: '缺少证据。' })
       }) : null
     ]);
   }
@@ -1090,7 +1099,7 @@
     return [
       battleHud(),
       h('div', { class: 'panel double ' + toneClass }, [
-        h('div', { class: 'label', text: option.result }),
+        h('div', { class: 'label', text: battleResultLabel(option.result) }),
         h('p', { class: 'prose battle-script', text: L(option.response) })
       ]),
       h('button', {
@@ -1106,7 +1115,7 @@
     var toneClass = outcome.tone === 'good' ? 'good' : 'bad';
     return [
       h('div', { class: 'panel double ' + toneClass }, [
-        h('div', { class: 'label', text: outcome.tone === 'good' ? 'VICTORY' : 'DEFEAT' }),
+        h('div', { class: 'label', text: outcome.tone === 'good' ? lv('VICTORY', '胜利') : lv('DEFEAT', '失败') }),
         h('div', { class: 'h-title', text: L(outcome.title) }),
         h('p', { class: 'prose battle-script', style: 'margin-top:8px', text: L(outcome.body) })
       ]),
