@@ -425,6 +425,6 @@
       }
     ],
 
-    unlocksLevelId: 'lvl-02-tbd'
+    unlocksLevelId: 'lvl-02-labor-no-contract'
   };
 });

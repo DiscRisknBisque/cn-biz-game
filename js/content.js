@@ -9,12 +9,13 @@
 (function (root, factory) {
   var api = factory(
     typeof module === 'object' && module.exports ? require('./level01.js') : root.Level01,
+    typeof module === 'object' && module.exports ? require('./level02.js') : root.Level02,
     typeof module === 'object' && module.exports ? require('./campaign-foreign.js') : root.CampaignForeign,
     typeof module === 'object' && module.exports ? require('./campaign-solo.js') : root.CampaignSolo
   );
   if (typeof module === 'object' && module.exports) module.exports = api;
   else root.Content = api;
-})(typeof self !== 'undefined' ? self : this, function (level01, foreign, solo) {
+})(typeof self !== 'undefined' ? self : this, function (level01, level02, foreign, solo) {
   'use strict';
 
   var UI = {
@@ -165,6 +166,11 @@
       desc: { zh: '赔偿、连带责任、合同违约，由对方向你主张', en: 'Damages, joint liability and breach of contract, claimed against you by the other side' },
       colour: 'var(--blue)'
     },
+    labor: {
+      label: { zh: '劳动', en: 'LABOR' },
+      desc: { zh: '劳动仲裁、双倍工资、社保和用工手续风险', en: 'Labor arbitration, double wages, social insurance and hiring paperwork risk' },
+      colour: 'var(--green)'
+    },
     status: {
       label: { zh: '资格', en: 'STATUS' },
       desc: { zh: '信用惩戒、限制高消费、限制出境、任职资格限制', en: 'Credit blacklisting, consumption and exit restrictions, bars on holding office' },
@@ -175,7 +181,7 @@
   /* Order here is the order they appear on the route select screen, and it
      drives dex numbering: the first campaign's creatures are numbered first. */
   var CAMPAIGNS = [foreign, solo];
-  var LEVELS = [level01];
+  var LEVELS = [level01, level02];
 
   function campaign(id) {
     for (var i = 0; i < CAMPAIGNS.length; i++) if (CAMPAIGNS[i].id === id) return CAMPAIGNS[i];

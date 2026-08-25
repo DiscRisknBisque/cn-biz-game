@@ -842,10 +842,10 @@
     if (level.unlocksLevelId) state.levels.unlocked[level.unlocksLevelId] = true;
     if (level.dexEntry) {
       var dexId = level.dexEntry.id || level.id;
-      state.dex[dexId] = outcome.tone === 'good' ? 'caught' : 'seen';
+      state.dex[dexId] = outcome.tone === 'bad' ? 'seen' : 'caught';
     }
     save();
-    Sound.play(outcome.tone === 'good' ? 'caught' : 'bad');
+    Sound.play(outcome.tone === 'bad' ? 'bad' : 'caught');
     view.screen = 'levelBattleResult';
     render();
   }
@@ -999,17 +999,19 @@
 
   function screenLevelRisk() {
     var level = view.level;
+    var risks = (level.risk && level.risk.length) ? level.risk : ['civil'];
     return [
       h('div', { class: 'panel double risknote' }, [
         h('div', { class: 'label', style: 'background:var(--red)', text: lv('RISK INSIGHT', '风险判断') }),
         h('p', { class: 'prose', text: L(level.riskInsight) })
       ]),
-      h('div', { class: 'panel double' }, [
-        h('div', { class: 'riskline' }, [
-          h('span', { class: 'riskbadge', style: 'background:' + C.RISK.civil.colour, text: T(C.RISK.civil.label) }),
-          h('span', { class: 'small', text: T(C.RISK.civil.desc) })
-        ])
-      ]),
+      h('div', { class: 'panel double' }, risks.map(function (key) {
+        var risk = C.RISK[key] || C.RISK.civil;
+        return h('div', { class: 'riskline' }, [
+          h('span', { class: 'riskbadge', style: 'background:' + risk.colour, text: T(risk.label) }),
+          h('span', { class: 'small', text: T(risk.desc) })
+        ]);
+      })),
       h('button', {
         class: 'btn primary center',
         onclick: function () {
@@ -1034,10 +1036,17 @@
 
   function battleHud() {
     var st = view.battleState;
+    var b = (view.level && view.level.battle) || {};
+    var meters = b.meters || {};
+
+    function meterLabel(key, fallback) {
+      return L(meters[key] || fallback);
+    }
+
     return h('div', { class: 'panel double battle-hud' }, [
-      battleMeter(lv('YOU · CREDIBILITY', '你 · 信誉'), st.credibility, 'cred'),
-      battleMeter(lv('MS. HAN · POISE', '韩律师 · 架势'), st.poise, 'poise'),
-      battleMeter(lv('JUDGE · CONVICTION', '法官 · 心证'), st.conviction, 'judge')
+      battleMeter(meterLabel('credibility', { en: 'YOU · CREDIBILITY', zh: '你 · 信誉' }), st.credibility, 'cred'),
+      battleMeter(meterLabel('poise', { en: 'MS. HAN · POISE', zh: '韩律师 · 架势' }), st.poise, 'poise'),
+      battleMeter(meterLabel('conviction', { en: 'JUDGE · CONVICTION', zh: '法官 · 心证' }), st.conviction, 'judge')
     ]);
   }
 
@@ -1133,10 +1142,10 @@
   function screenLevelBattleResult() {
     var level = view.level;
     var outcome = view.battleResult || (level.battle && level.battle.outcomes.defeat);
-    var toneClass = outcome.tone === 'good' ? 'good' : 'bad';
+    var toneClass = outcome.tone === 'good' ? 'good' : outcome.tone === 'risky' ? 'tint' : 'bad';
     return [
       h('div', { class: 'panel double ' + toneClass }, [
-        h('div', { class: 'label', text: outcome.tone === 'good' ? lv('VICTORY', '胜利') : lv('DEFEAT', '失败') }),
+        h('div', { class: 'label', text: outcome.tone === 'bad' ? lv('DEFEAT', '失败') : lv('VICTORY', '胜利') }),
         h('div', { class: 'h-title', text: L(outcome.title) }),
         h('p', { class: 'prose battle-script', style: 'margin-top:8px', text: L(outcome.body) })
       ]),
