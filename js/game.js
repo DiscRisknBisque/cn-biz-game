@@ -632,7 +632,7 @@
                 : lv(levels.length + ' LEVELS', levels.length + ' 关');
 
       packCard = h('div', {
-        class: 'route mini' + (done === levels.length ? ' sel' : ''),
+        class: 'route' + (done === levels.length ? ' sel' : ''),
         onclick: function () {
           Sound.play('select');
           go('levelMap');
@@ -655,7 +655,7 @@
         h('div', { class: 'eyebrow', text: ui('chooseRoute') }),
         h('div', { class: 'h-sub', text: ui('routeHint') })
       ])
-    ].concat(packCard ? [packCard] : [], cards, [
+    ].concat(cards, packCard ? [packCard] : [], [
       h('div', { class: 'gap' }),
       h('button', {
         class: 'btn center', onclick: function () { Sound.play('back'); go('title'); }
@@ -1513,17 +1513,8 @@
       ]);
     }
 
-    /* Grouped by route so the dex reads as two collections, not one long list. */
+    /* Grouped by route so the dex reads as three collections, not one long list. */
     var sections = [];
-    var levelEntries = dexOf('levels').filter(DEX_FILTERS[filter]);
-    if (levelEntries.length) {
-      var allLevels = dexOf('levels');
-      sections.push(h('div', { class: 'dexsection' }, [
-        h('span', { text: lv('Courtroom Challenge', '法庭大闯关') }),
-        h('span', { class: 'stat-num', text: caughtCount(allLevels) + '/' + allLevels.length })
-      ]));
-      sections.push(h('div', { class: 'dexgrid' }, levelEntries.map(cell)));
-    }
     C.CAMPAIGNS.forEach(function (camp) {
       var entries = dexOf(camp.id).filter(DEX_FILTERS[filter]);
       if (!entries.length) return;
@@ -1534,6 +1525,16 @@
       ]));
       sections.push(h('div', { class: 'dexgrid' }, entries.map(cell)));
     });
+    var levelEntries = dexOf('levels').filter(DEX_FILTERS[filter]);
+    if (levelEntries.length) {
+      var allLevels = dexOf('levels');
+      var pack = C.LEVEL_PACK;
+      sections.push(h('div', { class: 'dexsection' }, [
+        h('span', { text: pack ? T(pack.title) : lv('Courtroom Challenge', '法庭大闯关') }),
+        h('span', { class: 'stat-num', text: caughtCount(allLevels) + '/' + allLevels.length })
+      ]));
+      sections.push(h('div', { class: 'dexgrid' }, levelEntries.map(cell)));
+    }
 
     var caught = caughtCount(DEX);
     var shinies = DEX.filter(function (e) { return state.shiny[e.id]; }).length;
