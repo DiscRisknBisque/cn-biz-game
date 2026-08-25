@@ -55,8 +55,8 @@
         name: text('Ms. Han', '韩律师'),
         role: text('Supplier\'s lawyer', '供应商律师'),
         line: text(
-          'There is no real line between this company and your own wallet, so your client pays personally.',
-          '这家公司和你自己的钱包之间没有真实界限，所以你本人应当付款。'
+          'You run the business, you are the legal representative, and you are the only shareholder. There is no real line between this company and your own wallet. The company is only your shell. Pierce that relationship, and you are personally responsible.',
+          '公司经营人是你，法人是你，公司股东也只有你一人。这家公司和你自己的钱包没有真实界限。你的公司只是你的皮套。所以穿透这层关系，你本人应当为此负责。'
         )
       },
       {
