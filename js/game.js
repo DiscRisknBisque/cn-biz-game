@@ -1453,7 +1453,7 @@
     if (levelEntries.length) {
       var allLevels = dexOf('levels');
       sections.push(h('div', { class: 'dexsection' }, [
-        h('span', { text: lv('Sample Levels', '单关样例') }),
+        h('span', { text: lv('Courtroom Challenge', '法庭大闯关') }),
         h('span', { class: 'stat-num', text: caughtCount(allLevels) + '/' + allLevels.length })
       ]));
       sections.push(h('div', { class: 'dexgrid' }, levelEntries.map(cell)));
