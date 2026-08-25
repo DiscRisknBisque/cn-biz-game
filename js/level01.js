@@ -38,10 +38,10 @@
     id: 'lvl-01-wfoe-commingling',
     order: 1,
     theme: 'company-law-fdi',
-    title: text('Whose money is it?', '这是谁的钱？'),
+    title: text('Courtroom Challenge', '法庭大闯关'),
     audience: text(
-      'Foreign founder running a WFOE (a one-person company under PRC law)',
-      '经营 WFOE 的外国创始人（一人公司）'
+      'WFOE debt crisis',
+      'WFOE的债务大危机'
     ),
     icon: 'commingle',
     scenario: text(
