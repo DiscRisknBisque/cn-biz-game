@@ -402,6 +402,7 @@
           choices: [
             {
               text: { zh: '同意，反正用章都会先口头知会我', en: 'Fine — people always tell me before they use it' },
+              feedbackText: { zh: '同意，反正用章都会先口头知会我\n天呐！高端的敌人往往以队友的身份出现', en: 'Fine — people always tell me before they use it\nOops. The most dangerous enemies often arrive as teammates.' },
               score: 0, fx: { cash: 0, comp: -22, rep: -10, energy: -2 },
               verdict: { zh: '盖章的合同基本就对公司生效了，口头知会救不了你。', en: 'A chopped contract binds the company. A verbal heads-up will not save you.' }
             },

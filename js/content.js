@@ -113,10 +113,10 @@
     },
     riskBody: {
       zh: [
-        '一、这是一个普法科普游戏，不是法律意见。每一关的「法律小贴士」都标注了法律依据，但游戏无法替你判断具体情形——同样一个动作，在不同城市、不同行业、不同金额、不同主体形式下，结论可能完全相反。',
+        '一、这是一个普法科普游戏，不是法律意见。每一关的「法律小贴士」都标注了法律依据，但游戏无法替你判断具体情形——同一个选择，在不同城市、不同行业、不同金额、不同主体形式下，结论可能完全相反。',
         '二、内容有保质期。中国的税收优惠、外汇额度、负面清单、数据出境阈值、留学生创业政策、AI 相关规定都更新频繁。标有「政策易变」的题目尤其要核对最新官方公告。',
         '三、游戏里的数值、评级和结局是娱乐设计。得了 S 不代表你的公司没有法律风险，得了 D 也不代表你一定会出事。它衡量的是你在这几十道题上的选择，不是你的真实处境。',
-        '四、真要动手之前，找一位有执业资质的中国律师或会计师看一遍。一次咨询的费用通常远低于你以为的，也远低于事后补救的成本——这句话是这个游戏里最实用的一条建议。'
+        '四、真的执行之前，找一位有执业资质的中国律师或会计师看一遍。一次咨询的费用通常远低于你以为的，也远低于事后补救的成本。'
       ].join('\n\n'),
       en: [
         '1. This is an educational game, not legal advice. Every tip cites the instrument it comes from, but a game cannot assess your situation — the same act can come out the opposite way in a different city, a different industry, at a different amount, or under a different type of entity.',

@@ -352,6 +352,36 @@ h1, h2, h3 { font-weight: 800; line-height: 1.3; }
 .delta.up   { color: var(--green-dk); }
 .delta.down { color: var(--red); }
 
+/* --- level battle --------------------------------------------------------- */
+
+.battle-hud {
+  display: grid;
+  gap: 8px;
+}
+.battle-meter .scoreline {
+  font-family: var(--font);
+  font-size: 10px;
+  letter-spacing: 0.8px;
+}
+.battlebar {
+  height: 10px;
+  margin-top: 4px;
+  background: var(--paper-2);
+  box-shadow: 0 0 0 2px var(--ink);
+  overflow: hidden;
+}
+.battlebar > i {
+  display: block;
+  height: 100%;
+  width: 0;
+  background: var(--green);
+  transition: width 0.35s steps(8);
+}
+.battle-meter.poise .battlebar > i { background: var(--red); }
+.battle-meter.judge .battlebar > i { background: var(--blue); }
+.battle-script { white-space: pre-line; }
+.battle-choice .sub { margin-top: 6px; }
+
 /* --- map ------------------------------------------------------------------ */
 
 .map { display: flex; flex-direction: column; gap: 0; }

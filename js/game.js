@@ -61,7 +61,8 @@
   var view = {
     screen: 'title', chapter: null, sceneIdx: 0,
     picked: null, applied: null, runPoints: 0, settlement: null,
-    level: null, evidenceState: null, setupBranch: null, outcome: null
+    level: null, evidenceState: null, setupBranch: null, outcome: null,
+    battleState: null, battleFeedback: null, battleResult: null
   };
 
   function save() {
@@ -731,6 +732,9 @@
     view.evidenceState = {};
     view.setupBranch = null;
     view.outcome = null;
+    view.battleState = null;
+    view.battleFeedback = null;
+    view.battleResult = null;
     view.screen = 'levelScenario';
     render();
   }
@@ -753,6 +757,90 @@
 
   function levelNo(level) {
     return lv('LEVEL ' + level.order, '第' + level.order + '关');
+  }
+
+  function battleRound(level, id) {
+    var rounds = (level.battle && level.battle.rounds) || [];
+    for (var i = 0; i < rounds.length; i++) if (rounds[i].id === id) return rounds[i];
+    return rounds[0] || null;
+  }
+
+  function hasBattleEvidence(option) {
+    var need = option.requiresEvidence || [];
+    for (var i = 0; i < need.length; i++) {
+      if (!view.evidenceState || !view.evidenceState[need[i]]) return false;
+    }
+    return true;
+  }
+
+  function clampPct(n) {
+    return Math.max(0, Math.min(100, n));
+  }
+
+  function startLevelBattle() {
+    var level = view.level;
+    var b = level && level.battle;
+    if (!b) { view.screen = 'levelDecision'; render(); return; }
+    view.battleState = {
+      roundId: 'opening',
+      credibility: b.start.credibility,
+      poise: b.start.poise,
+      conviction: b.start.conviction
+    };
+    view.battleFeedback = null;
+    view.battleResult = null;
+    Sound.play('select');
+    view.screen = 'levelBattle';
+    render();
+  }
+
+  function pickBattleOption(option) {
+    var st = view.battleState;
+    if (!st || !hasBattleEvidence(option)) return;
+    st.credibility = clampPct(st.credibility + (option.credibility || 0));
+    st.poise = clampPct(st.poise + (option.poise || 0));
+    st.conviction = clampPct(st.conviction + (option.conviction || 0));
+
+    var outcome = option.outcome || null;
+    if (st.credibility <= 0) outcome = 'defeat';
+    if (st.poise <= 0) outcome = 'victory';
+
+    view.battleFeedback = {
+      option: option,
+      next: option.next,
+      outcome: outcome
+    };
+    Sound.play(option.tone === 'good' ? 'good' : option.tone === 'tint' ? 'blip' : 'wrong');
+    view.screen = 'levelBattleFeedback';
+    render();
+  }
+
+  function finishLevelBattle(outcomeId) {
+    var level = view.level;
+    var b = level.battle;
+    var outcome = b.outcomes[outcomeId] || b.outcomes.defeat;
+    view.battleResult = outcome;
+    if (!state.levels) state.levels = freshLevels();
+    state.levels.cleared[level.id] = outcome.tone;
+    if (level.unlocksLevelId) state.levels.unlocked[level.unlocksLevelId] = true;
+    save();
+    Sound.play(outcome.tone === 'good' ? 'caught' : 'bad');
+    view.screen = 'levelBattleResult';
+    render();
+  }
+
+  function continueBattle() {
+    var fb = view.battleFeedback;
+    if (!fb) return;
+    if (fb.outcome) {
+      finishLevelBattle(fb.outcome);
+      return;
+    }
+    view.battleState.roundId = fb.next || view.battleState.roundId;
+    view.battleFeedback = null;
+    Sound.play('select');
+    view.screen = 'levelBattle';
+    render();
   }
 
   var SKILL_LABELS = {
@@ -903,8 +991,138 @@
       ]),
       h('button', {
         class: 'btn primary center',
-        onclick: function () { Sound.play('select'); view.screen = 'levelDecision'; render(); }
+        onclick: function () {
+          if (level.battle) startLevelBattle();
+          else { Sound.play('select'); view.screen = 'levelDecision'; render(); }
+        }
       }, [h('strong', { text: lv('Choose an action', '选择行动') })])
+    ];
+  }
+
+  function battleMeter(label, value, kind) {
+    var fill = h('i');
+    requestAnimationFrame(function () { fill.style.width = clampPct(value) + '%'; });
+    return h('div', { class: 'battle-meter ' + (kind || '') }, [
+      h('div', { class: 'scoreline' }, [
+        h('span', { text: label }),
+        h('span', { class: 'stat-num', text: String(clampPct(value)) })
+      ]),
+      h('div', { class: 'battlebar' }, [fill])
+    ]);
+  }
+
+  function battleHud() {
+    var st = view.battleState;
+    return h('div', { class: 'panel double battle-hud' }, [
+      battleMeter('YOU · CREDIBILITY', st.credibility, 'cred'),
+      battleMeter('MS. HAN · POISE', st.poise, 'poise'),
+      battleMeter('JUDGE · CONVICTION', st.conviction, 'judge')
+    ]);
+  }
+
+  function battleOptionButton(option, i) {
+    var locked = !hasBattleEvidence(option);
+    return h('button', {
+      class: 'btn choice battle-choice' + (locked ? ' locked-choice' : ''),
+      disabled: locked ? true : null,
+      onclick: locked ? null : function () { pickBattleOption(option); }
+    }, [
+      h('span', { class: 'idx', text: String(i + 1) }),
+      h('span', { text: L(option.text) }),
+      locked ? h('span', {
+        class: 'sub',
+        text: lv('LOCKED - ', '未解锁：') + L(option.lockedHint || { en: 'Missing evidence.', zh: 'Missing evidence.' })
+      }) : null
+    ]);
+  }
+
+  function screenLevelBattle() {
+    var level = view.level;
+    var b = level.battle;
+    var st = view.battleState;
+    if (!st) { startLevelBattle(); return []; }
+
+    if (st.roundId === 'opening') {
+      return [
+        h('div', { class: 'panel double center' }, [
+          h('div', { class: 'eyebrow', text: L(b.title) }),
+          h('div', { class: 'h-title', text: L(b.opening.title) })
+        ]),
+        battleHud(),
+        h('div', { class: 'panel double bad' }, [
+          h('p', { class: 'prose battle-script', text: L(b.opening.line) }),
+          h('p', { class: 'small', style: 'margin-top:10px', text: L(b.opening.effect) })
+        ]),
+        h('div', { class: 'panel double' }, b.rules.map(function (rule) {
+          return h('p', { class: 'small', text: L(rule) });
+        })),
+        h('button', {
+          class: 'btn primary center',
+          onclick: function () {
+            st.roundId = b.opening.next;
+            Sound.play('select');
+            render();
+          }
+        }, [h('strong', { text: lv('Enter the exchange', '进入交锋') })])
+      ];
+    }
+
+    var round = battleRound(level, st.roundId);
+    return [
+      h('div', { class: 'panel double center' }, [
+        h('div', { class: 'eyebrow', text: L(b.title) }),
+        h('div', { class: 'h-title', text: L(round.title) })
+      ]),
+      battleHud(),
+      h('div', { class: 'panel double' }, [
+        h('p', { class: 'prose battle-script', text: L(round.attack) }),
+        h('div', { class: 'hr' }),
+        h('p', { class: 'small', text: L(round.prompt) })
+      ])
+    ].concat(round.options.map(battleOptionButton));
+  }
+
+  function screenLevelBattleFeedback() {
+    var fb = view.battleFeedback;
+    var option = fb && fb.option;
+    if (!option) return screenLevelBattle();
+    var toneClass = option.tone === 'good' ? 'good' : option.tone === 'tint' ? 'tint' : 'bad';
+    return [
+      battleHud(),
+      h('div', { class: 'panel double ' + toneClass }, [
+        h('div', { class: 'label', text: option.result }),
+        h('p', { class: 'prose battle-script', text: L(option.response) })
+      ]),
+      h('button', {
+        class: 'btn primary center',
+        onclick: continueBattle
+      }, [h('strong', { text: fb.outcome ? lv('Hear the verdict', '听取裁判') : ui('next') })])
+    ];
+  }
+
+  function screenLevelBattleResult() {
+    var level = view.level;
+    var outcome = view.battleResult || (level.battle && level.battle.outcomes.defeat);
+    var toneClass = outcome.tone === 'good' ? 'good' : 'bad';
+    return [
+      h('div', { class: 'panel double ' + toneClass }, [
+        h('div', { class: 'label', text: outcome.tone === 'good' ? 'VICTORY' : 'DEFEAT' }),
+        h('div', { class: 'h-title', text: L(outcome.title) }),
+        h('p', { class: 'prose battle-script', style: 'margin-top:8px', text: L(outcome.body) })
+      ]),
+      h('div', { class: 'panel double good' }, [
+        h('div', { class: 'label tip', text: lv('REWARDS', '奖励') }),
+        h('p', { class: 'prose', text: L(outcome.reward) }),
+        h('p', { class: 'small', style: 'margin-top:10px', text: L(outcome.hook) })
+      ]),
+      h('button', {
+        class: 'btn primary center',
+        onclick: function () { Sound.play('select'); startLevel(level); }
+      }, [h('strong', { text: lv('Retry', '重试') })]),
+      h('button', {
+        class: 'btn center',
+        onclick: function () { Sound.play('back'); go('routes'); }
+      }, [h('strong', { text: ui('back') })])
     ];
   }
 
@@ -1098,7 +1316,7 @@
           style: 'background:' + (choice.score === 2 ? 'var(--green-dk)' : choice.score === 1 ? 'var(--slate)' : 'var(--red)'),
           text: ui(choice.score === 2 ? 'vGood' : choice.score === 1 ? 'vOk' : 'vBad')
         }),
-        h('p', { class: 'prose', text: T(choice.text) }),
+        h('p', { class: 'prose', style: 'white-space:pre-line', text: T(choice.feedbackText || choice.text) }),
         h('p', { class: 'prose', style: 'font-weight:700;margin-top:8px', text: T(choice.verdict) }),
         deltas.length ? h('div', { style: 'margin-top:8px;display:flex;flex-wrap:wrap;gap:4px 10px' }, deltas) : null
       ]),
@@ -1532,6 +1750,9 @@
     levelSetup: screenLevelSetup,
     levelEvidence: screenLevelEvidence,
     levelRisk: screenLevelRisk,
+    levelBattle: screenLevelBattle,
+    levelBattleFeedback: screenLevelBattleFeedback,
+    levelBattleResult: screenLevelBattleResult,
     levelDecision: screenLevelDecision,
     levelOutcome: screenLevelOutcome,
     scene: screenScene,
@@ -1557,7 +1778,7 @@
 
   /* Number keys pick answers; useful on desktop, harmless on phones. */
   document.addEventListener('keydown', function (e) {
-    if (view.screen !== 'scene' && view.screen !== 'levelSetup' && view.screen !== 'levelDecision') return;
+    if (view.screen !== 'scene' && view.screen !== 'levelSetup' && view.screen !== 'levelDecision' && view.screen !== 'levelBattle') return;
     var n = parseInt(e.key, 10);
     if (n >= 1 && n <= 3) {
       var btns = document.querySelectorAll('.btn.choice');
