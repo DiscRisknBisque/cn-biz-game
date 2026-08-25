@@ -182,6 +182,16 @@
      drives dex numbering: the first campaign's creatures are numbered first. */
   var CAMPAIGNS = [foreign, solo];
   var LEVELS = [level01, level02];
+  var LEVEL_PACK = {
+    id: 'courtroom',
+    title: { zh: '法庭大闯关', en: 'Courtroom Challenge' },
+    subtitle: { zh: '两关 · 举证与书面合同', en: 'Two levels · proof and paperwork' },
+    blurb: {
+      zh: '同一条闯关线：先证明公司的钱不是你的钱，再证明第一份用工手续写在纸上。两关共用一本图鉴分区。',
+      en: 'One challenge line: first prove the company money is not your money, then prove the first hire went on paper. Both levels share one dex section.'
+    },
+    icon: 'commingle'
+  };
 
   function campaign(id) {
     for (var i = 0; i < CAMPAIGNS.length; i++) if (CAMPAIGNS[i].id === id) return CAMPAIGNS[i];
@@ -194,6 +204,7 @@
     RISK: RISK,
     CAMPAIGNS: CAMPAIGNS,
     LEVELS: LEVELS,
+    LEVEL_PACK: LEVEL_PACK,
     campaign: campaign
   };
 });

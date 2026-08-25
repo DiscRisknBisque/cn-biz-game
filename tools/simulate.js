@@ -221,7 +221,14 @@ function checkContent() {
     });
   }
 
-  (C.LEVELS || []).forEach(function (level) {
+    if (!C.LEVELS || C.LEVELS.length < 1) problems.push('no single-round levels defined');
+    if (C.LEVEL_PACK) {
+      bilingual('LEVEL_PACK.title', C.LEVEL_PACK.title);
+      bilingual('LEVEL_PACK.subtitle', C.LEVEL_PACK.subtitle);
+      bilingual('LEVEL_PACK.blurb', C.LEVEL_PACK.blurb);
+    }
+
+    (C.LEVELS || []).forEach(function (level) {
     var tag = 'level/' + level.id;
     var evidence = {};
     var outcomes = {};

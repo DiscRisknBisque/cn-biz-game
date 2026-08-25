@@ -620,42 +620,87 @@
         h('p', { class: 'small', text: T(camp.blurb) })
       ]);
     });
-    var levelCards = (C.LEVELS || []).map(function (level) {
-      var locked = !(state.levels && state.levels.unlocked && state.levels.unlocked[level.id]);
-      var cleared = state.levels && state.levels.cleared && state.levels.cleared[level.id];
-      var badge = locked ? ui('locked') : cleared ? ui('cleared') : lv('LEVEL ' + level.order, '第' + level.order + '关');
+    var pack = C.LEVEL_PACK;
+    var packCard = null;
+    if (pack && (C.LEVELS || []).length) {
+      var levels = C.LEVELS;
+      var done = levels.filter(function (level) {
+        return state.levels && state.levels.cleared && state.levels.cleared[level.id];
+      }).length;
+      var badge = done === levels.length ? ui('routeCleared')
+                : done ? done + '/' + levels.length
+                : lv(levels.length + ' LEVELS', levels.length + ' 关');
 
-      return h('div', {
-        class: 'route mini' + (locked ? ' locked' : '') + (cleared ? ' sel' : ''),
+      packCard = h('div', {
+        class: 'route mini' + (done === levels.length ? ' sel' : ''),
         onclick: function () {
-          if (locked) { Sound.play('bad'); return; }
           Sound.play('select');
-          startLevel(level);
+          go('levelMap');
         }
       }, [
         h('div', { class: 'route-head' }, [
-          sprite(level.icon || 'commingle', 4),
+          sprite(pack.icon || 'commingle', 4),
           h('div', { class: 'route-txt' }, [
-            h('div', { class: 'route-title', text: L(level.title) }),
-            h('div', { class: 'route-sub', text: L(level.audience) })
+            h('div', { class: 'route-title', text: T(pack.title) }),
+            h('div', { class: 'route-sub', text: T(pack.subtitle) })
           ]),
           h('div', { class: 'route-badge', text: badge })
         ]),
-        h('p', { class: 'small', text: L(level.scenario) })
+        h('p', { class: 'small', text: T(pack.blurb) })
       ]);
-    });
+    }
 
     return [
       h('div', { class: 'panel double' }, [
         h('div', { class: 'eyebrow', text: ui('chooseRoute') }),
         h('div', { class: 'h-sub', text: ui('routeHint') })
       ])
-    ].concat(levelCards, cards, [
+    ].concat(packCard ? [packCard] : [], cards, [
       h('div', { class: 'gap' }),
       h('button', {
         class: 'btn center', onclick: function () { Sound.play('back'); go('title'); }
       }, [h('strong', { text: ui('back') })])
     ]);
+  }
+
+  function screenLevelMap() {
+    var pack = C.LEVEL_PACK || { title: { zh: '法庭大闯关', en: 'Courtroom Challenge' } };
+    var levels = C.LEVELS || [];
+    var done = levels.filter(function (level) {
+      return state.levels && state.levels.cleared && state.levels.cleared[level.id];
+    }).length;
+
+    var nodes = levels.map(function (level) {
+      var locked = !(state.levels && state.levels.unlocked && state.levels.unlocked[level.id]);
+      var cleared = state.levels && state.levels.cleared && state.levels.cleared[level.id];
+      return h('div', {
+        class: 'node' + (locked ? ' locked' : '') + (cleared ? ' done' : ''),
+        onclick: function () {
+          if (locked) { Sound.play('bad'); return; }
+          Sound.play('select');
+          startLevel(level);
+        }
+      }, [
+        h('div', { class: 'art' }, [sprite(level.icon || 'commingle', 3)]),
+        h('div', { class: 'txt' }, [
+          h('div', { class: 'n-title', text: levelNo(level) + ' · ' + L(level.title) }),
+          h('div', { class: 'n-sub', text: L(level.audience) })
+        ]),
+        h('div', { class: 'n-badge', text: locked ? '🔒' : cleared ? '★' : '▶' })
+      ]);
+    });
+
+    return [
+      h('div', { class: 'panel double' }, [
+        h('div', { class: 'eyebrow', text: T(pack.title) }),
+        h('div', { class: 'h-sub', text: (state.lang === 'zh' ? '进度 ' : 'Progress ') + done + '/' + levels.length })
+      ]),
+      h('div', { class: 'map' }, nodes),
+      h('div', { class: 'gap' }),
+      h('button', {
+        class: 'btn center', onclick: function () { Sound.play('back'); go('routes'); }
+      }, [h('strong', { text: ui('back') })])
+    ];
   }
 
   function screenMap() {
@@ -779,6 +824,12 @@
 
   function levelNo(level) {
     return lv('LEVEL ' + level.order, '第' + level.order + '关');
+  }
+
+  function levelById(id) {
+    var list = C.LEVELS || [];
+    for (var i = 0; i < list.length; i++) if (list[i].id === id) return list[i];
+    return null;
   }
 
   function battleRound(level, id) {
@@ -1165,7 +1216,7 @@
       }, [h('strong', { text: lv('Retry', '重试') })]),
       h('button', {
         class: 'btn center',
-        onclick: function () { Sound.play('back'); go('routes'); }
+        onclick: function () { Sound.play('back'); go('levelMap'); }
       }, [h('strong', { text: ui('back') })])
     ];
   }
@@ -1196,6 +1247,7 @@
     var level = view.level;
     var outcome = view.outcome || level.outcomes[0];
     var basis = outcome.legalBasis;
+    var nextLevel = level.unlocksLevelId ? levelById(level.unlocksLevelId) : null;
     var toneClass = outcome.tone === 'good' ? 'good' : outcome.tone === 'risky' ? 'tint' : 'bad';
 
     function row(label, value) {
@@ -1231,9 +1283,9 @@
         h('p', { class: 'small', text: L(basis.citation) }),
         basis.exceptions ? h('p', { class: 'small', style: 'margin-top:8px', text: L(basis.exceptions) }) : null
       ]),
-      level.unlocksLevelId ? h('div', { class: 'panel double tint' }, [
+      nextLevel ? h('div', { class: 'panel double tint' }, [
         h('div', { class: 'label', text: lv('UNLOCKED', '已解锁') }),
-        h('p', { class: 'prose', text: lv('Next level: ', '下一关：') + level.unlocksLevelId })
+        h('p', { class: 'prose', text: lv('Next level: ', '下一关：') + L(nextLevel.title) })
       ]) : null,
       h('button', {
         class: 'btn primary center',
@@ -1241,7 +1293,7 @@
       }, [h('strong', { text: lv('Replay level', '重玩本关') })]),
       h('button', {
         class: 'btn center',
-        onclick: function () { Sound.play('back'); go('routes'); }
+        onclick: function () { Sound.play('back'); go('levelMap'); }
       }, [h('strong', { text: ui('back') })])
     ];
   }
@@ -1797,6 +1849,7 @@
     routes: screenRoutes,
     risk: screenRisk,
     map: screenMap,
+    levelMap: screenLevelMap,
     intro: screenIntro,
     levelScenario: screenLevelScenario,
     levelCharacters: screenLevelCharacters,
