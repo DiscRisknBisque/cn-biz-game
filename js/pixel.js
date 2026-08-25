@@ -415,24 +415,24 @@
       '...K..K..K..K...'
     ],
 
-    /* 混同鬼 — company money and your money, melting into one another. */
+    /* 财产混同兽 — a small deer, because the line looks harmless until it bolts. */
     commingle: [
       '................',
-      '...KKKK..KKKK...',
-      '..KBBBBKKOOOOK..',
-      '.KBBBBBBKOOOOOK.',
-      '.KBBWWBBKOOWWOK.',
-      '.KBBWKBBKOOWKOK.',
-      '.KBBBBBBKOOOOOK.',
-      '.KBBBBBBnOOOOOK.',
-      '.KBBBBnnnnOOOOK.',
-      '.KBBBnnnnnnOOOK.',
-      '.KBBnnnnnnnnOOK.',
-      '.KBnnnnnnnnnnOK.',
-      '.KKnnnnnnnnnnKK.',
-      '..KnnnnnnnnnnK..',
-      '...KK.KK.KK.KK..',
-      '....K..K..K..K..'
+      '...K.K....K.K...',
+      '..KTTK....KTTK..',
+      '...KTTKKKKTTK...',
+      '..KTTTTTTTTTTK..',
+      '.KTTTTEEEETTTTK.',
+      '.KTTTEWWWWETTTK.',
+      '.KTTTEWKKWETTTK.',
+      '.KTTTTTEETTTTTK.',
+      '..KTTTKYYKTTTK..',
+      '...KTTTTTTTTK...',
+      '..KTTTTTTTTTTK..',
+      '.KTTTTTTTTTTTTK.',
+      '.KTTKTTTTTTKTTK.',
+      '..KK.KK..KK.KK..',
+      '...K..K..K..K...'
     ],
 
     /* 双税兽 — corporate tax on the way in, dividend tax on the way out. */
