@@ -415,24 +415,24 @@
       '...K..K..K..K...'
     ],
 
-    /* 财产混同兽 — a small deer, because the line looks harmless until it bolts. */
+    /* 财产混同兽 — RMB and USD wallets crossed until the boundary disappears. */
     commingle: [
       '................',
-      '...K.K....K.K...',
-      '..KTTK....KTTK..',
-      '...KTTKKKKTTK...',
-      '..KTTTTTTTTTTK..',
-      '.KTTTTEEEETTTTK.',
-      '.KTTTEWWWWETTTK.',
-      '.KTTTEWKKWETTTK.',
-      '.KTTTTTEETTTTTK.',
-      '..KTTTKYYKTTTK..',
-      '...KTTTTTTTTK...',
-      '..KTTTTTTTTTTK..',
-      '.KTTTTTTTTTTTTK.',
-      '.KTTKTTTTTTKTTK.',
-      '..KK.KK..KK.KK..',
-      '...K..K..K..K...'
+      '..KKKK....KKKK..',
+      '.KGGGGK..KBBBBK.',
+      'KGGYGGGKKBBBWBBK',
+      '.KGGGGGnnBBBBBK.',
+      '..KGGGnnnnBBBK..',
+      '...KGnnYYnnBK...',
+      '....KnnKKnnK....',
+      '...KnnKYYKnnK...',
+      '..KGGnnnnnnBBK..',
+      '.KGGGGnnnnBBBBK.',
+      'KGGYGGKnnKBBBBBK',
+      '.KGGGGK..KBBBBK.',
+      '..KKKK....KKKK..',
+      '....K......K....',
+      '................'
     ],
 
     /* 双税兽 — corporate tax on the way in, dividend tax on the way out. */
