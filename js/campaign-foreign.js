@@ -1574,8 +1574,8 @@
     title: { zh: '外国人来华创业', en: 'Founding as a Foreigner' },
     subtitle: { zh: '签证 · 执照 · 税务 · 数据', en: 'Visas, licences, tax and data' },
     blurb: {
-      zh: '你刚落地中国，手里是一份商业计划书和一张不知道能不能用来上班的签证。八章，从签证走到数据合规。',
-      en: 'You have just landed in China with a business plan and a visa you are not sure lets you work. Eight chapters, from the border to data compliance.'
+      zh: '你刚刚落地中国，带着听说过的外贸神话，心里怀着对自己商业蓝图的憧憬，想要在这片异国闯出自己的天下。。。',
+      en: 'You have just landed in China, carrying the foreign-trade legends you have heard, holding a vision of your own business blueprint, ready to make your name in this foreign land...'
     },
     icon: 'visa',
     chapters: CHAPTERS,

@@ -1048,8 +1048,8 @@
     title: { zh: '一人公司', en: 'The One-Person Company' },
     subtitle: { zh: 'AI 时代的独立开发者', en: 'Solo builders in the age of AI' },
     blurb: {
-      zh: '你用 AI 做出了产品，开始有人付钱。六章，从"要不要注册"走到"有人越过公司来找你"。',
-      en: 'You built something with AI and people started paying for it. Six chapters, from whether to register at all to the day someone reaches past the company for you.'
+      zh: 'AI的时代来临，你曾经是互联网时代的一名路人甲，这一次你也想做一只在风口上会飞的猪🐷',
+      en: 'The age of AI is here. You were an extra in the internet era; this time you want to be a pig that actually flies when the wind is up. 🐷'
     },
     icon: 'soloturtle',
     chapters: CHAPTERS,
