@@ -48,7 +48,8 @@
       levels: freshLevels(), // single-round levels: unlocks and outcomes
       dex: {},              // dex id -> 'seen' | 'caught'
       shiny: {},            // dex id -> true, earned by a flawless chapter
-      achievements: {}      // achievement id -> true, once its reveal has been shown
+      achievements: {},     // achievement id -> true, once its reveal has been shown
+      endingCards: {}       // 'solo:S' -> { score, cleared, stats }, earned result cards
     };
   }
 
@@ -61,7 +62,8 @@
     screen: 'title', chapter: null, sceneIdx: 0,
     picked: null, applied: null, runPoints: 0, settlement: null,
     level: null, evidenceState: null, setupBranch: null, outcome: null,
-    battleState: null, battleFeedback: null, battleResult: null
+    battleState: null, battleFeedback: null, battleResult: null,
+    resultCard: null        // { campId, grade } when re-reading a result from the dex
   };
 
   function save() {
@@ -105,11 +107,18 @@
       base.levels.unlocked = Object.assign(freshLevels().unlocked, base.levels.unlocked || {});
       base.levels.cleared = Object.assign({}, base.levels.cleared || {});
       delete base.levels.unlocked['lvl-02-tbd'];
+      base.endingCards = Object.assign({}, base.endingCards || {});
+      var cardN = Object.keys(base.endingCards).length;
+      /* Old saves that already finished a route never wrote an ending card.
+         Rebuild one from the stored run so the dex does not look empty. */
+      Object.keys(base.runs).forEach(function (id) {
+        rememberEndingFromRun(id, base.runs[id], base.endingCards);
+      });
 
       state = base;
       /* Write the migrated shape straight back so the old one stops lingering
          and every later load takes the fast path. */
-      if (migrated) save();
+      if (migrated || Object.keys(base.endingCards).length !== cardN) save();
       return true;
     } catch (e) { return false; }
   }
@@ -244,12 +253,56 @@
     return B.score(run().stats, totalPoints(), maxPoints(cur()));
   }
 
-  function endingFor(score) {
-    var list = cur().endings;
+  function endingForCamp(camp, score) {
+    var list = camp.endings;
     for (var i = 0; i < list.length; i++) {
       if (score >= list[i].min) return list[i];
     }
     return list[list.length - 1];
+  }
+
+  function endingFor(score) {
+    return endingForCamp(cur(), score);
+  }
+
+  function endingCardKey(campId, grade) {
+    return campId + ':' + grade;
+  }
+
+  function endingScoreOf(camp, r) {
+    var points = 0;
+    Object.keys(r.cleared || {}).forEach(function (k) { points += r.cleared[k]; });
+    return B.score(r.stats, points, maxPoints(camp));
+  }
+
+  /* Keep the best score for that grade. The dex shows one card per ending, not
+     one per run, so a later worse S must not overwrite a better one. */
+  function rememberEndingFromRun(campId, r, into) {
+    if (!r || !r.finished) return;
+    var camp = null;
+    C.CAMPAIGNS.forEach(function (c) { if (c.id === campId) camp = c; });
+    if (!camp || !camp.endings || !camp.endings.length) return;
+    var score = endingScoreOf(camp, r);
+    var ending = endingForCamp(camp, score);
+    var key = endingCardKey(campId, ending.grade);
+    var prev = into[key];
+    if (prev && prev.score >= score) return;
+    into[key] = {
+      score: score,
+      cleared: Object.assign({}, r.cleared || {}),
+      stats: Object.assign({}, B.START, r.stats || {})
+    };
+  }
+
+  function recordEndingCard() {
+    if (!state.endingCards) state.endingCards = {};
+    rememberEndingFromRun(cur().id, run(), state.endingCards);
+  }
+
+  function endingCardCount() {
+    var n = 0;
+    C.CAMPAIGNS.forEach(function (camp) { n += (camp.endings || []).length; });
+    return n;
   }
 
   /* ------------------------------------------------------------------- dex */
@@ -376,8 +429,8 @@
 
   /* ------------------------------------------------------------ shared parts */
 
-  function statBar(key, iconName, labelKey) {
-    var val = run().stats[key];
+  function statBar(key, iconName, labelKey, stats) {
+    var val = (stats || run().stats)[key];
     var max = LIMITS[key][1];
     var pct = Math.round((val / max) * 100);
     var cls = 'bar' + (pct <= 20 ? ' dead' : pct <= 45 ? ' warn' : '');
@@ -420,12 +473,12 @@
     ]);
   }
 
-  function statsPanel() {
+  function statsPanel(stats) {
     return h('div', { class: 'panel stats' }, [
-      statBar('cash', 'icoCash', 'cash'),
-      statBar('comp', 'icoShield', 'compliance'),
-      statBar('rep', 'icoStar', 'reputation'),
-      statBar('energy', 'icoBolt', 'energy')
+      statBar('cash', 'icoCash', 'cash', stats),
+      statBar('comp', 'icoShield', 'compliance', stats),
+      statBar('rep', 'icoStar', 'reputation', stats),
+      statBar('energy', 'icoBolt', 'energy', stats)
     ]);
   }
 
@@ -796,7 +849,7 @@
       onclick: function () {
         if (bossLocked) { Sound.play('bad'); return; }
         Sound.play('select');
-        if (r.bossDone) { go('result'); return; }
+        if (r.bossDone) { view.resultCard = null; go('result'); return; }
         startBoss();
       }
     }, [
@@ -1668,12 +1721,56 @@
       caught === 0 && filter === 'all'
         ? h('div', { class: 'panel double center' }, [h('p', { class: 'small', text: ui('dexEmpty') })])
         : null
-    ].concat(sections, achievementBlock(filter), [
+    ].concat(sections, endingCardBlock(filter), achievementBlock(filter), [
       h('div', { class: 'gap' }),
       h('button', {
         class: 'btn center', onclick: function () { Sound.play('back'); go(state.campaign ? 'map' : 'title'); }
       }, [h('strong', { text: ui('back') })])
     ]);
+  }
+
+  /* Earned endings sit in the dex as result cards. Clicking one reopens that
+     result screen; unearned grades stay hidden so the titles are not spoiled. */
+  function endingCardBlock(filter) {
+    if (filter !== 'all') return [];
+    var cards = [];
+    var total = endingCardCount();
+    C.CAMPAIGNS.forEach(function (camp) {
+      (camp.endings || []).forEach(function (ending) {
+        var rec = state.endingCards && state.endingCards[endingCardKey(camp.id, ending.grade)];
+        if (!rec) return;
+        cards.push({ camp: camp, ending: ending, rec: rec });
+      });
+    });
+    var header = h('div', { class: 'dexsection' }, [
+      h('span', { text: ui('endingAchTitle') }),
+      h('span', { class: 'stat-num', text: cards.length + ' / ' + total })
+    ]);
+    if (!cards.length) {
+      return [header, h('div', { class: 'panel double' }, [
+        h('div', { class: 'rare-title', text: ui('achLocked') }),
+        h('div', { class: 'small', style: 'margin-top:4px', text: ui('endingAchHint') })
+      ])];
+    }
+    return [header].concat(cards.map(function (card) {
+      return h('div', {
+        class: 'panel double tint',
+        style: 'cursor:pointer',
+        onclick: function () {
+          Sound.play('blip');
+          view.resultCard = { campId: card.camp.id, grade: card.ending.grade };
+          go('result');
+        }
+      }, [
+        h('div', { class: 'rare-row' }, [
+          sprite(card.camp.icon, 3),
+          h('div', {}, [
+            h('div', { class: 'rare-title', text: card.ending.grade + ' · ' + T(card.ending.title) }),
+            h('div', { class: 'small', style: 'margin-top:4px', text: T(card.camp.title) + ' · ' + ui('endingAchOpen') + ' →' })
+          ])
+        ])
+      ]);
+    }));
   }
 
   /* Hidden achievements sit below the routes, only under the "all" filter. A
@@ -1756,13 +1853,27 @@
   }
 
   function screenResult() {
-    var camp = cur();
-    var r = run();
-    var score = finalScore();
-    var ending = endingFor(score);
+    var preview = view.resultCard;
+    var camp = preview ? C.campaign(preview.campId) : cur();
+    var rec = preview && state.endingCards
+      ? state.endingCards[endingCardKey(preview.campId, preview.grade)]
+      : null;
+    var r = rec
+      ? { cleared: rec.cleared || {}, stats: rec.stats || B.START }
+      : run();
+    var score = rec ? rec.score : finalScore();
+    var ending = preview
+      ? (camp.endings || []).filter(function (e) { return e.grade === preview.grade; })[0] || endingForCamp(camp, score)
+      : endingFor(score);
     var mine = dexOf(camp.id);
+    var fromDex = !!preview;
+    if (fromDex && !rec) {
+      view.resultCard = null;
+      view.screen = 'dex';
+      return screenDex();
+    }
 
-    playOnce('result:' + camp.id, score >= 55 ? 'fanfare' : 'gameover');
+    if (!fromDex) playOnce('result:' + camp.id, score >= 55 ? 'fanfare' : 'gameover');
 
     var rows = camp.chapters.map(function (ch) {
       var got = r.cleared[ch.id];
@@ -1809,7 +1920,7 @@
           h('span', { class: 'stat-num', text: caughtCount(mine) + '/' + mine.length })
         ])
       ]),
-      statsPanel(),
+      statsPanel(r.stats),
       h('div', { class: 'panel double tint' }, [
         h('div', { class: 'label', style: 'background:var(--green-dk)', text: ui('adviceTitle') }),
         h('ol', { class: 'advice' }, camp.advice.map(function (a) {
@@ -1829,15 +1940,25 @@
         class: 'btn center', onclick: function () { Sound.play('blip'); go('risk'); }
       }, [h('strong', { text: '⚠ ' + ui('riskBtn') })]),
       h('button', {
-        class: 'btn primary center', onclick: function () { copyResult(score, ending); }
+        class: 'btn primary center', onclick: function () { copyResult(score, ending, camp, r); }
       }, [h('strong', { text: ui('share') })]),
       h('button', {
-        class: 'btn center', onclick: function () { Sound.play('blip'); go('dex'); }
+        class: 'btn center', onclick: function () {
+          Sound.play('blip');
+          if (fromDex) view.resultCard = null;
+          go('dex');
+        }
       }, [h('strong', { text: ui('dex') })]),
-      h('button', {
+      fromDex ? null : h('button', {
         class: 'btn center', onclick: function () { Sound.play('blip'); go('routes'); }
       }, [h('strong', { text: ui('switchRoute') })]),
-      h('button', {
+      fromDex ? h('button', {
+        class: 'btn center', onclick: function () {
+          Sound.play('back');
+          view.resultCard = null;
+          go('dex');
+        }
+      }, [h('strong', { text: ui('back') })]) : h('button', {
         class: 'btn center', onclick: function () {
           Sound.play('select');
           /* Replaying a route resets that route only; the dex is kept. */
@@ -1849,9 +1970,9 @@
     ];
   }
 
-  function copyResult(score, ending) {
-    var camp = cur();
-    var r = run();
+  function copyResult(score, ending, camp, r) {
+    camp = camp || cur();
+    r = r || run();
     var caught = caughtCount(DEX);
     var shinies = DEX.filter(function (e) { return state.shiny[e.id]; }).length;
 
@@ -1976,6 +2097,7 @@
 
     r.bossDone = true;
     r.finished = true;
+    recordEndingCard();
     save();
     if (maybeAchievement('result')) { render(); return; }
     go('result');

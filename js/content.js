@@ -113,6 +113,9 @@
     achLocked:    { zh: '？？？', en: '???' },
     achHint:      { zh: '解锁条件', en: 'HOW TO UNLOCK' },
     achRead:      { zh: '查看', en: 'READ' },
+    endingAchTitle:{ zh: '达成成就', en: 'RESULT CARDS' },
+    endingAchHint: { zh: '通关后解锁结果卡', en: 'Clear a route to unlock its result card' },
+    endingAchOpen: { zh: '查看结果卡', en: 'OPEN RESULT CARD' },
     disclaimerT:  { zh: '免责声明', en: 'Disclaimer' },
     disclaimer:   {
       zh: '本游戏为普法科普用途，内容基于公开的中国法律法规整理，不构成法律意见。政策（尤其是税收优惠、外汇额度、负面清单）更新频繁，实际操作前请咨询有执业资质的中国律师或会计师，并以最新官方规定为准。',

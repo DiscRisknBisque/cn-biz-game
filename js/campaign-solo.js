@@ -140,8 +140,8 @@
       title: { zh: '防火墙', en: 'The Firewall' },
       subtitle: { zh: '有限责任不是自动的', en: 'Limited liability is not automatic' },
       dexNote: {
-        zh: '它不攻击你，它只是让公司的钱和你的钱慢慢分不清。等到有人来要债，那道墙已经不在了。',
-        en: 'It does not attack. It just lets the company\'s money and your money blur into each other. By the time a creditor arrives, the wall is no longer there.'
+        zh: '它不攻击你，它只是让公司的钱和你的钱慢慢分不清。等到有人来要债，你的保护盾🛡️已经被破除。',
+        en: 'It does not attack. It just lets the company\'s money and your money blur into each other. By the time a creditor arrives, your shield 🛡️ has already been broken.'
       },
       intro: {
         zh: '公司注册好了，对公账户开了。第一笔大额付款到账那天，客户问："能不能打你私人账户？走公账他们财务要发票。"',
@@ -983,7 +983,7 @@
   var ENDINGS = [
     {
       min: 88, grade: 'S',
-      title: { zh: '干净的一人公司', en: 'A Clean One-Person Company' },
+      title: { zh: '民间传说', en: 'Folk Legend' },
       body: {
         zh: '深夜十一点，别人早收工了，你还在把一笔往来款划回它该在的账户，就为了那条线干干净净。一个人做公司不难。难的是一个人做得，像个公司。That\'s the flex。没人看见。但那道墙，是真的。',
         en: 'Eleven at night, everyone else clocked off hours ago, and you are still moving one 往来款 — a balance between you and the company — back to the account it belongs in, just to keep the line clean. Running a company alone is not the hard part. Running it, alone, like a company is. That\'s the flex. Nobody saw it. But the wall is real.'
@@ -995,7 +995,7 @@
     },
     {
       min: 72, grade: 'A',
-      title: { zh: '稳的个体开发者', en: 'A Steady Solo Developer' },
+      title: { zh: '稳健大师', en: 'Steady Master' },
       body: {
         zh: '你的产品在跑，用户在涨，一切看着都对。只是有两根线还松着：一笔没清的股东往来款，和一个从没扫过 license 的发布流程。现在它们什么事都没有。它们最擅长的，就是什么事都没有——直到有事。',
         en: 'Your product runs, the users climb, everything looks right. Two threads are still loose: one unsettled 股东往来款, the shareholder balance, and a release pipeline that has never scanned a licence. Nothing is wrong with either of them right now. Nothing being wrong is the thing they are best at. Until something is.'
@@ -1049,7 +1049,7 @@
     subtitle: { zh: 'AI 时代的独立开发者', en: 'Solo builders in the age of AI' },
     blurb: {
       zh: 'AI的时代来临，你曾经是互联网时代的一名路人甲，这一次你也想做一只在风口上会飞的猪🐷',
-      en: 'The age of AI is here. You were an extra in the internet era; this time you want to be a pig that actually flies when the wind is up. 🐷'
+      en: 'The age of AI is here. You were a npc in the internet era; this time you want to be a pig that actually flies when the wind is up. 🐷'
     },
     icon: 'soloturtle',
     chapters: CHAPTERS,
