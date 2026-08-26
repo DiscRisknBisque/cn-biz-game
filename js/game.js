@@ -1763,7 +1763,10 @@
         }
       }, [
         h('div', { class: 'rare-row' }, [
-          sprite(card.camp.icon, 3),
+          h('div', { class: 'ending-icon' }, [
+            sprite(card.camp.icon, 3),
+            card.ending.grade === 'S' ? h('span', { class: 'ending-crown', text: '👑' }) : null
+          ]),
           h('div', {}, [
             h('div', { class: 'rare-title', text: card.ending.grade + ' · ' + T(card.ending.title) }),
             h('div', { class: 'small', style: 'margin-top:4px', text: T(card.camp.title) + ' · ' + ui('endingAchOpen') + ' →' })

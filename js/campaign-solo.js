@@ -985,8 +985,8 @@
       min: 88, grade: 'S',
       title: { zh: '民间传说', en: 'Folk Legend' },
       body: {
-        zh: '深夜十一点，别人早收工了，你还在把一笔往来款划回它该在的账户，就为了那条线干干净净。一个人做公司不难。难的是一个人做得，像个公司。That\'s the flex。没人看见。但那道墙，是真的。',
-        en: 'Eleven at night, everyone else clocked off hours ago, and you are still moving one 往来款 — a balance between you and the company — back to the account it belongs in, just to keep the line clean. Running a company alone is not the hard part. Running it, alone, like a company is. That\'s the flex. Nobody saw it. But the wall is real.'
+        zh: '深夜十一点，别人早收工了，你还在把一笔往来款划回它该在的账户，就为了那条线干干净净。一个人做公司不难。难的是一个人做得，像个公司。That\'s the flex。很多年后，人们在福布斯排行榜上看见你，你的排名在马斯克旁边。你的身影早已消失不见，但你的合规精神还在大陆流传。你是当之无愧的传说！',
+        en: 'Eleven at night, everyone else clocked off hours ago, and you are still moving one 往来款 — a balance between you and the company — back to the account it belongs in, just to keep the line clean. Running a company alone is not the hard part. Running it, alone, like a company is. That\'s the flex. Years later people find you on the Forbes list, next to Musk. You are long gone from view, but the compliance still travels the mainland. You are a legend, and you earned it.'
       },
       hook: {
         zh: '维持成本很低——每年一次结构和账目的快速复核，就能一直守住这条线。',
