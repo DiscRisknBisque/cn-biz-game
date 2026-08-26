@@ -47,7 +47,8 @@
       runs: {},             // campaign id -> run
       levels: freshLevels(), // single-round levels: unlocks and outcomes
       dex: {},              // dex id -> 'seen' | 'caught'
-      shiny: {}             // dex id -> true, earned by a flawless chapter
+      shiny: {},            // dex id -> true, earned by a flawless chapter
+      achievements: {}      // achievement id -> true, once its reveal has been shown
     };
   }
 
@@ -339,6 +340,38 @@
     if (caughtCount(rest) < rest.length) return null;
     state.dex[secret.id] = 'caught';
     return secret;
+  }
+
+  var ACHIEVEMENTS = C.ACHIEVEMENTS || [];
+
+  function achievementDone(a) {
+    /* A slot is satisfied by any of its dex ids; a plain id list is one id per
+       slot. Done when every slot is satisfied. */
+    var slots = a.slots || (a.ids || []).map(function (id) { return [id]; });
+    return slots.every(function (slot) {
+      return slot.some(function (id) { return state.dex[id] === 'caught'; });
+    });
+  }
+
+  /* A cross-route achievement completes wherever its last creature is caught,
+     so instead of instrumenting every catch site we ask, at each natural pause
+     screen, whether one just finished but has not yet been revealed. Routing to
+     the reveal marks it shown so it fires exactly once. `back` is the screen the
+     flow was heading to, restored when the player dismisses the reveal. */
+  function maybeAchievement(back) {
+    if (!state.achievements) state.achievements = {};
+    for (var i = 0; i < ACHIEVEMENTS.length; i++) {
+      var a = ACHIEVEMENTS[i];
+      if (state.achievements[a.id] || !achievementDone(a)) continue;
+      state.achievements[a.id] = true;
+      view.achievement = a;
+      view.achievementBack = back || 'dex';
+      view.screen = 'achievement';
+      save();
+      Sound.play('caught');
+      return true;
+    }
+    return false;
   }
 
   /* ------------------------------------------------------------ shared parts */
@@ -939,6 +972,7 @@
     save();
     Sound.play(outcome.tone === 'bad' ? 'bad' : 'caught');
     view.screen = 'levelBattleResult';
+    maybeAchievement('levelBattleResult');
     render();
   }
 
@@ -1404,6 +1438,7 @@
     Sound.play(view.rare ? 'caught' : choice.score === 2 ? 'good' : choice.score === 1 ? 'blip' : 'wrong');
     save();
     view.screen = 'feedback';
+    maybeAchievement('feedback');
     render();
   }
 
@@ -1517,6 +1552,35 @@
     ]);
   }
 
+  /* The cross-route achievement reveal — served both as the one-time unlock
+     (routed to from a catch, returns to view.achievementBack) and as a re-read
+     from the dex. The body carries its own paragraph breaks. */
+  function screenAchievement() {
+    var a = view.achievement;
+    if (!a) { view.screen = 'dex'; return screenDex(); }
+    var paras = T(a.body).split('\n\n');
+
+    return [
+      h('div', { class: 'panel double center' }, [
+        h('div', { class: 'eyebrow', text: ui('achGot') }),
+        h('div', { class: 'h-title', text: T(a.title) })
+      ]),
+      h('div', { class: 'stage-wrap' }, [
+        h('div', { class: 'stage' }, [sprite(a.monster, 6)]),
+        h('div', { class: 'ground' })
+      ]),
+      h('div', { class: 'panel double bad' }, paras.map(function (p) {
+        return h('p', { class: 'prose', text: p });
+      })),
+      h('button', {
+        class: 'btn primary center', onclick: function () {
+          Sound.play('select');
+          go(view.achievementBack || 'dex');
+        }
+      }, [h('strong', { text: ui('next') })])
+    ];
+  }
+
   var DEX_FILTERS = {
     all:     function () { return true; },
     missing: function (e) { return state.dex[e.id] !== 'caught'; },
@@ -1604,12 +1668,43 @@
       caught === 0 && filter === 'all'
         ? h('div', { class: 'panel double center' }, [h('p', { class: 'small', text: ui('dexEmpty') })])
         : null
-    ].concat(sections, [
+    ].concat(sections, achievementBlock(filter), [
       h('div', { class: 'gap' }),
       h('button', {
         class: 'btn center', onclick: function () { Sound.play('back'); go(state.campaign ? 'map' : 'title'); }
       }, [h('strong', { text: ui('back') })])
     ]);
+  }
+
+  /* Hidden achievements sit below the routes, only under the "all" filter. A
+     locked one shows how to unlock without spoiling the reveal; an unlocked one
+     is tappable to read again. */
+  function achievementBlock(filter) {
+    if (filter !== 'all' || !ACHIEVEMENTS.length) return [];
+    var doneN = ACHIEVEMENTS.filter(achievementDone).length;
+    return [
+      h('div', { class: 'dexsection' }, [
+        h('span', { text: ui('achTitle') }),
+        h('span', { class: 'stat-num', text: doneN + ' / ' + ACHIEVEMENTS.length })
+      ])
+    ].concat(ACHIEVEMENTS.map(function (a) {
+      var done = achievementDone(a);
+      return h('div', {
+        class: 'panel double' + (done ? ' tint' : ''),
+        style: done ? 'cursor:pointer' : '',
+        onclick: done
+          ? function () { Sound.play('blip'); view.achievement = a; view.achievementBack = 'dex'; view.screen = 'achievement'; render(); }
+          : function () { Sound.play('bad'); }
+      }, [
+        h('div', { class: 'rare-row' }, [
+          done ? sprite(a.monster, 3) : null,
+          h('div', {}, [
+            h('div', { class: 'rare-title', text: done ? T(a.title) : ui('achLocked') }),
+            h('div', { class: 'small', style: 'margin-top:4px', text: done ? ui('achRead') + ' →' : ui('achHint') + (state.lang === 'zh' ? '：' : ': ') + T(a.hint) })
+          ])
+        ])
+      ]);
+    }));
   }
 
   function screenDexDetail() {
@@ -1698,6 +1793,12 @@
       h('div', { class: 'panel double' }, [
         h('p', { class: 'prose', text: T(ending.body) })
       ]),
+      /* Every tier carries a hook: even an S ending should leave the player
+         with one concrete thing to do next, and a D is not the end of it. */
+      ending.hook ? h('div', { class: 'panel double tint' }, [
+        h('div', { class: 'label', text: ui('hookTitle') }),
+        h('p', { class: 'prose', text: T(ending.hook) })
+      ]) : null,
       h('div', { class: 'panel double' }, [
         h('div', { class: 'eyebrow', text: state.lang === 'zh' ? '分章得分' : 'BY CHAPTER' }),
         h('div', { class: 'breakdown' }, rows)
@@ -1835,6 +1936,7 @@
 
     save();
     view.screen = 'capture';
+    maybeAchievement('capture');
     render();
   }
 
@@ -1875,6 +1977,7 @@
     r.bossDone = true;
     r.finished = true;
     save();
+    if (maybeAchievement('result')) { render(); return; }
     go('result');
   }
 
@@ -1910,6 +2013,7 @@
     capture: screenCapture,
     dex: screenDex,
     dexdetail: screenDexDetail,
+    achievement: screenAchievement,
     result: screenResult
   };
 

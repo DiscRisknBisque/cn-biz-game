@@ -595,6 +595,26 @@
       '...KXXK..KXXK...'
     ],
 
+    /* 不签合同蛙 — offers a handshake, not a pen. The handshake binds too. */
+    nocontractfrog: [
+      '..KK......KK....',
+      '.KWWK....KWWK...',
+      '.KWKK....KWKK...',
+      '.KggKKKKKKggK...',
+      '.KggggggggggK.KK',
+      '.KgggggggggggKgg',
+      '.KggggggggggggGg',
+      '.KggKGGGGGGKgGKK',
+      '.KgggGGGGGGgggK.',
+      '.KggggggggggggK.',
+      '.KggggggggggggK.',
+      '..KgggggggggggK.',
+      '..KggggggggggK..',
+      '.KgKgggggggKgK..',
+      'Kg.KKgggggKK.gK.',
+      '....KKKKKKK.....'
+    ],
+
     /* 标识印 — the label AI-generated content has to carry. */
     labelmark: [
       '................',

@@ -106,7 +106,9 @@ revenue scaled to how well you played, and if compliance has slipped the
 regulator sends a bill and you spend the next quarter firefighting.
 
 Each route has its own five endings — 合规大师 down to 已被限制高消费 on one,
-干净的一人公司 down to 判决：由你个人承担 on the other.
+干净的一人公司 down to 判决：由你个人承担 on the other. Every tier, including
+the D, carries a `hook`: one concrete next step, shown under the ending. A bad
+ending that only tells you it went badly gives the player nowhere to go.
 
 ### Risk disclosure
 

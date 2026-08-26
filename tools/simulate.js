@@ -137,6 +137,8 @@ function checkContent() {
     camp.endings.forEach(function (e, i) {
       bilingual(tag + '.ending' + i + '.title', e.title);
       bilingual(tag + '.ending' + i + '.body', e.body);
+      /* Every tier owes the player a next step, the D ending most of all. */
+      bilingual(tag + '.ending' + i + '.hook', e.hook);
       if (typeof e.min !== 'number') problems.push(tag + '.ending' + i + ': needs a numeric min');
     });
     if (!camp.endings.some(function (e) { return e.min === 0; })) {
@@ -311,6 +313,29 @@ function checkContent() {
       if (branch.requiresEvidence && branch.requiresEvidence.length && !branch.disabledHint) {
         problems.push(tag + '.decision.' + branch.id + ': evidence-locked branches need disabledHint');
       }
+    });
+  });
+
+  /* Cross-route achievements: every combined id must resolve to a real dex
+     entry (campaign or level), or the achievement can never unlock. */
+  var validDexIds = Object.assign({}, seenDexIds);
+  (C.LEVELS || []).forEach(function (level) {
+    if (level.dexEntry) validDexIds[level.dexEntry.id || level.id] = true;
+  });
+  (C.ACHIEVEMENTS || []).forEach(function (a, i) {
+    var atag = 'ACHIEVEMENTS[' + (a.id || i) + ']';
+    if (!a.id) problems.push(atag + ': needs an id');
+    if (!a.monster) problems.push(atag + ': needs a monster sprite');
+    bilingual(atag + '.title', a.title);
+    bilingual(atag + '.hint', a.hint);
+    bilingual(atag + '.body', a.body);
+    var slots = a.slots || (a.ids || []).map(function (id) { return [id]; });
+    if (slots.length < 2) problems.push(atag + ': needs at least 2 slots to combine');
+    slots.forEach(function (slot, si) {
+      if (!slot || !slot.length) { problems.push(atag + '.slot' + si + ': empty'); return; }
+      slot.forEach(function (id) {
+        if (!validDexIds[id]) problems.push(atag + '.slot' + si + ': references unknown dex id "' + id + '"');
+      });
     });
   });
 

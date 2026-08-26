@@ -107,6 +107,12 @@
       en: 'This one rests on time-limited policy. Thresholds, amounts and scope are revised often — check the current official announcement before you act on it.'
     },
     adviceTitle:  { zh: '下一步该做什么', en: 'WHAT TO ACTUALLY DO NEXT' },
+    hookTitle:    { zh: '下一步', en: 'NEXT STEP' },
+    achTitle:     { zh: '隐藏成就', en: 'HIDDEN ACHIEVEMENTS' },
+    achGot:       { zh: '隐藏成就解锁', en: 'ACHIEVEMENT UNLOCKED' },
+    achLocked:    { zh: '？？？', en: '???' },
+    achHint:      { zh: '解锁条件', en: 'HOW TO UNLOCK' },
+    achRead:      { zh: '查看', en: 'READ' },
     disclaimerT:  { zh: '免责声明', en: 'Disclaimer' },
     disclaimer:   {
       zh: '本游戏为普法科普用途，内容基于公开的中国法律法规整理，不构成法律意见。政策（尤其是税收优惠、外汇额度、负面清单）更新频繁，实际操作前请咨询有执业资质的中国律师或会计师，并以最新官方规定为准。',
@@ -193,6 +199,37 @@
     icon: 'commingle'
   };
 
+  /* Hidden achievements span the whole game, not one route — an achievement is
+     unlocked when every dex id in `ids` has been caught, wherever they live.
+     The "没写下来 ≠ 没发生" family: property commingling (混同鬼, solo route),
+     the blank labour contract (双倍工资鬼) and the handshake frog (不签合同蛙).
+     Only the first pierces the limited-liability shield; catching all three is
+     the moment a player is meant to see why that one is the dangerous one. */
+  var ACHIEVEMENTS = [
+    {
+      id: 'nowall',
+      monster: 'veilpiercer',
+      /* Each slot is one member of the family, satisfied by any listed dex id.
+         Property commingling has a beast in both routes — the solo 混同鬼 and
+         the WFOE 财产混同兽 — so a single-route WFOE founder can complete the
+         set in one company, which is exactly what the reveal is about. */
+      slots: [
+        ['solo-veil', 'wfoecommingle'],
+        ['doublewage'],
+        ['nocontractfrog']
+      ],
+      title: { zh: '查无此墙', en: "The Company That Wasn't" },
+      hint: {
+        zh: '集齐财产混同兽、空白合同兽、不签合同蛙。',
+        en: 'Catch the commingling beast, the blank-contract beast and the handshake frog.'
+      },
+      body: {
+        zh: '你集齐了三只。系统本该弹一句恭喜。弹出来的，是一份执行裁定书。\n\n但真正结束这局的，不是三只妖怪——是其中一只，早已悄悄拆掉了你的护盾。于是另外两只一直在打的伤害，第一次，落到了"你"身上。员工的二倍工资、供应商的违约、工厂手里你的图纸——它们本来都被挡在公司那一层。破盾的那一炮没有声音。你甚至没注意到盾是什么时候没的。你只看到最后那行字。\n\n被执行人。失信名单。限制高消费。税清之前，这个国家你也出不去。\n\n法官从头到尾，没提过"公司"两个字。因为在他面前，已经没有公司了——只有你。',
+        en: 'You caught all three. The system was supposed to pop a congratulation. What popped was an enforcement ruling.\n\nBut what ended this run was not the three monsters — it was one of them, which had quietly taken your shield apart long before. So the damage the other two had been dealing all along landed, for the first time, on "you". The employee\'s double wages, the supplier\'s breach, your drawings sitting in someone else\'s factory — every bit of it had been stopped at the company layer. The shot that broke the shield made no sound. You never noticed it go. You just read the last line.\n\nJudgment debtor. The defaulter list. Barred from high consumption. And until the tax is cleared, you are not leaving this country either.\n\nThe judge never once said the word "company". In front of him there was nothing left to name — only you.'
+      }
+    }
+  ];
+
   function campaign(id) {
     for (var i = 0; i < CAMPAIGNS.length; i++) if (CAMPAIGNS[i].id === id) return CAMPAIGNS[i];
     return CAMPAIGNS[0];
@@ -205,6 +242,7 @@
     CAMPAIGNS: CAMPAIGNS,
     LEVELS: LEVELS,
     LEVEL_PACK: LEVEL_PACK,
+    ACHIEVEMENTS: ACHIEVEMENTS,
     campaign: campaign
   };
 });

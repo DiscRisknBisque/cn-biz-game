@@ -478,6 +478,38 @@
             zh: '《著作权法》第53条；《民法典》第465条、第577条；北京知识产权法院（2019）京73民终2020号',
             en: 'Copyright Law, art. 53; Civil Code, arts. 465 & 577; Beijing IP Court, (2019) Jing 73 Min Zhong No. 2020'
           }
+        },
+        {
+          risk: ['civil'],
+          prompt: {
+            zh: '赶进度，你把一个核心模块外包给了一个朋友的小团队。微信里说好了价钱和交期，"合同就不签了，都熟人"。他们交了活，你付了钱。',
+            en: 'To make a deadline you outsource a core module to a friend\'s small team. Price and timeline are settled over WeChat — "no need for a contract, we all know each other". They deliver, you pay.'
+          },
+          choices: [
+            {
+              text: { zh: '交付前就签书面委托开发合同，写明知识产权归你、验收标准和违约责任', en: 'Sign a written development contract before delivery — IP assigned to you, acceptance criteria, and what happens on breach' },
+              score: 2, fx: { cash: -6, comp: 20, rep: 6, energy: -8 },
+              verdict: { zh: '正确。委托作品没约定归属的，著作权默认归受托方——写代码的人，不是付钱的你。', en: 'Correct. Where a commissioned work leaves ownership unagreed, copyright defaults to the contractor — the people who wrote it, not the one who paid.' }
+            },
+            {
+              text: { zh: '钱是我付的，东西当然归我，不用另外约定', en: 'I paid for it, so of course it is mine — no need to agree anything extra' },
+              score: 0, fx: { cash: 2, comp: -22, rep: -8, energy: -2 },
+              verdict: { zh: '付款不等于取得著作权。将来他拿你这套代码去接别的单，你拦不住。', en: 'Paying does not transfer copyright. When they take your code to their next client, you cannot stop them.' }
+            },
+            {
+              text: { zh: '微信记录都在，先不签，出问题再补', en: 'The WeChat log is all there — skip the contract, paper it if trouble comes' },
+              score: 1, fx: { cash: 0, comp: 2, rep: 0, energy: -4 },
+              verdict: { zh: '记录能证明合同成立、付了多少钱，但证明不了知识产权归你——归属默认还是受托方。', en: 'The log can prove a contract formed and what you paid, but not that the IP is yours — by default it still sits with the contractor.' }
+            }
+          ],
+          tip: {
+            zh: '《民法典》第469、490条：合同不必是书面的，口头说好、一方已履行且对方接受，合同同样成立——所以"没签合同"从不等于"没有合同、没有责任"。真正的漏洞在两处：一是举证，价钱、验收标准、交期全靠聊天记录拼；二是知识产权归属。受委托创作的作品，著作权的归属由双方约定；没有约定或约定不明的，著作权属于受托人（《著作权法》第19条）。委托开发完成的发明创造，申请专利的权利也默认属于研究开发人（《民法典》第859条）。换句话说：你出钱让人写的代码，不签书面权属约定，法律上可能不归你。把"知识产权归委托方所有"写进合同，是这一步最便宜的一句话。',
+            en: 'Civil Code arts. 469 and 490: a contract need not be in writing — agreed aloud, performed by one side and accepted by the other, it is formed all the same, so "no contract signed" never means "no contract, no liability". The real gaps are two: proof — price, acceptance and timeline all rest on a chat log — and IP ownership. For a commissioned work, ownership is whatever the parties agree; absent or unclear agreement, copyright belongs to the contractor (Copyright Law art. 19). The right to patent a commissioned invention likewise defaults to the developer (Civil Code art. 859). Put plainly: code you paid someone to write may not be yours without a written assignment. One line — "all IP vests in the commissioning party" — is the cheapest sentence in this whole step.'
+          },
+          law: {
+            zh: '《民法典》第469条、第490条、第859条；《著作权法》第19条',
+            en: 'Civil Code, arts. 469, 490 & 859; Copyright Law, art. 19'
+          }
         }
       ]
     },
@@ -953,32 +985,48 @@
       min: 88, grade: 'S',
       title: { zh: '干净的一人公司', en: 'A Clean One-Person Company' },
       body: {
-        zh: '你把公司和自己分得清清楚楚：钱走对公账户，账做得完整，拿钱走工资和分红，代码的来路说得清，AI 产品该备的案都备了。真到了穿透兽找上门那天，你能拿出证据——这就是有限责任真正生效的样子。一个人做公司不难，难的是一个人做得像个公司。',
-        en: 'You kept the company and yourself genuinely apart: money through the corporate account, books kept properly, cash taken as salary and dividends, a clear provenance for your code, and every filing your AI product needed. On the day something reaches through the company for you, you have the evidence — which is what limited liability actually looks like when it works. Running a company alone is not the hard part. Running it like a company is.'
+        zh: '深夜十一点，别人早收工了，你还在把一笔往来款划回它该在的账户，就为了那条线干干净净。一个人做公司不难。难的是一个人做得，像个公司。That\'s the flex。没人看见。但那道墙，是真的。',
+        en: 'Eleven at night, everyone else clocked off hours ago, and you are still moving one 往来款 — a balance between you and the company — back to the account it belongs in, just to keep the line clean. Running a company alone is not the hard part. Running it, alone, like a company is. That\'s the flex. Nobody saw it. But the wall is real.'
+      },
+      hook: {
+        zh: '维持成本很低——每年一次结构和账目的快速复核，就能一直守住这条线。',
+        en: 'Upkeep is cheap — one quick annual review of the structure and the books holds this line indefinitely.'
       }
     },
     {
       min: 72, grade: 'A',
       title: { zh: '稳的个体开发者', en: 'A Steady Solo Developer' },
       body: {
-        zh: '大方向都对，细节上有几处松。回头看看你答错的那几题——通常就是明年会来找你的那几件事。最值得先补的两件：把股东往来款清干净，把开源许可扫描接进发布流程。这两件加起来花不了一周。',
-        en: 'The big calls are right; a few details are loose. Look back at the questions you missed — they are usually the exact things that come looking for you next year. Two worth fixing first: clear out the shareholder balance, and put an open-source licence scan into your release pipeline. Together they are under a week of work.'
+        zh: '你的产品在跑，用户在涨，一切看着都对。只是有两根线还松着：一笔没清的股东往来款，和一个从没扫过 license 的发布流程。现在它们什么事都没有。它们最擅长的，就是什么事都没有——直到有事。',
+        en: 'Your product runs, the users climb, everything looks right. Two threads are still loose: one unsettled 股东往来款, the shareholder balance, and a release pipeline that has never scanned a licence. Nothing is wrong with either of them right now. Nothing being wrong is the thing they are best at. Until something is.'
+      },
+      hook: {
+        zh: '两件加一块儿花不了一周，而且都有标准做法。找人帮你搭一次，之后就是自动跑的例行流程，你再不用想起它们。',
+        en: 'Together they are under a week, and both have a standard fix. Have someone set it up once and it becomes routine that runs itself — you never have to think about them again.'
       }
     },
     {
       min: 55, grade: 'B',
       title: { zh: '能跑，但墙上有裂缝', en: 'Running, With Cracks in the Wall' },
       body: {
-        zh: '产品在跑，钱也在进，但你和公司之间那道墙上有几条明显的裂缝：个人账户收过公司的钱，账上挂着说不清的股东往来，或者代码的来路你自己也没底。这些在顺利的时候完全看不出来，只在出事那一天同时显形。趁现在还没出事，去把账理一遍。',
-        en: 'The product runs and the money comes in, but there are visible cracks in the wall between you and the company: business money that landed in a personal account, a shareholder balance nobody can explain, or code whose provenance you are not sure of. None of this shows while things go well. All of it shows at once on the day they do not. Go and clean up the books while nothing has happened yet.'
+        zh: '墙上的裂缝，白天你看不见。阳光好的时候，它们完全不存在——账户、往来款、许可证，样样"差不多"。然后出事那天到了。所有裂缝，在同一秒里一起显形，像商量好的。',
+        en: 'The cracks in the wall are invisible by day. In good light they do not exist at all — the accounts, the 往来款, the licences, all of it "close enough". Then the day arrives. Every crack shows itself in the same second, as though they had agreed on it beforehand.'
+      },
+      hook: {
+        zh: '趁天还亮着，让人帮你把裂缝列出来排个序——大多数现在补很便宜，出事后补，天价。',
+        en: 'While the light holds, have someone list the cracks and rank them — most are cheap to fill now, and priced very differently afterwards.'
       }
     },
     {
       min: 35, grade: 'C',
       title: { zh: '这层壳形同虚设', en: 'The Shell Is Not Doing Anything' },
       body: {
-        zh: '你注册了公司，但从法律上看，它和你还是同一个人：钱混着走，账没有，凭证也没有。一旦有债权人主张连带责任，举证责任在你，而你什么都拿不出来。你现在的处境，和当初直接做个体户几乎没有区别——只是多交了一份注册费。好消息是这全都可以补，而且越早越便宜。',
-        en: 'You registered a company, but in the eyes of the law it is still you: money mixed, no books, no vouchers. The moment a creditor claims joint liability the burden falls on you, and you have nothing to produce. Your position is barely different from having stayed an individual household — you just paid a registration fee for it. The good news is that all of it is fixable, and the sooner the cheaper.'
+        zh: '法律眼里，此刻你和一个个体户，是同一个人。你为这点区别，交了一笔注册费。然后，没有那点区别。',
+        en: 'In the eyes of the law, you and a 个体户 — a sole trader, no company at all — are at this moment the same person. You paid a registration fee for the difference. There is no difference.'
+      },
+      hook: {
+        zh: '这层壳还能救活。关键就几步：账户隔离、往来款清理、留痕——找律师给你一张"最小加固清单"。',
+        en: 'The shell can still be brought back to life. It comes down to a few steps: separate the accounts, clear the 往来款, keep the paper trail — ask a lawyer for a minimum hardening list.'
       }
     },
     {

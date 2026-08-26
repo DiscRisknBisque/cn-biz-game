@@ -605,6 +605,39 @@
             zh: '《公司法》第210条；《企业所得税法》第3条、第27条及实施条例第91条；国家税务总局、国家外汇管理局2013年第40号公告',
             en: 'Company Law, art. 210; Enterprise Income Tax Law, arts. 3 & 27 and Implementing Regulations, art. 91; SAT/SAFE Announcement No. 40 (2013)'
           }
+        },
+        {
+          rare: 'wfoecommingle',
+          risk: ['civil', 'tax'],
+          prompt: {
+            zh: '你是这家 WFOE 唯一的股东。公司账上有钱，你个人的房租到期了，顺手用公司账户划了过去——"反正公司都是我的。"',
+            en: 'You are this WFOE\'s only shareholder. There is money in the company account, your personal rent is due, so you just pay it from the company account — "the company is all mine anyway."'
+          },
+          choices: [
+            {
+              text: { zh: '分清公私：个人开支走个人账户，要用钱就走工资、分红或有真实票据的报销，每笔股东往来都留书面依据', en: 'Keep the two apart: personal spending from a personal account, take money only as salary, dividends or properly-vouchered reimbursement, and document every shareholder transaction' },
+              score: 2, fx: { cash: -2, comp: 18, rep: 6, energy: -8 },
+              verdict: { zh: '正确。一人公司里举证责任是倒过来的——不是债主证明你混同，是你证明你没混同。', en: 'Correct. In a one-shareholder company the burden is reversed — the creditor need not prove commingling; you must disprove it.' }
+            },
+            {
+              text: { zh: '先用公司账户垫付，月底记一笔"其他应收款——股东"挂着', en: 'Pay it from the company for now and book it as "other receivables — shareholder" at month-end' },
+              score: 1, fx: { cash: 2, comp: -6, rep: -2, energy: -4 },
+              verdict: { zh: '挂账不还，正是最典型的混同证据；跨了年还没还，税务上还可能视同分红补 20% 的税。', en: 'A balance left outstanding is the most typical evidence of commingling; carried past year-end, it can also be taxed as a 20% dividend.' }
+            },
+            {
+              text: { zh: '公司是我一个人的，公私不用分那么清', en: 'It is a one-person company — no need to split hairs about personal and corporate' },
+              score: 0, fx: { cash: 4, comp: -24, rep: -10, energy: -2 },
+              verdict: { zh: '正是这句话，让法院可以否认公司独立人格，让你对公司全部债务承担连带责任。', en: 'That exact sentence is what lets a court disregard the company\'s separate personality and hold you jointly liable for all its debts.' }
+            }
+          ],
+          tip: {
+            zh: '一人有限责任公司（包括外国自然人独资的 WFOE）原则上以公司财产对外担责，股东以认缴出资为限。但《公司法》第23条第3款规定：只有一个股东的公司，股东不能证明公司财产独立于股东自己财产的，应当对公司债务承担连带责任——这是举证责任倒置，要由你来证明"公司不是你、你不是公司"。法院认定财产混同看的就是日常细节：公司收入是否进公司账户、有没有独立完整的账簿、个人开支是否由公司买单、公司资产和个人资产分不分得清。用公司账户付个人房租、把公司卡当私人卡刷、"其他应收款——股东"长期挂账不还，都是现成的混同证据；股东借款跨年不还，税务上还可能被视同分红补征 20% 个人所得税。',
+            en: 'A single-shareholder limited liability company — including a WFOE wholly owned by one foreign individual — answers for its debts with company property, and the shareholder\'s exposure is capped at subscribed capital. But art. 23(3) of the Company Law provides that where a company has one shareholder who cannot prove the company\'s property is independent of their own, that shareholder is jointly and severally liable for the company\'s debts — the burden is reversed, and it falls to you to prove the company is not you. Courts read commingling off the everyday details: does company revenue land in the company account, are the books complete and separate, does the company pay your personal bills, can company and personal assets be told apart. Paying your rent from the company account, treating the company card as a personal one, or leaving an "other receivables — shareholder" balance outstanding are all ready-made evidence of commingling; a shareholder loan left unrepaid across the year-end can also be taxed as a 20% dividend.'
+          },
+          law: {
+            zh: '《公司法》第23条第3款；《全国法院民商事审判工作会议纪要》（九民纪要）第10条',
+            en: 'Company Law, art. 23(3); Minutes of the National Courts\' Civil and Commercial Trial Work Conference (the "Nine-People Minutes"), art. 10'
+          }
         }
       ]
     },
@@ -951,6 +984,39 @@
           law: {
             zh: '《著作权法》第2条；《计算机软件保护条例》；《专利法》第2条、第42条；《反不正当竞争法》第9条',
             en: 'Copyright Law, art. 2; Regulations on Computer Software Protection; Patent Law, arts. 2 & 42; Anti-Unfair Competition Law, art. 9'
+          }
+        },
+        {
+          rare: 'nocontractfrog',
+          risk: ['civil'],
+          prompt: {
+            zh: '你的硬件交给一家工厂打样。老板笑着说："咱认识这么多年了，先开工，合同回头再补。"',
+            en: 'A factory will run the first samples of your hardware. The boss smiles: "we go back years — let us start production, we will paper the contract later."'
+          },
+          choices: [
+            {
+              text: { zh: '开工前签书面代工协议：写清价格、质量、交期、违约责任，并约定模具、图纸、设计的知识产权归你', en: 'Sign a written OEM agreement before production — price, quality, delivery, breach, and the IP in the moulds, drawings and design assigned to you' },
+              score: 2, fx: { cash: -8, comp: 18, rep: 6, energy: -10 },
+              verdict: { zh: '正确。不约定的话，委托作品的著作权、委托发明的专利权，默认归受托方——也就是工厂。', en: 'Correct. Left unagreed, copyright in commissioned work and the right to patent a commissioned invention default to the contractor — the factory.' }
+            },
+            {
+              text: { zh: '不签正式合同，但把规格、报价、交期用邮件和微信确认清楚并留存', en: 'Skip a formal contract, but pin down the spec, quote and delivery over email and WeChat, and keep it all' },
+              score: 1, fx: { cash: -2, comp: 4, rep: 2, energy: -6 },
+              verdict: { zh: '比握手强：你已履行、对方接受，合同照样成立，聊天记录也是证据。但关键条款和知识产权归属仍然悬空。', en: 'Better than a handshake: performed and accepted, the contract still forms, and the chat log is evidence. But the key terms and the IP ownership are still hanging.' }
+            },
+            {
+              text: { zh: '握手成交，先把货做出来再说', en: 'Shake on it and get the goods made first' },
+              score: 0, fx: { cash: 4, comp: -22, rep: -8, energy: -2 },
+              verdict: { zh: '出事那天，你连"当时说好多少"都证明不了，模具和设计法律上还可能不归你。', en: 'On the day it goes wrong you cannot even prove what was agreed — and the moulds and design may not legally be yours.' }
+            }
+          ],
+          tip: {
+            zh: '《民法典》第469条：合同可以书面、口头或其他形式订立。第490条：没签书面合同，但一方已经履行主要义务、对方接受的，合同同样成立——"没签字"从来不等于"没责任"。真正的代价在举证：一旦有争议，价格、质量、交期、违约责任全靠"当时说好的"，你什么都拿不出来。代工尤其要写清知识产权：委托作品的著作权，合同没约定或约定不明的，归受托人（《著作权法》第19条）；委托开发完成的发明创造，申请专利的权利默认属于研究开发人（《民法典》第859条）。也就是说，不签书面约定，你出钱做的模具、设计、配方，法律上可能不当然归你，工厂转头就能接你竞品的单。',
+            en: 'Civil Code art. 469: a contract may be made in writing, orally or in another form. Art. 490: even with nothing signed, once one party performs its main obligation and the other accepts, the contract is formed — "unsigned" has never meant "not on the hook". The real cost is proof: in a dispute, price, quality, delivery and liability all rest on "what we said at the time", and you have nothing to produce. OEM work above all needs the IP written down: where a commissioning contract is silent or unclear, copyright in the commissioned work belongs to the contractor (Copyright Law art. 19), and the right to patent a commissioned invention defaults to the developer (Civil Code art. 859). Without a written assignment, the moulds, designs and formulas you paid for may not be yours in law — and the factory can take your competitor\'s order next.'
+          },
+          law: {
+            zh: '《民法典》第469条、第490条、第859条；《著作权法》第19条',
+            en: 'Civil Code, arts. 469, 490 & 859; Copyright Law, art. 19'
           }
         }
       ]
@@ -1312,6 +1378,34 @@
       }
     },
     {
+      id: 'wfoecommingle', monster: 'commingle',
+      name: { zh: '财产混同兽', en: 'COMMINGLER' },
+      type: { zh: '人格独立', en: 'SEPARATION' }, danger: 5, rarity: 2,
+      from: { zh: '第四章 · 钱流', en: 'Ch.4 · Money In, Money Out' },
+      note: {
+        zh: '它最喜欢一人公司的老板，尤其是独资 WFOE——从你说出那句"反正公司都是我的"开始，它就住了进来。公司的钱你随手花，公司的卡你当私人卡刷，账上"其他应收款——股东"越挂越高。平时它一声不吭。直到有天债主找上门，法院让你证明"公司不是你"，你翻遍账本，证不出来。那一刻它才现身——把公司那层壳，连着你，一起收走。',
+        en: 'It favours one-shareholder founders, the wholly-foreign-owned WFOE most of all — it moves in the moment you say "the company is all mine anyway". You spend the company\'s money as your own, swipe the company card like a personal one, and the "other receivables — shareholder" line climbs and climbs. It stays silent. Until the day a creditor arrives, the court asks you to prove the company is not you, and you comb the books and cannot. Only then does it show itself — and take the shell of the company, and you with it.'
+      },
+      weak: {
+        zh: '对公账户收付、账簿完整、股东往来有书面依据；拿钱只走工资、分红或真实报销',
+        en: 'Company account in and out, complete books, a written basis for every shareholder transaction; take money only as salary, dividends or genuine reimbursement'
+      }
+    },
+    {
+      id: 'nocontractfrog', monster: 'nocontractfrog',
+      name: { zh: '不签合同蛙', en: 'HANDSHAKEFROG' },
+      type: { zh: '民事', en: 'CIVIL' }, danger: 4, rarity: 2,
+      from: { zh: '第七章 · 护城河', en: 'Ch.7 · The Moat' },
+      note: {
+        zh: '它朝你伸出一只圆手，眼睛亮晶晶。"咱关系这么好，签什么合同。"你们握了手，货发了，钱付了，一切都顺——直到出事那天，你翻遍手机，多少钱、什么质量、几号交货，一个字都找不到。它没骗你，它是真心以为没写下来就等于没发生。《民法典》不这么想：口头说好、你已履行，合同照样成立，你一个义务都没少。你省下的那支笔，最后花了你一整年。',
+        en: 'It offers you a round little hand, eyes shining. "We are close — why sign anything?" You shake on it; the goods ship, the money moves, all smooth — until the day it is not, and you comb your whole phone and cannot find one line: how much, what quality, delivered when. It did not lie to you. It genuinely believed that unwritten meant it never happened. The Civil Code disagrees: agreed out loud and already performed, the contract stands, and you are short not one obligation. The pen you saved ended up costing you a year.'
+      },
+      weak: {
+        zh: '开工、发货、付款之前先签书面合同，写清价格、质量、交期、违约责任和知识产权归属',
+        en: 'A written contract before work, shipment or payment — fixing price, quality, delivery, breach and who owns the IP'
+      }
+    },
+    {
       id: 'squatter', monster: 'squatter',
       name: { zh: '抢注鸦', en: 'SQUATTERCROW' },
       type: { zh: '知识产权', en: 'IP' }, danger: 4, rarity: 2,
@@ -1417,32 +1511,48 @@
       min: 88, grade: 'S', sprite: 'icoStar',
       title: { zh: '合规大师', en: 'Compliance Master' },
       body: {
-        zh: '你不只是活下来了，你活得很干净。签证、税务、劳动、数据，四条线都没有断。这样的外资企业主在中国其实不多——你大概率能把公司开过第三年，而大部分人倒在第二年的汇算清缴上。',
-        en: 'You did not merely survive, you survived clean. Visa, tax, labour and data — four threads, none of them frayed. There are not many foreign founders in China like this. You will probably make it past year three, which is more than can be said for the ones who fold during their second annual tax settlement.'
+        zh: '春天。又一家和你同年注册的公司，在汇算清缴那道坎上悄无声息地没了——没有告别，只有一份注销回执躺在系统里。而你的四条线——签证、税务、劳动、数据——一根没断。你知道这有多罕见吗。审计师翻完你的账，抬头看了你一眼。那个眼神，你这辈子大概只会收到这一次。',
+        en: 'Spring. Another company registered the same year as yours went quietly at 汇算清缴, the annual corporate tax settlement — no goodbye, just a deregistration receipt lying in the system. Your four threads — visa, tax, labour, data — not one of them frayed. Do you know how rare that is. The auditor finished your books and looked up at you. That look, you will probably collect once in your life.'
+      },
+      hook: {
+        zh: '别飘。保持干净，永远比补救便宜——每年汇算清缴前，仍值得让律师和会计一起过一眼。',
+        en: 'Do not get comfortable. Staying clean is always cheaper than getting clean — before each 汇算清缴 it is still worth having a lawyer and an accountant read it together.'
       }
     },
     {
       min: 72, grade: 'A',
       title: { zh: '稳健创业者', en: 'Steady Founder' },
       body: {
-        zh: '底子很正，判断力在线。踩了几个小坑，但都不致命。建议：把你答错的那几关重看一遍，那通常就是未来找你麻烦的方向。再配一个靠谱的本地会计，你会省下大量时间。',
-        en: 'Solid instincts and sound judgement. You stepped in a few small holes, none of them fatal. Go back over the questions you got wrong — those are usually the exact directions trouble arrives from later. Pair yourself with a good local accountant and you will buy back a great deal of time.'
+        zh: '复盘界面。几个红叉，安安静静地排成一列。你盯着它们看——每一个，都是将来某天会来敲门的人，提前留下的地址。但公司站得稳，判断力在线，踩的坑一个都没踩穿。都不致命。这次。',
+        en: 'The review screen. A few red crosses, lined up quietly in a column. You look at them — each one an address, left in advance by someone who will knock on it one day. But the company stands, the judgement holds, and none of the holes you stepped in went all the way through. None fatal. This time.'
+      },
+      hook: {
+        zh: '把答错那几关当成一张"未来风险清单"——找律师就那几点做次定向体检，比大而全的咨询省得多。也该配个靠谱会计了。',
+        en: 'Treat the ones you got wrong as a list of future risks — have a lawyer check those points only, which costs far less than a full survey. And it is time you had a decent accountant.'
       }
     },
     {
       min: 55, grade: 'B',
       title: { zh: '摸着石头过河', en: 'Feeling for Stones' },
       body: {
-        zh: '你能开起来，但走得磕磕绊绊。你的问题不是不努力，而是把"大家都这么干"当成了规则。在中国，很多"大家都这么干"的做法在被查到之前一直有效，被查到之后一次性清算。建议在花大钱之前先做一次合规体检。',
-        en: 'You can get a company running, but it will be a bumpy ride. Your problem is not effort — it is treating "everyone does it this way" as if it were the rule. In China a great many of those practices work perfectly until the day they are examined, and then they settle up all at once. Get a compliance health check before you spend serious money.'
+        zh: '车能开，就是一路哐当响，你已经练成了假装没听见。你的信条是"大家都这么干"。没错，确实都这么干，也确实一直好使——直到某天，某个手里攥着章的人，决定今天就是它不好使的那天。哐当声停了。你反而慌了。',
+        en: 'The car runs. It also rattles the whole way, and you have trained yourself not to hear it. Your creed is "everyone does it this way". They do. It works — until the day somebody holding the 章, the company chop, decides today is the day it does not. The rattle stops. That is when you panic.'
+      },
+      hook: {
+        zh: '挑出你最依赖的那两个"大家都这么干"，让专业人士告诉你哪个是习惯、哪个是定时炸弹——通常一次通话就够。',
+        en: 'Pick the two "everyone does it this way" practices you lean on hardest and have a professional tell you which is a habit and which is a timer. One call usually covers it.'
       }
     },
     {
       min: 35, grade: 'C',
       title: { zh: '高危选手', en: 'High Risk' },
       body: {
-        zh: '坦白说，现在开公司对你不是机会，是风险敞口。你在签证、发票和劳动合同上的几个选择，任何一个真实发生都足以让你在第一年结束前出局。好消息是：这些坑全部可以用一次律师咨询和一个像样的会计避开，成本远低于你以为的。',
-        en: 'Honestly, starting a company right now would be less an opportunity than an exposure. Several of your choices — on the visa, on invoices, on employment contracts — would each be enough on their own to end things before year one closes. The good news is that all of them can be avoided with one lawyer consultation and a competent accountant, for far less than you would guess.'
+        zh: '现在这家公司，对你不是机会，是一个敞口——做多做空那种敞口。签证、发票、那份劳动合同——你在每一处的选择，单拎一个出来，都够让你撑不过第一年。不用全中。一个就行。挑一个你偏爱的。',
+        en: 'This company is not an opportunity for you right now, it is a position — the kind that gets called. The visa, the fapiao, that employment contract: take any one of your choices on its own and it is enough to end you before year one closes. They do not all have to land. One does. Pick your favourite.'
+      },
+      hook: {
+        zh: '好消息是现在还来得及。先别扩张——把这三条线找律师逐条排一遍，是眼下性价比最高的一步。',
+        en: 'The good news is there is still time. Do not scale yet — walking those three threads through with a lawyer, one at a time, buys you more than anything else you could do this month.'
       }
     },
     {
