@@ -1447,10 +1447,14 @@
     },
     {
       min: 0, grade: 'D',
-      title: { zh: '已被限制高消费', en: 'Barred from High Consumption' },
+      title: { zh: '法外狂徒', en: 'Outlaw' },
       body: {
-        zh: '游戏结束。你的公司被吊销执照，你作为法定代表人进了失信名单，机票买不了，高铁一等座坐不了，欠税未清前离境也受限。这个结局在现实里并不罕见，而且它几乎总是从一句"先干着，以后再补手续"开始的。回去把八个章节重玩一遍吧——这次读完每一条法律小贴士。',
-        en: 'Game over. The licence is revoked, you are on the defaulter list as legal representative, you cannot book a flight or a first-class rail seat, and with tax outstanding you may not be able to leave the country either. This ending is not rare in real life, and it almost always begins with the same sentence: "let us just start, we will sort the paperwork out later." Play the eight chapters again — and read every legal tip this time.'
+        zh: '你是法外狂徒孙老板的信徒。捞偏门，赚快钱。一人得道，哪管其他人尸山血海。跨国交易，你是想搞就搞；组织架构，你是乱七八糟。想省心，想省钱，将死道友不死贫道的精神贯彻到底。最后获得财产混同debuff。老弟，律师想捞你都很难啊。一首凉凉送给你，下次小心点。',
+        en: 'You are a disciple of Outlaw Boss Sun. Side doors, fast money. One person makes it — never mind the mountain of bodies behind them. Cross-border deals, you do as you please; org chart, a complete mess. You wanted it easy, you wanted it cheap, and you took "let my fellow Daoist die before I go broke" all the way. Reward unlocked: the 财产混同 debuff. Kid, even a lawyer would struggle to pull you out. Here is 凉凉. Be more careful next time.'
+      },
+      hook: {
+        zh: '换号重开吧',
+        en: 'New account. Start over.'
       }
     }
   ];

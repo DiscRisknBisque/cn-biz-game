@@ -983,10 +983,14 @@
     },
     {
       min: 0, grade: 'D',
-      title: { zh: '判决：由你个人承担', en: 'Judgment: Payable by You Personally' },
+      title: { zh: '法外狂徒', en: 'Outlaw' },
       body: {
-        zh: '游戏结束。法院认定公司财产与你个人财产无法区分，你对公司债务承担连带责任；那笔挂了两年的股东借款被视同分红补税加罚；前东家那边还在等你回复。你注册公司时以为买到了一道防火墙，实际上从来没有把它砌起来。回去重玩一遍吧——尤其是第二章。',
-        en: 'Game over. The court found the company\'s property indistinguishable from your own and held you jointly liable for its debts; the shareholder loan that sat there for two years was taxed as a dividend with penalties on top; and your former employer is still waiting for a reply. You thought registering a company bought you a firewall. You never actually built one. Play it again — chapter two in particular.'
+        zh: '你是法外狂徒孙老板的信徒。捞偏门，赚快钱。一人得道，哪管其他人尸山血海。跨国交易，你是想搞就搞；组织架构，你是乱七八糟。想省心，想省钱，将死道友不死贫道的精神贯彻到底。最后获得财产混同debuff。老弟，律师想捞你都很难啊。一首凉凉送给你，下次小心点。',
+        en: 'You are a disciple of Outlaw Boss Sun. Side doors, fast money. One person makes it — never mind the mountain of bodies behind them. Cross-border deals, you do as you please; org chart, a complete mess. You wanted it easy, you wanted it cheap, and you took "let my fellow Daoist die before I go broke" all the way. Reward unlocked: the 财产混同 debuff. Kid, even a lawyer would struggle to pull you out. Here is 凉凉. Be more careful next time.'
+      },
+      hook: {
+        zh: '换号重开吧',
+        en: 'New account. Start over.'
       }
     }
   ];
