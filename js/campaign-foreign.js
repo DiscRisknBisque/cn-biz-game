@@ -1547,8 +1547,8 @@
       min: 35, grade: 'C',
       title: { zh: '高危选手', en: 'High Risk' },
       body: {
-        zh: '现在这家公司，对你不是机会，是一个敞口——做多做空那种敞口。签证、发票、那份劳动合同——你在每一处的选择，单拎一个出来，都够让你撑不过第一年。不用全中。一个就行。挑一个你偏爱的。',
-        en: 'This company is not an opportunity for you right now, it is a position — the kind that gets called. The visa, the fapiao, that employment contract: take any one of your choices on its own and it is enough to end you before year one closes. They do not all have to land. One does. Pick your favourite.'
+        zh: 'This is fine !! 你的胆子真是肥嘟嘟的。你认为自己是不可选中之人，就MA起胆子往前就走。现在这家公司对你而言不是机会，而是一个破窗口——已经出现破窗效应的那种破窗口。签证、发票、混乱的合同管理。你的每一个选择，任意一个出了问题，都能让你再也不用来中国。不用全中，挑一个就行，挑一个你偏爱的环节，一击必杀。',
+        en: 'This is fine !! Your guts are plump. You think you cannot be selected, so you MA your courage and walk on. This company is not an opportunity for you — it is a broken window, the broken-window-effect kind. Visa, fapiao, chaotic contract files. Any one of your choices, if it blows, is enough that you never have to come to China again. They do not all have to land. Pick one. Pick your favourite. One shot, one kill.'
       },
       hook: {
         zh: '好消息是现在还来得及。先别扩张——把这三条线找律师逐条排一遍，是眼下性价比最高的一步。',

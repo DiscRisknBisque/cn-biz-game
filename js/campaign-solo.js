@@ -1007,14 +1007,14 @@
     },
     {
       min: 55, grade: 'B',
-      title: { zh: '能跑，但墙上有裂缝', en: 'Running, With Cracks in the Wall' },
+      title: { zh: '🦐虾摸', en: '🦐 Shrimp Fumble' },
       body: {
-        zh: '墙上的裂缝，白天你看不见。阳光好的时候，它们完全不存在——账户、往来款、许可证，样样"差不多"。然后出事那天到了。所有裂缝，在同一秒里一起显形，像商量好的。',
-        en: 'The cracks in the wall are invisible by day. In good light they do not exist at all — the accounts, the 往来款, the licences, all of it "close enough". Then the day arrives. Every crack shows itself in the same second, as though they had agreed on it beforehand.'
+        zh: '你终于决定下海，带着你的神奇兽们。你认为自己框架和组织的很好。但是账户、往来款项路径、许可证、IP、登记等样样都“差不多”。实际上在瞎摸。你终于后悔，决定寻找一只律师兽作为向导，来年继续在大海里遨游。',
+        en: 'You finally go to sea, taking your beasts with you. You think the frame and the org are solid. Accounts, the path of 往来款, licences, IP, filings — all of it "close enough". In fact you are fumbling in the dark. You regret it, and you decide to find a lawyer-beast as a guide, so next year you can keep swimming.'
       },
       hook: {
-        zh: '趁天还亮着，让人帮你把裂缝列出来排个序——大多数现在补很便宜，出事后补，天价。',
-        en: 'While the light holds, have someone list the cracks and rank them — most are cheap to fill now, and priced very differently afterwards.'
+        zh: '趁业务还比较小，没有踩到海胆兽被扎，赶紧寻找一只律师兽帮你来重新整理装备箱子。',
+        en: 'While the business is still small — before you step on a 海胆兽 and get spiked — find a lawyer-beast and rebuild the gear box.'
       }
     },
     {
