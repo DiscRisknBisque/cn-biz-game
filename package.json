@@ -11,7 +11,8 @@
     "music": "node tools/render-music.js",
     "level:check": "node tools/validate-levels.js",
     "level:test": "node tools/test-level-flow.js",
-    "endings": "node tools/dump-endings.js --write"
+    "endings": "node tools/dump-endings.js --write",
+    "avatar": "node tools/make-avatar.js"
   },
   "devDependencies": {
     "playwright": "^1.49.0"
