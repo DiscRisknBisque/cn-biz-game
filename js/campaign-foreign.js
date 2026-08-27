@@ -1509,10 +1509,10 @@
   var ENDINGS = [
     {
       min: 88, grade: 'S', sprite: 'icoStar',
-      title: { zh: '合规大师', en: 'Compliance Master' },
+      title: { zh: '民间传说', en: 'Folk Legend' },
       body: {
-        zh: '春天。又一家和你同年注册的公司，在汇算清缴那道坎上悄无声息地没了——没有告别，只有一份注销回执躺在系统里。而你的四条线——签证、税务、劳动、数据——一根没断。你知道这有多罕见吗。审计师翻完你的账，抬头看了你一眼。那个眼神，你这辈子大概只会收到这一次。',
-        en: 'Spring. Another company registered the same year as yours went quietly at 汇算清缴, the annual corporate tax settlement — no goodbye, just a deregistration receipt lying in the system. Your four threads — visa, tax, labour, data — not one of them frayed. Do you know how rare that is. The auditor finished your books and looked up at you. That look, you will probably collect once in your life.'
+        zh: '你的谨慎程度足以让最保守的银行风控部门都感到钦佩。每次对战前，你都会先完成尽职调查、资产评估和压力测试，再专门设立一家有限责任公司负责参赛。神奇兽归公司所有，比赛费用由公司承担，个人财产与公司财产严格分离。三十多年来，你设立过二十七家公司，清算过十九家，重组过六家，另外两家仍在等待监管审批。虽然这些公司偶尔会输，但从法律上讲，你本人从未承担过任何一场失败。这不是逃避责任。这是现代公司制度赋予你的不败神话。',
+        en: 'Your caution would impress the most conservative bank risk desk. Before every battle you finish due diligence, a valuation and a stress test, then you set up a limited company just to enter. The beasts belong to the company. The entry fee is the company\'s. Personal property and company property stay strictly apart. In thirty-odd years you have formed twenty-seven companies, liquidated nineteen, restructured six, and two are still waiting on the regulator. The companies sometimes lose. In law, you yourself have never taken a single loss. This is not dodging liability. This is the undefeated myth the modern company form gives you.'
       },
       hook: {
         zh: '别飘。保持干净，永远比补救便宜——每年汇算清缴前，仍值得让律师和会计一起过一眼。',
