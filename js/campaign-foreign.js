@@ -1511,8 +1511,8 @@
       min: 88, grade: 'S', sprite: 'icoStar',
       title: { zh: '民间传说', en: 'Folk Legend' },
       body: {
-        zh: '你的谨慎程度足以让最保守的银行风控部门都感到钦佩。每次对战前，你都会先完成尽职调查、资产评估和压力测试，再专门设立一家有限责任公司负责参赛。神奇兽归公司所有，比赛费用由公司承担，个人财产与公司财产严格分离。三十多年来，你设立过二十七家公司，清算过十九家，重组过六家，另外两家仍在等待监管审批。虽然这些公司偶尔会输，但从法律上讲，你本人从未承担过任何一场失败。这不是逃避责任。这是现代公司制度赋予你的不败神话。',
-        en: 'Your caution would impress the most conservative bank risk desk. Before every battle you finish due diligence, a valuation and a stress test, then you set up a limited company just to enter. The beasts belong to the company. The entry fee is the company\'s. Personal property and company property stay strictly apart. In thirty-odd years you have formed twenty-seven companies, liquidated nineteen, restructured six, and two are still waiting on the regulator. The companies sometimes lose. In law, you yourself have never taken a single loss. This is not dodging liability. This is the undefeated myth the modern company form gives you.'
+        zh: '你的谨慎程度足以让最保守的银行风控部门都感到钦佩。每次对战前，你都会先完成尽职调查、资产评估和压力测试，再专门设立一家有限责任公司负责参赛。神奇兽归公司所有，比赛费用由公司承担，个人财产与公司财产严格分离。三十多年来，你设立过二十七家公司，清算过十九家，重组过六家，另外两家仍在等待监管审批。That\'s the flex. 虽然这些公司偶尔会输，但从法律上讲，你本人从未承担过任何一场失败。这不是逃避责任。这是现代公司制度赋予你的不败神话。',
+        en: 'Your caution would impress the most conservative bank risk desk. Before every battle you finish due diligence, a valuation and a stress test, then you set up a limited company just to enter. The beasts belong to the company. The entry fee is the company\'s. Personal property and company property stay strictly apart. In thirty-odd years you have formed twenty-seven companies, liquidated nineteen, restructured six, and two are still waiting on the regulator. That\'s the flex. The companies sometimes lose. In law, you yourself have never taken a single loss. This is not dodging liability. This is the undefeated myth the modern company form gives you.'
       },
       hook: {
         zh: '别飘。保持干净，永远比补救便宜——每年汇算清缴前，仍值得让律师和会计一起过一眼。',
@@ -1521,10 +1521,10 @@
     },
     {
       min: 72, grade: 'A',
-      title: { zh: '稳健创业者', en: 'Steady Founder' },
+      title: { zh: '合规大师', en: 'Compliance Master' },
       body: {
-        zh: '复盘界面。几个红叉，安安静静地排成一列。你盯着它们看——每一个，都是将来某天会来敲门的人，提前留下的地址。但公司站得稳，判断力在线，踩的坑一个都没踩穿。都不致命。这次。',
-        en: 'The review screen. A few red crosses, lined up quietly in a column. You look at them — each one an address, left in advance by someone who will knock on it one day. But the company stands, the judgement holds, and none of the holes you stepped in went all the way through. None fatal. This time.'
+        zh: '你的人生信条是理智。你会定期复盘你的工作记录。确保哪些地方是red flag哪些地方是green flag。那条路能走那条路不能走，你心里门清。你是战术大师，你也是未来的商业大亨。',
+        en: 'Your creed is reason. You review the work log on a schedule. You know which spots are red flags and which are green flags. Which road you can take and which you cannot — you have that cold. You are a tactics master. You are also the tycoon to come.'
       },
       hook: {
         zh: '把答错那几关当成一张"未来风险清单"——找律师就那几点做次定向体检，比大而全的咨询省得多。也该配个靠谱会计了。',
@@ -1535,8 +1535,8 @@
       min: 55, grade: 'B',
       title: { zh: '摸着石头过河', en: 'Feeling for Stones' },
       body: {
-        zh: '车能开，就是一路哐当响，你已经练成了假装没听见。你的信条是"大家都这么干"。没错，确实都这么干，也确实一直好使——直到某天，某个手里攥着章的人，决定今天就是它不好使的那天。哐当声停了。你反而慌了。',
-        en: 'The car runs. It also rattles the whole way, and you have trained yourself not to hear it. Your creed is "everyone does it this way". They do. It works — until the day somebody holding the 章, the company chop, decides today is the day it does not. The rattle stops. That is when you panic.'
+        zh: '你的思路没问题。车能开，就是一路丁零当啷哐当响，你已经练成了假装没听见。你的信条是"大家都这么干"。没错，确实都这么干，也确实一直好使——直到某天，某个手里攥着章的人，决定今天就是它不好使的那天。哐当声停了。你反而慌了。',
+        en: 'The thinking is fine. The car runs. It also clangs and rattles the whole way, and you have trained yourself not to hear it. Your creed is "everyone does it this way". They do. It works — until the day somebody holding the 章, the company chop, decides today is the day it does not. The rattle stops. That is when you panic.'
       },
       hook: {
         zh: '挑出你最依赖的那两个"大家都这么干"，让专业人士告诉你哪个是习惯、哪个是定时炸弹——通常一次通话就够。',

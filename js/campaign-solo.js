@@ -985,8 +985,8 @@
       min: 88, grade: 'S',
       title: { zh: '民间传说', en: 'Folk Legend' },
       body: {
-        zh: '深夜十一点，别人早收工了，你还在把一笔往来款划回它该在的账户，就为了那条线干干净净。一个人做公司不难。难的是一个人做得，像个公司。That\'s the flex。很多年后，人们在福布斯排行榜上看见你，你的排名在马斯克旁边。你的身影早已消失不见，但你的合规精神还在大陆流传。你是当之无愧的传说！',
-        en: 'Eleven at night, everyone else clocked off hours ago, and you are still moving one 往来款 — a balance between you and the company — back to the account it belongs in, just to keep the line clean. Running a company alone is not the hard part. Running it, alone, like a company is. That\'s the flex. Years later people find you on the Forbes list, next to Musk. You are long gone from view, but the compliance still travels the mainland. You are a legend, and you earned it.'
+        zh: '你的谨慎程度堪比曹操。每次对战前，你都会进行尽职调查、资产隔离和风险评估，并专门设立一家有限责任公司负责参赛。三十多年来，尽管你名下的公司来来去去，融资投资破产，闭着眼睛都能走到办事中心。但由于公司财产与个人财产始终严格分离，你本人从未承担过任何一次失败。一个人做公司不难。难的是一个人做得，像个公司。That\'s the flex。很多年后，人们在福布斯排行榜上看见你，你的排名在马斯克旁边。你的身影早已消失不见，但你的合规精神还在大陆流传。你是当之无愧的传说！',
+        en: 'Your caution is in 曹操\'s league. Before every battle you run due diligence, ring-fence the assets and a risk check, then you set up a limited company just to enter. For thirty-odd years companies have come and gone under your name — finance, invest, go bust — and you could walk into the service centre with your eyes shut. Because company property and personal property stayed strictly apart, you yourself never took a single loss. Running a company alone is not the hard part. Running it, alone, like a company is. That\'s the flex. Years later people find you on the Forbes list, next to Musk. You are long gone from view, but the compliance still travels the mainland. You are a legend, and you earned it.'
       },
       hook: {
         zh: '维持成本很低——每年一次结构和账目的快速复核，就能一直守住这条线。',
@@ -1019,10 +1019,10 @@
     },
     {
       min: 35, grade: 'C',
-      title: { zh: '这层壳形同虚设', en: 'The Shell Is Not Doing Anything' },
+      title: { zh: '形同虚设', en: 'Empty Shell' },
       body: {
-        zh: '法律眼里，此刻你和一个个体户，是同一个人。你为这点区别，交了一笔注册费。然后，没有那点区别。',
-        en: 'In the eyes of the law, you and a 个体户 — a sole trader, no company at all — are at this moment the same person. You paid a registration fee for the difference. There is no difference.'
+        zh: '你的胆子真是肥嘟嘟。许家印都没有你疯狂。在法律眼里，此刻的你与你的公司人格等同一个人。你为了这点区别，交了一笔公司注册代办费。然后，没有然后了，你和你的公司人格毫无分别。',
+        en: 'Your guts are plump. Even 许家印 was not this wild. In the eyes of the law, you and the company\'s legal personality are one person. You paid an agency fee to register a company for that difference. Then there was no then. You and the company\'s personality are the same thing.'
       },
       hook: {
         zh: '这层壳还能救活。关键就几步：账户隔离、往来款清理、留痕——找律师给你一张"最小加固清单"。',
