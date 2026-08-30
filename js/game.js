@@ -1907,7 +1907,7 @@
     return [
       h('div', { class: 'panel double center' }, [
         h('div', { class: 'eyebrow', text: ui('finalTitle') + ' · ' + T(camp.title) }),
-        h('div', { class: 'grade', text: ending.grade }),
+        h('div', { class: 'grade g-' + ending.grade, text: ending.grade }),
         h('div', { class: 'h-title', text: T(ending.title) }),
         h('div', { class: 'scoreline', style: 'justify-content:center;gap:10px;margin-top:8px' }, [
           h('span', { text: ui('finalScore') }),
@@ -1918,9 +1918,9 @@
         h('div', { class: 'stage' }, [sprite(state.hero, 6)]),
         h('div', { class: 'ground' })
       ]),
-      h('div', { class: 'panel double' }, [
-        h('p', { class: 'prose', text: T(ending.body) })
-      ]),
+      h('div', { class: 'panel double' }, T(ending.body).split('\n\n').map(function (p) {
+        return h('p', { class: 'prose', text: p });
+      })),
       /* Every tier carries a hook: even an S ending should leave the player
          with one concrete thing to do next, and a D is not the end of it. */
       ending.hook ? h('div', { class: 'panel double tint' }, [

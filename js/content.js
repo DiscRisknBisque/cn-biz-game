@@ -32,7 +32,7 @@
     chooseHero:   { zh: '选择你的创业者', en: 'Choose your founder' },
     heroHint:     { zh: '（只影响头像，不影响剧情）', en: '(cosmetic only — the law treats you all the same)' },
     confirm:      { zh: '就决定是你了！', en: "You're the one!" },
-    map:          { zh: '创业地图', en: 'ROADMAP' },
+    map:          { zh: '创业地图', en: 'JOURNEY' },
     chapter:      { zh: '章', en: 'CH.' },
     locked:       { zh: '未解锁', en: 'LOCKED' },
     cleared:      { zh: '已通关', en: 'CLEARED' },
@@ -140,7 +140,7 @@
       en: "Two founder routes, then a courtroom exam. The foreigner\u2019s route runs from the visa queue to data compliance. The one-person-company route is for solo builders who shipped something with AI, started taking money, and have not registered anything. Courtroom Challenge is not a third kind of founder. It puts two rules you already met back in a hearing: property commingling after The Firewall, and the written labor contract after Hiring. Answer well and you befriend the creature; answer badly and you will meet it again in December. Separate progress, one shared dex."
     },
     chooseRoute:  { zh: '选择路线', en: 'CHOOSE A ROUTE' },
-    routeHint:    { zh: '两条路线进度独立；法庭大闯关是加试，图鉴共通', en: 'Two routes, then an exam. One shared dex' },
+    routeHint:    { zh: '你选择哪一种商业模式？创始人', en: 'What type of business are you founding today, champion?' },
     switchRoute:  { zh: '换条路线', en: 'SWITCH ROUTE' },
     routeCleared: { zh: '已通关', en: 'CLEARED' },
     routeNew:     { zh: '未开始', en: 'NOT STARTED' }

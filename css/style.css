@@ -14,6 +14,7 @@
   --red:        #e2574c;
   --gold:       #f7d94f;
   --blue:       #3f86cf;
+  --orange:     #ef9c34;
   --purple:     #8d5fd3;
   --slate:      #6b7a99;
 
@@ -156,7 +157,6 @@ canvas.sprite { image-rendering: pixelated; image-rendering: crisp-edges; }
 
 .btn {
   display: block;
-  width: 100%;
   text-align: left;
   font: inherit;
   color: var(--ink);
@@ -446,7 +446,9 @@ h1, h2, h3 { font-weight: 800; line-height: 1.3; }
 .riskbadge {
   display: inline-block;
   flex: none;
+  align-self: center;
   min-width: 42px;
+  width: 80px;
   text-align: center;
   font-family: var(--font);
   font-size: 10px;
@@ -695,6 +697,13 @@ h1, h2, h3 { font-weight: 800; line-height: 1.3; }
   text-shadow: 4px 4px 0 var(--ink);
   padding: 6px 0 2px;
 }
+
+/* Each grade gets its own tier colour: gold, green, blue, orange, red. */
+.grade.g-S { color: var(--gold); }
+.grade.g-A { color: var(--green); }
+.grade.g-B { color: var(--blue); }
+.grade.g-C { color: var(--orange); }
+.grade.g-D { color: var(--red); }
 
 /* Capture / escape headline — loud, but still readable at a glance. */
 .bigmsg {

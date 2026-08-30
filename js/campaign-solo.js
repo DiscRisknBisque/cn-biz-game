@@ -1010,7 +1010,7 @@
       title: { zh: '🦐虾摸', en: '🦐 Shrimp Fumble' },
       body: {
         zh: '你终于决定下海，带着你的神奇兽们。你认为自己框架和组织的很好。但是账户、往来款项路径、许可证、IP、登记等样样都“差不多”。实际上在瞎摸。你终于后悔，决定寻找一只律师兽作为向导，来年继续在大海里遨游。',
-        en: 'You finally go to sea, taking your beasts with you. You think the frame and the org are solid. Accounts, the path of 往来款, licences, IP, filings — all of it "close enough". In fact you are fumbling in the dark. You regret it, and you decide to find a lawyer-beast as a guide, so next year you can keep swimming.'
+        en: 'You finally take the plunge — you leave the steady paycheck behind and strike out in business — beasts and all. You think the frame and the org are solid. Accounts, the path of 往来款, licences, IP, filings — all of it "close enough". In fact you are fumbling in the dark. You come to regret it, and you go looking for a lawyer-beast to guide you, so next year you can keep swimming out in open water.'
       },
       hook: {
         zh: '趁业务还比较小，没有踩到海胆兽被扎，赶紧寻找一只律师兽帮你来重新整理装备箱子。',
@@ -1033,8 +1033,8 @@
       min: 0, grade: 'D',
       title: { zh: '法外狂徒', en: 'Outlaw' },
       body: {
-        zh: '你是法外狂徒孙老板的信徒。捞偏门，赚快钱。一人得道，哪管其他人尸山血海。跨国交易，你是想搞就搞；组织架构，你是乱七八糟。想省心，想省钱，将死道友不死贫道的精神贯彻到底。最后获得财产混同debuff。老弟，律师想捞你都很难啊。一首凉凉送给你，下次小心点。',
-        en: 'You are a disciple of Outlaw Boss Sun. Side doors, fast money. One person makes it — never mind the mountain of bodies behind them. Cross-border deals, you do as you please; org chart, a complete mess. You wanted it easy, you wanted it cheap, and you took "let my fellow Daoist die before I go broke" all the way. Reward unlocked: the 财产混同 debuff. Kid, even a lawyer would struggle to pull you out. Here is 凉凉. Be more careful next time.'
+        zh: '屠龙的少年，终成龙。\n\n你是法外狂徒孙老板的信徒。捞偏门，赚快钱。一人得道，哪管其他人尸山血海。跨国交易，你是想搞就搞；组织架构，你是乱七八糟。想省心，想省钱，将死道友不死贫道的精神贯彻到底。最后获得财产混同debuff。老弟，律师想捞你都很难啊。一首凉凉送给你，下次小心点。',
+        en: 'The boy who set out to slay the dragon has, in the end, become one himself.\n\nYou\'re a disciple of Outlaw Boss Sun — you know the one: runs the whole empire from a different passport each week, and no regulator on any continent has ever managed to pin him down. Side doors, fast money. One founder ascends to heaven; never mind the mountain of bodies left behind. Cross-border deals whenever it suits you; an org chart that\'s a total mess. You wanted it easy, you wanted it cheap, and you carried "let my fellow Daoist perish, so long as I don\'t go broke" all the way to the end. Reward unlocked: the 财产混同 debuff. Kid, even a lawyer would struggle to fish you out now. Here\'s your 凉凉 — be more careful next time.'
       },
       hook: {
         zh: '换号重开吧',

@@ -29,23 +29,23 @@
       },
       intro: {
         zh: '你拖着行李落地了。手机里是一份商业计划书——而护照里那张签证，可能是旅游签、留学签，也可能是商务签。它决定了你接下来能做什么。',
-        en: 'You land with a suitcase and a business plan. The visa in your passport might be a tourist visa, a student visa or a business visa — and which one it is decides what you may do next.'
+        en: 'You land with a suitcase and a business plan. The visa in your passport might be a tourist visa, a student visa or a business visa. Which one it is decides what you may do next.'
       },
       scenes: [
         {
           risk: ['admin'],
           prompt: {
             zh: '你还在犹豫来中国用什么签证。有人告诉你："必须先拿到工作签证，才能注册公司当股东。"',
-            en: 'You are still deciding which visa to come in on. Someone tells you: "You need a work visa before you can register a company and be a shareholder."'
+            en: 'You are still deciding on your type of visa. Someone tells you: "You need a work visa before you can register a company and be a shareholder."'
           },
           choices: [
             {
-              text: { zh: '不对——投资和就业是两件事。做股东不看签证类型，但要在境内实际上班就要工作许可', en: 'Wrong — investing and working are two different things. Shareholding does not turn on your visa; actually working here does' },
+              text: { zh: '不对——投资和就业是两件事。做股东不看签证类型，但要在境内实际上班就要工作许可', en: 'Wrong — investing and working are two different things. Shareholding does not require a work visa; actually working here does' },
               score: 2, fx: { cash: 0, comp: 14, rep: 4, energy: -2 },
               verdict: { zh: '正确。分清这两件事，能省下大量无用的焦虑和中介费。', en: 'Correct. Separating the two saves a great deal of pointless anxiety and agent fees.' }
             },
             {
-              text: { zh: '对，先办 Z 字签证和工作许可，再去注册公司', en: 'Right — get the Z visa and work permit first, then register the company' },
+              text: { zh: '对，先办 Z 字签证和工作许可，再去注册公司', en: 'Right — get the work (Z) visa and work permit first, then register the company' },
               score: 1, fx: { cash: -6, comp: 2, rep: 0, energy: -8 },
               verdict: { zh: '顺序反了。工作许可要由已经存在的用人单位来申请。', en: 'Backwards. The work permit is applied for by an employer that already exists.' }
             },
@@ -57,7 +57,7 @@
           ],
           tip: {
             zh: '外国自然人可以直接作为外商投资企业的股东，法律没有要求你持哪一类签证，甚至没有要求你人在中国——设立时提交经公证认证的护照身份证明即可。签证管的是"你能不能在中国做事"，不是"你能不能拥有股权"。但只要你在境内实际到岗、履职、领薪，无论你是不是老板，都需要工作许可和工作类居留许可。顺序通常是：先设立公司 → 公司作为用人单位为你申请《外国人工作许可通知》→ 你办 Z 字签证。',
-            en: 'A foreign individual can be a shareholder of a foreign-invested enterprise directly. No particular visa class is required, and you need not even be in China — notarised and legalised passport identification is what the registration needs. A visa governs what you may *do* in China, not what you may *own*. But the moment you actually take up a post, carry duties and draw pay here — owner or not — you need a work permit and a work-type residence permit. The usual order is: incorporate first, then the company applies for your Work Permit Notice as your employer, then you get the Z visa.'
+            en: 'A foreign individual can be a shareholder of a foreign-invested enterprise directly. No particular visa class is required, and you need not even be in China. Registration needs notarised and legalised passport identification. A visa governs what you may *do* in China, not what you may *own*. But the moment you actually take up a post, carry duties and draw pay here (owner or not) you need a work permit and a work-type residence permit. The usual order is: incorporate first, then the company applies for your Work Permit Notice as your employer, then you get the Z visa.'
           },
           law: {
             zh: '《外商投资法》第2条；《市场主体登记管理条例》；《外国人在中国就业管理规定》第2条、第5条',
@@ -89,7 +89,7 @@
           ],
           tip: {
             zh: '留学生在校外勤工助学或实习的，应当经所在学校同意，并向出入境管理机构申请在居留证件上加注勤工助学或实习的地点和期限；超出加注范围或时限工作的，法律直接定性为非法就业。想真正创业，路径有两条：① 不少城市（如北京中关村、上海、粤港澳大湾区等）对符合条件的外国留学生开放加注"创业"的私人事务类居留许可，凭创业计划书和学校推荐申请；② 毕业后走正规工作许可——《外国人来华工作分类标准》对具有硕士及以上学位的优秀外国高校和中国高校毕业生，可以豁免通常要求的 2 年工作经历。各地政策差异很大，先问当地出入境管理部门。',
-            en: 'A student doing off-campus paid work or an internship must have the school\'s consent and must apply to the exit-entry authority for an endorsement on the residence permit recording the place and period. Working beyond what the endorsement covers is classified as illegal employment outright. To actually found a company there are two routes: (1) a number of cities — Zhongguancun in Beijing, Shanghai and the Greater Bay Area among them — offer eligible international students a private-affairs residence permit endorsed for entrepreneurship, granted on a business plan and a recommendation from the school; (2) after graduating, take the ordinary work permit route — the classification standards waive the usual two years of experience for strong graduates holding a master\'s degree or above from a Chinese or overseas university. Local practice varies a great deal, so ask your local exit-entry bureau first.'
+            en: 'A student doing off-campus paid work or an internship must have the school\'s consent and must apply to the exit-entry authority for an endorsement on the residence permit recording the place and period. Working beyond what the endorsement covers is classified as illegal employment outright. To actually found a company there are two routes: (1) A number of cities offer eligible international students a private-affairs residence permit endorsed for entrepreneurship, granted on a business plan and a recommendation from the school. Example include Zhongguancun in Beijing, Shanghai and the Greater Bay Area. (2) After graduating, take the ordinary work permit route. The classification standards waive the usual two years of experience for strong graduates holding a master\'s degree or above from a Chinese or overseas university. Local practice varies a great deal, so ask your local exit-entry bureau first.'
           },
           law: {
             zh: '《出境入境管理法》第42条、第43条第(三)项；《学校招收和培养国际学生管理办法》第30条；《外国人来华工作分类标准（试行）》',
@@ -101,7 +101,7 @@
           volatile: true,
           prompt: {
             zh: '你这次是持 L 字（旅游）签证入境的——或者干脆是免签入境。你打算顺便见几个客户、看看办公室、把合同签了。',
-            en: 'This time you came in on an L (tourist) visa — or visa-free. While you are here you plan to meet a few customers, view an office and sign the contract.'
+            en: 'This time you came in on an L (tourist) visa or visa-free. While you are here you plan to meet a few customers, view an office and sign the contract.'
           },
           choices: [
             {
@@ -122,7 +122,7 @@
           ],
           tip: {
             zh: 'L 字签证发给入境旅游的人员，M 字签证发给入境进行商业贸易活动的人员。外国人在中国境内不得从事与停留居留事由不相符的活动，违反的可被处限期出境甚至罚款、拘留。近年中国对多国实行单方面免签和过境免签（如 240 小时过境免签），但免签解决的是"入境手续"，你入境后能做什么仍受停留事由约束——考察、参观通常没问题，正式洽谈、签约、参展应当持 M 字签证。签证类别在境内一般不予变更，需要换类别通常要出境重新申请。',
-            en: 'The L visa is issued for tourism, the M visa for commercial and trade activities. A foreigner in China may not engage in activities inconsistent with their stated purpose of stay; breaching that can bring an order to leave within a time limit, and in some cases a fine or detention. China has extended unilateral visa-free entry to many countries in recent years, along with transit exemptions of up to 240 hours — but visa-free entry solves the paperwork of arriving, not the limits on what you may do once inside. Looking around and visiting are generally fine; formal negotiation, signing and exhibiting call for an M visa. Visa classes are generally not changed in-country; switching normally means leaving and applying again.'
+            en: 'The L visa is issued for tourism, the M visa for commercial and trade activities. A foreigner in China may not engage in activities inconsistent with their stated purpose of stay; breaching that can bring an order to leave within a time limit, and in some cases a fine or detention. China has extended unilateral visa-free entry to many countries in recent years, along with transit exemptions of up to 240 hours, but visa-free entry solves the paperwork of arriving, not the limits on what you may do once inside. Looking around and visiting are generally fine; formal negotiation, signing and exhibiting call for an M visa. Visa classes are generally not changed in-country; switching normally means leaving and applying again.'
           },
           law: {
             zh: '《出境入境管理法》第16条、第39条、第80条；《外国人入境出境管理条例》第6条',
@@ -133,7 +133,7 @@
           risk: ['admin'],
           prompt: {
             zh: '公司注册好了。不管你现在持的是 M、L 还是 X 签证，你打算下周就到自己的公司正式上班、领工资。怎么办？',
-            en: 'The company is registered. Whatever you hold right now — M, L or X — you plan to start working at it next week, on payroll. What do you do?'
+            en: 'The company is registered. Whichever visa you have (M, L or X), you plan to start working next week, on payroll. What do you do?'
           },
           choices: [
             {
@@ -154,7 +154,7 @@
           ],
           tip: {
             zh: '合法工作的标准链条是：用人单位在网上申请《外国人工作许可通知》→ 你在境外使领馆凭通知办 Z 字签证 → 入境后 30 日内换领《外国人工作许可证》和工作类居留许可。持 L（旅游）、M（商务）、X（学习）签证在华工作，都属于非法就业，公司和个人都要挨罚——个人可处 5000 至 20000 元罚款，情节严重的处拘留并可限期出境；用人单位按每非法聘用一人 1 万元、总额不超过 10 万元处罚。',
-            en: 'The clean chain is: your employer files online for a Work Permit Notice → you take that notice to a PRC consulate abroad and get a Z visa → within 30 days of entry you swap it for the Work Permit card and a work-type residence permit. Working on an L (tourist), M (business) or X (study) visa is illegal employment in each case, and both you and the company are fined — the individual RMB 5,000 to 20,000, with detention and an order to leave in serious cases; the employer RMB 10,000 per person illegally engaged, capped at RMB 100,000.'
+            en: 'The clean process is: your employer files online for a Work Permit Notice → you take that notice to a PRC consulate abroad and get a Z visa → within 30 days of entry you swap it for the Work Permit card and a work-type residence permit. Working on an L (tourist), M (business) or X (study) visa is illegal employment in each case, and both you and the company are fined. Individual fines range from RMB 5,000 to 20,000, with detention and an order to leave in serious cases. For employers, it\'s RMB 10,000 per person illegally engaged, capped at RMB 100,000.'
           },
           law: {
             zh: '《出境入境管理法》第41条、第80条；《外国人来华工作许可服务指南》',
@@ -186,7 +186,7 @@
           ],
           tip: {
             zh: '外国人来华工作分 A（高端人才，鼓励，通常不设配额）、B（专业人才，按需）、C（其他，配额管理）三类，采用计分制：学历、税前薪资、汉语水平、工作年限、年龄、工作地点都算分。一般要求本科以上学历 + 2 年相关工作经验，符合特定条件的可豁免。',
-            en: 'Foreign workers are graded A (high-end talent — encouraged, usually no quota), B (professionals — as needed) and C (others — quota-managed), on a points system: degree, pre-tax salary, Chinese ability, years of experience, age and work location all score. The baseline is normally a bachelor\'s degree plus two years of relevant experience, with carve-outs for specific profiles.'
+            en: 'Foreign workers are graded on a points system: degree, pre-tax salary, Chinese ability, years of experience, age and work location all score. Your score grants you a letter grade: A (high-end talent — encouraged, usually no quota), B (professionals — as needed) or C (others — quota-managed). The baseline is normally a bachelor\'s degree plus two years of relevant experience, with carve-outs for specific profiles.'
           },
           law: {
             zh: '《外国人来华工作分类标准（试行）》',
@@ -197,7 +197,7 @@
           risk: ['admin'],
           prompt: {
             zh: '公司注册好了，你是法定代表人，但你大部分时间在海外遥控，一年来中国两三次。需要办工作许可吗？',
-            en: 'The company is registered and you are its legal representative — but you run it from abroad and visit two or three times a year. Do you need a work permit?'
+            en: 'The company is registered and you are its legal representative, but you run it from abroad and visit two or three times a year. Do you need a work permit?'
           },
           choices: [
             {
@@ -218,7 +218,7 @@
           ],
           tip: {
             zh: '判断依据是"是否在中国境内就业"，与职务无关。短期入境洽谈、签约、参加展会属于商务活动，M 签即可；一旦你实际到岗办公、承担岗位职责、由境内公司发薪，就属于就业，必须持有工作许可和工作类居留许可。90 天以内的短期工作另有短期工作许可路径。',
-            en: 'The test is whether you are employed in China, not what your title is. Short visits to negotiate, sign and attend trade fairs are business activities — an M visa covers those. Once you actually sit at a desk, carry a role and get paid by the PRC entity, that is employment and you need the permit plus a work residence permit. Stints under 90 days have their own short-term work permit route.'
+            en: 'The test is whether you are employed in China, not what your title is. Short visits to negotiate, sign and attend trade fairs are business activities covered by an M visa. Once you actually sit at a desk, carry a role and get paid by the PRC entity, that is employment and you need the permit plus a work residence permit. Stints under 90 days have their own short-term work permit route.'
           },
           law: {
             zh: '《外国人在中国就业管理规定》；《关于外国人入境从事短期工作有关安排的通知》（人社部发〔2014〕78号）',
@@ -1515,8 +1515,8 @@
         en: 'Your caution would impress the most conservative bank risk desk. Before every battle you finish due diligence, a valuation and a stress test, then you set up a limited company just to enter. The beasts belong to the company. The entry fee is the company\'s. Personal property and company property stay strictly apart. In thirty-odd years you have formed twenty-seven companies, liquidated nineteen, restructured six, and two are still waiting on the regulator. That\'s the flex. The companies sometimes lose. In law, you yourself have never taken a single loss. This is not dodging liability. This is the undefeated myth the modern company form gives you.'
       },
       hook: {
-        zh: '别飘。保持干净，永远比补救便宜——每年汇算清缴前，仍值得让律师和会计一起过一眼。',
-        en: 'Do not get comfortable. Staying clean is always cheaper than getting clean — before each 汇算清缴 it is still worth having a lawyer and an accountant read it together.'
+        zh: '当务之急是锻炼身体。你的精力即将告急。你已经在合规意识上战胜了百分之99.9的对手。最后就是活得比他们久，在牌桌上赖着不走。你就是下一个大赢家。',
+        en: 'First things first: get some exercise — your energy is about to run out. On compliance you have already beaten 99.9% of the field. All that is left is to outlast them — sit at the table and refuse to leave. You are the next big winner.'
       }
     },
     {
@@ -1548,7 +1548,7 @@
       title: { zh: '高危选手', en: 'High Risk' },
       body: {
         zh: 'This is fine !! 你的胆子真是肥嘟嘟的。你认为自己是不可选中之人，就MA起胆子往前就走。现在这家公司对你而言不是机会，而是一个破窗口——已经出现破窗效应的那种破窗口。签证、发票、混乱的合同管理。你的每一个选择，任意一个出了问题，都能让你再也不用来中国。不用全中，挑一个就行，挑一个你偏爱的环节，一击必杀。',
-        en: 'This is fine !! Your guts are plump. You think you cannot be selected, so you MA your courage and walk on. This company is not an opportunity for you — it is a broken window, the broken-window-effect kind. Visa, fapiao, chaotic contract files. Any one of your choices, if it blows, is enough that you never have to come to China again. They do not all have to land. Pick one. Pick your favourite. One shot, one kill.'
+        en: 'This is fine !! You have got some serious nerve. You have decided you are the one who never gets singled out, so you screw up your courage and barrel ahead, skating right along the edge of the law. This company is not an opportunity for you — it is a broken window, the broken-window-effect kind. Visa, fapiao, chaotic contract files. Any one of your choices, if it blows, is enough that you never have to come to China again. They do not all have to land. Pick one. Pick your favourite. One shot, one kill.'
       },
       hook: {
         zh: '好消息是现在还来得及。先别扩张——把这三条线找律师逐条排一遍，是眼下性价比最高的一步。',
@@ -1560,7 +1560,7 @@
       title: { zh: '法外狂徒', en: 'Outlaw' },
       body: {
         zh: '你是法外狂徒孙老板的信徒。捞偏门，赚快钱。一人得道，哪管其他人尸山血海。跨国交易，你是想搞就搞；组织架构，你是乱七八糟。想省心，想省钱，将死道友不死贫道的精神贯彻到底。最后获得财产混同debuff。老弟，律师想捞你都很难啊。一首凉凉送给你，下次小心点。',
-        en: 'You are a disciple of Outlaw Boss Sun. Side doors, fast money. One person makes it — never mind the mountain of bodies behind them. Cross-border deals, you do as you please; org chart, a complete mess. You wanted it easy, you wanted it cheap, and you took "let my fellow Daoist die before I go broke" all the way. Reward unlocked: the 财产混同 debuff. Kid, even a lawyer would struggle to pull you out. Here is 凉凉. Be more careful next time.'
+        en: 'You\'re a disciple of Outlaw Boss Sun — you know the one: runs the whole empire from a different passport each week, and no regulator on any continent has ever managed to pin him down. Side doors, fast money. One founder ascends to heaven; never mind the mountain of bodies left behind. Cross-border deals whenever it suits you; an org chart that\'s a total mess. You wanted it easy, you wanted it cheap, and you carried "let my fellow Daoist perish, so long as I don\'t go broke" all the way to the end. Reward unlocked: the 财产混同 debuff. Kid, even a lawyer would struggle to fish you out now. Here\'s your 凉凉 — be more careful next time.'
       },
       hook: {
         zh: '换号重开吧',
