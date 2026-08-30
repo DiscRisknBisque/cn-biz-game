@@ -23,6 +23,14 @@
     return ctx;
   }
 
+  /* Browsers create the context suspended until a gesture. Unlock on the
+     first tap so a click's blip is not scheduled against a dead clock. */
+  function unlock() {
+    if (!enabled) return;
+    var c = ac();
+    if (c && c.state === 'suspended') c.resume();
+  }
+
   /* One note. freq in Hz, dur in seconds, start offset in seconds. */
   function note(freq, dur, when, type, vol) {
     var c = ac();
@@ -124,17 +132,17 @@
   }
 
   function armGesture() {
-    if (armed) return;
     armed = true;
-    var wake = function () {
-      armed = false;
-      global.removeEventListener('pointerdown', wake, true);
-      global.removeEventListener('keydown', wake, true);
-      apply();
-    };
-    global.addEventListener('pointerdown', wake, true);
-    global.addEventListener('keydown', wake, true);
   }
+
+  function onGesture() {
+    unlock();
+    if (!armed) return;
+    armed = false;
+    apply();
+  }
+  global.addEventListener('pointerdown', onGesture, true);
+  global.addEventListener('keydown', onGesture, true);
 
   /* Make what is playing match what was asked for. Idempotent: the renderer
      calls music() on every redraw, and most redraws change nothing. */
@@ -187,11 +195,29 @@
     apply();
   }
 
+  /* Menu taps share one click. A handler that also plays blip/select/back
+     in the same gesture would otherwise layer two UI notes. Outcome jingles
+     (good, wrong, caught) are not in this set and still play on top. */
+  var UI_CLICK = { blip: 1, select: 1, back: 1 };
+  var lastUiClick = 0;
+
   function play(name) {
     if (!enabled) return;
+    if (UI_CLICK[name]) {
+      var now = Date.now();
+      if (now - lastUiClick < 50) return;
+      lastUiClick = now;
+    }
     if (STINGS[name]) { try { sting(name); } catch (e) { /* never worth crashing over */ } return; }
     var fn = SFX[name];
-    if (fn) { try { fn(); } catch (e) { /* audio is never worth crashing over */ } }
+    if (!fn) return;
+    function run() { try { fn(); } catch (e) { /* audio is never worth crashing over */ } }
+    var c = ac();
+    if (c && c.state === 'suspended') {
+      var p = c.resume();
+      if (p && p.then) { p.then(run).catch(function () {}); return; }
+    }
+    run();
   }
 
   global.Sound = {
@@ -200,8 +226,7 @@
     isEnabled: function () { return enabled; },
     setEnabled: function (v) {
       enabled = !!v;
-      if (enabled) ac();
-      else Object.keys(stings).forEach(function (k) { stings[k].pause(); });
+      if (!enabled) Object.keys(stings).forEach(function (k) { stings[k].pause(); });
       apply();
     }
   };

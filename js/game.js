@@ -179,6 +179,16 @@
   function L(obj) { return typeof obj === 'string' ? obj : T(obj); }
   function lv(en, zh) { return state.lang === 'zh' ? zh : en; }
 
+  /* Every tap on a control plays the button blip here, so a new screen
+     cannot forget. Outcome jingles (good / wrong / caught) still live
+     in the handlers that know what the tap meant. */
+  function withButtonSfx(fn) {
+    return function (e) {
+      Sound.play('blip');
+      fn(e);
+    };
+  }
+
   function h(tag, props, kids) {
     var el = document.createElement(tag);
     if (props) {
@@ -186,7 +196,11 @@
         if (k === 'class') el.className = props[k];
         else if (k === 'html') el.innerHTML = props[k];
         else if (k === 'text') el.textContent = props[k];
-        else if (k.slice(0, 2) === 'on') el.addEventListener(k.slice(2), props[k]);
+        else if (k.slice(0, 2) === 'on') {
+          var fn = props[k];
+          if (!fn) return;
+          el.addEventListener(k.slice(2), k === 'onclick' ? withButtonSfx(fn) : fn);
+        }
         else if (props[k] != null) el.setAttribute(k, props[k]);
       });
     }
