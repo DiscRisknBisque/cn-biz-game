@@ -230,14 +230,14 @@
   }
 
   /* Which bed plays where. The front-of-house screens — title, the character
-     picker, about — share the title theme; everything you actually play sits
-     under the main one. The risk notice is deliberately absent: it is reachable
-     from the topbar at any point, so it keeps whatever was already playing
-     rather than yanking a player mid-chapter back to the title music. */
+     picker, about — share the title theme. Play screens stay silent so the
+     wrong-answer sting can land clean. The risk notice is deliberately
+     absent: it is reachable from the topbar at any point, so it keeps
+     whatever was already playing. */
   var FRONT_SCREENS = { title: 1, hero: 1, about: 1 };
   function updateMusic() {
     if (view.screen === 'risk') return;
-    Sound.music(FRONT_SCREENS[view.screen] ? 'title' : 'main');
+    Sound.music(FRONT_SCREENS[view.screen] ? 'title' : null);
   }
 
   var toastTimer = null;
@@ -1018,7 +1018,7 @@
       next: option.next,
       outcome: outcome
     };
-    Sound.play(option.tone === 'good' ? 'good' : option.tone === 'tint' ? 'blip' : 'wrong');
+    Sound.play(option.tone === 'good' ? 'coin' : option.tone === 'tint' ? 'blip' : 'wrong');
     view.screen = 'levelBattleFeedback';
     render();
   }
@@ -1037,7 +1037,7 @@
       if (!(next === 'seen' && state.dex[dexId] === 'caught')) state.dex[dexId] = next;
     }
     save();
-    Sound.play(outcome.tone === 'bad' ? 'bad' : 'caught');
+    Sound.play(outcome.tone === 'bad' ? 'bad' : 'coin');
     view.screen = 'levelBattleResult';
     maybeAchievement('levelBattleResult');
     render();
@@ -1093,7 +1093,7 @@
     if (!state.levels) state.levels = freshLevels();
     state.levels.cleared[level.id] = outcome.tone;
     if (level.unlocksLevelId) state.levels.unlocked[level.unlocksLevelId] = true;
-    Sound.play(outcome.tone === 'good' ? 'good' : outcome.tone === 'risky' ? 'blip' : 'bad');
+    Sound.play(outcome.tone === 'good' ? 'coin' : outcome.tone === 'risky' ? 'blip' : 'bad');
     save();
     view.screen = 'levelOutcome';
     render();
@@ -1502,7 +1502,7 @@
       }
     }
 
-    Sound.play(view.rare ? 'caught' : choice.score === 2 ? 'good' : choice.score === 1 ? 'blip' : 'wrong');
+    Sound.play(view.rare ? 'caught' : choice.score === 2 ? 'coin' : choice.score === 1 ? 'blip' : 'wrong');
     save();
     view.screen = 'feedback';
     maybeAchievement('feedback');
@@ -1890,7 +1890,7 @@
       return screenDex();
     }
 
-    if (!fromDex) playOnce('result:' + camp.id, score >= 55 ? 'fanfare' : 'gameover');
+    if (!fromDex) playOnce('result:' + camp.id, score >= 55 ? 'coin' : 'gameover');
 
     var rows = camp.chapters.map(function (ch) {
       var got = r.cleared[ch.id];
