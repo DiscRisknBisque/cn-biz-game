@@ -140,10 +140,24 @@
       en: "Two founder routes, then a courtroom exam. The foreigner\u2019s route runs from the visa queue to data compliance. The one-person-company route is for solo builders who shipped something with AI, started taking money, and have not registered anything. Courtroom Challenge is not a third kind of founder. It puts two rules you already met back in a hearing: property commingling after The Firewall, and the written labor contract after Hiring. Answer well and you befriend the creature; answer badly and you will meet it again in December. Separate progress, one shared dex."
     },
     chooseRoute:  { zh: '选择路线', en: 'CHOOSE A ROUTE' },
-    routeHint:    { zh: '你选择哪一种商业模式？创始人', en: 'What type of business are you founding today, champion?' },
+    routeHint:    { zh: '你选择哪一种创业模式？创始人', en: 'What type of business are you founding today, champion?' },
     switchRoute:  { zh: '换条路线', en: 'SWITCH ROUTE' },
     routeCleared: { zh: '已通关', en: 'CLEARED' },
-    routeNew:     { zh: '未开始', en: 'NOT STARTED' }
+    routeNew:     { zh: '未开始', en: 'NOT STARTED' },
+    openSign:     { zh: '车库', en: 'GARAGE' },
+    openCash:     { zh: '公司现金', en: 'Company cash' },
+    openCashVal:  { zh: '¥100,000', en: '¥100,000' },
+    openStake:    { zh: '创始人持股', en: 'Founder stake' },
+    openStakeVal: { zh: '100%', en: '100%' },
+    openRisk:     { zh: '法律风险', en: 'Legal risk' },
+    openRiskVal:  { zh: '未知', en: 'Unknown' },
+    openBoss:     { zh: '公司老板', en: 'The boss' },
+    openBossVal:  { zh: '是你', en: 'You' },
+    openStaff:    { zh: '公司员工', en: 'Headcount' },
+    openStaffVal: { zh: '是你', en: 'You' },
+    openCounsel:  { zh: '公司法务', en: 'General counsel' },
+    openCounselVal:{ zh: '也是你', en: 'Also you' },
+    openGo:       { zh: '走进车库', en: 'INTO THE GARAGE' }
   };
 
   /* When the legal content was last reviewed. Shown on the risk notice, the

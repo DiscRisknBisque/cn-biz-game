@@ -83,6 +83,16 @@ var LEGACY_SAVE = {
     }, re.source);
   }
   function pause(ms) { return page.waitForTimeout(ms); }
+  async function dismissOpening() {
+    var btn = await page.$('.opening .btn');
+    if (!btn) return;
+    await page.waitForFunction(function () {
+      var b = document.querySelector('.opening .btn');
+      return b && !b.disabled;
+    }, { timeout: 6000 });
+    await page.click('.opening .btn');
+    await pause(200);
+  }
 
   /* ---- legacy saves migrate rather than being discarded ----------------- */
 
@@ -120,6 +130,7 @@ var LEGACY_SAVE = {
 
   await routes[1].click();                      // the solo route
   await pause(250);
+  await dismissOpening();
   var soloNodes = await page.$$('.node');
   check('the solo route has 6 chapters plus a boss', soloNodes.length === 7);
 
@@ -187,6 +198,7 @@ var LEGACY_SAVE = {
     }
     await (await page.$$('.route'))[ci].click();
     await pause(250);
+    await dismissOpening();
 
     var plan = await page.evaluate(function (cid) {
       var camp = window.Content.campaign(cid);

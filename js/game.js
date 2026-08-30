@@ -27,6 +27,7 @@
       bossHp: 100,
       bossDone: false,
       finished: false,
+      openingSeen: false,
       stats: Object.assign({}, B.START)
     };
   }
@@ -732,10 +733,11 @@
         class: 'route' + (state.campaign === camp.id ? ' sel' : ''),
         onclick: function () {
           state.campaign = camp.id;
-          run();                      // materialise the run if it is new
+          var r = run();              // materialise the run if it is new
           Sound.play('select');
           save();
-          go('map');
+          if (camp.id === 'solo' && !r.openingSeen) go('soloOpen');
+          else go('map');
         }
       }, [
         h('div', { class: 'route-head' }, [
@@ -894,6 +896,100 @@
         class: 'btn center', onclick: function () { Sound.play('back'); go('title'); }
       }, [h('strong', { text: ui('back') })])
     ];
+  }
+
+  var HERO_SUIT = { hero1: 'hero1suit', hero2: 'hero2suit', hero3: 'hero3suit' };
+
+  function openingRow(label, value, extraClass, delay) {
+    return h('div', {
+      class: 'opening-stat' + (extraClass ? ' ' + extraClass : ''),
+      style: delay != null ? 'animation-delay:' + delay + 's' : null
+    }, [
+      h('span', { text: label }),
+      h('span', { class: 'stat-num', text: value })
+    ]);
+  }
+
+  /* First entry into the one-person-company route: black, then the garage
+     lights up, then the opening numbers, then the joke. Once per run.
+     The CTA stays inert until the last joke line is on screen. */
+  function screenSoloOpen() {
+    var suit = HERO_SUIT[state.hero] || 'hero1suit';
+    var reduced = window.matchMedia &&
+      window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    var timers = [];
+
+    function later(sec, fn) {
+      timers.push(setTimeout(fn, Math.round(sec * 1000)));
+    }
+
+    function finish() {
+      timers.forEach(clearTimeout);
+      timers = [];
+      run().openingSeen = true;
+      Sound.play('select');
+      save();
+      go('map');
+    }
+
+    var t = reduced ? 0 : 0.95;
+    function beat() {
+      var d = t;
+      t += 0.2;
+      return d;
+    }
+
+    function row(label, value, extraClass, sfx) {
+      var d = beat();
+      if (!reduced && sfx) later(d, function () { Sound.play(sfx); });
+      return openingRow(label, value, extraClass, d);
+    }
+
+    if (!reduced) later(0.5, function () { Sound.play('appear'); });
+
+    var start = B.START;
+    var board = [
+      row(ui('openCash'), ui('openCashVal'), null, 'blip'),
+      row(ui('openStake'), ui('openStakeVal'), null, 'blip'),
+      row(ui('openRisk'), ui('openRiskVal'), null, 'blip'),
+      h('div', { class: 'hr opening-hr', style: 'animation-delay:' + beat() + 's' }),
+      row(ui('cash'), String(start.cash), null, 'blip'),
+      row(ui('compliance'), String(start.comp), null, 'blip'),
+      row(ui('reputation'), String(start.rep), null, 'blip'),
+      row(ui('energy'), String(start.energy), null, 'blip'),
+      h('div', { class: 'hr opening-hr', style: 'animation-delay:' + beat() + 's' }),
+      row(ui('openBoss'), ui('openBossVal'), 'joke', 'blip'),
+      row(ui('openStaff'), ui('openStaffVal'), 'joke', 'blip'),
+      row(ui('openCounsel'), ui('openCounselVal'), 'joke punch', 'select')
+    ];
+
+    var goAt = reduced ? 0 : t - 0.2 + 0.18;
+    var goBtn = h('button', {
+      class: 'btn primary center opening-go',
+      style: reduced ? null : 'animation-delay:' + goAt + 's',
+      onclick: finish
+    }, [h('strong', { text: ui('openGo') })]);
+    if (!reduced) {
+      goBtn.disabled = true;
+      later(goAt, function () { goBtn.disabled = false; });
+    }
+
+    return h('div', { class: 'opening' }, [
+      h('div', { class: 'opening-black', 'aria-hidden': 'true' }),
+      h('div', { class: 'opening-scene' }, [
+        h('div', { class: 'opening-garage' }, [
+          h('div', { class: 'opening-sign mono', text: ui('openSign') }),
+          h('div', { class: 'stage opening-bg' }, [sprite('garage', 8)]),
+          h('div', { class: 'opening-cast' }, [
+            sprite('oldpc', 5),
+            sprite(suit, 7),
+            sprite('icoCash', 7)
+          ])
+        ])
+      ]),
+      h('div', { class: 'panel double opening-board' }, board),
+      goBtn
+    ]);
   }
 
   function screenIntro() {
@@ -2161,6 +2257,10 @@
 
     var app = document.getElementById('app');
     app.innerHTML = '';
+    if (view.screen === 'soloOpen') {
+      app.appendChild(screenSoloOpen());
+      return;
+    }
     app.appendChild(topbar());
 
     var root = h('div', { class: 'screen active' });
