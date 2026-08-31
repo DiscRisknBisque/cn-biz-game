@@ -176,18 +176,23 @@ var LEGACY_SAVE = {
   await page.evaluate(function (k) { localStorage.removeItem(k); }, SAVE_KEY);
   await page.goto(BASE + '/index.html');
   await pause(250);
+  check('a brand-new save opens on the login page', (await page.$$('.field')).length === 1);
+  await page.fill('.field', '测试员');            // create a founder (name + avatar)
+  await page.click('.btn.primary');             // ENTER -> title
+  await pause(200);
+  check('a freshly created player is greeted by name',
+        (await readSave()).player && (await readSave()).player.name === '测试员');
   await page.click('.btn.primary');             // START -> risk notice
   await pause(250);
   check('a first run is shown the risk notice before anything else',
         (await page.$$('.risklist')).length === 1);
   check('the risk notice lists every category',
         (await page.$$('.risklist .riskline')).length === 5);
-  await page.click('.btn.primary');             // acknowledge -> hero picker
-  await pause(200);
+  await page.click('.btn.primary');             // acknowledge -> route select (founder already chosen at login)
+  await pause(250);
   check('acknowledging the notice is remembered',
         (await readSave()).ackRisk === true);
-  await page.click('.btn.primary');             // confirm -> route select
-  await pause(250);
+  check('the notice leads straight to route select', (await page.$$('.route')).length === 2);
 
   for (var ci = 0; ci < campaigns.length; ci++) {
     var id = campaigns[ci];

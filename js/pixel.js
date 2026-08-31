@@ -435,6 +435,28 @@
       '................'
     ],
 
+    /* 法庭大闯关封面 — the objection pose: one index finger stabbing upward
+       out of a lawyer's blue cuff, bursting a gold star bloom at the tip.
+       Tension and breakthrough in 16x16 (异议あり!). */
+    courtroom: [
+      '...o.......Y.y..',
+      '..y.......y.Y.O.',
+      '.........y.KEEKy',
+      '..........KEEKOo',
+      '..........KEEKy.',
+      '.........KEEK...',
+      '........KEEK....',
+      '........KEEK....',
+      '..KEEEEEEEEEK...',
+      '.KEEEEEEEEEEK...',
+      '.KEeEEEEEEeEK...',
+      '..KEEEEEEEEK....',
+      '...KEEEEEEK.....',
+      '...KWWWWWWK.....',
+      '..KNNNNNNNNK....',
+      '..KKKKKKKKKK....'
+    ],
+
     /* 双税兽 — corporate tax on the way in, dividend tax on the way out. */
     doubletax: [
       '................',

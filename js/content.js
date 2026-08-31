@@ -27,6 +27,16 @@
     newGame:      { zh: '重新开始', en: 'NEW GAME' },
     dex:          { zh: '法律图鉴', en: 'LAW DEX' },
     about:        { zh: '关于本游戏', en: 'ABOUT' },
+    loginTitle:   { zh: '登录', en: 'LOG IN' },
+    loginLead:    { zh: '起个名号，选个头像', en: 'Pick a name and a face' },
+    loginPlaceholder: { zh: '输入昵称', en: 'Enter a nickname' },
+    loginBtn:     { zh: '进入游戏', en: 'ENTER' },
+    loginEmpty:   { zh: '先起个名号吧', en: 'Enter a name first' },
+    loginHint:    { zh: '仅保存在本机浏览器，之后可在「关于」里更换', en: 'Saved on this device only — change it later under About' },
+    welcome:      { zh: '欢迎回来', en: 'Welcome back' },
+    welcomeNew:   { zh: '初次见面', en: 'Welcome' },
+    changeAvatar: { zh: '换头像', en: 'CHANGE AVATAR' },
+    logout:       { zh: '登出 / 换名号', en: 'LOG OUT' },
     back:         { zh: '返回', en: 'BACK' },
     next:         { zh: '继续', en: 'NEXT' },
     chooseHero:   { zh: '选择你的创业者', en: 'Choose your founder' },
@@ -213,7 +223,7 @@
       zh: '先完成对应章节，再上庭。财产混同对应「一人公司 · 防火墙」；书面合同对应「外国人来华创业 · 用人」。不是第三种创业者，是同一条规则的庭审加试。',
       en: 'Clear the matching chapter first, then go to the hearing. Property commingling follows The One-Person Company · The Firewall. The written contract follows Founding as a Foreigner · Hiring. This is an exam, not a third kind of founder.'
     },
-    icon: 'commingle'
+    icon: 'courtroom'
   };
 
   /* Hidden achievements span the whole game, not one route — an achievement is

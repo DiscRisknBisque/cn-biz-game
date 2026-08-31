@@ -41,6 +41,7 @@
       /* The game is Chinese-first by design; the toggle is one tap away. */
       lang: 'zh',
       sound: true,
+      player: null,         // { name } once the local login page is passed
       hero: 'hero1',
       started: false,
       ackRisk: false,       // has the risk notice been read at least once
@@ -66,6 +67,10 @@
     battleState: null, battleFeedback: null, battleResult: null,
     resultCard: null        // { campId, grade } when re-reading a result from the dex
   };
+
+  /* The nickname typed on the login page, kept out of `state` so a language or
+     sound toggle mid-type (which rebuilds the screen) never loses the draft. */
+  var loginDraft = '';
 
   function save() {
     try { localStorage.setItem(SAVE_KEY, JSON.stringify(state)); } catch (e) { /* private mode */ }
@@ -235,7 +240,7 @@
      wrong-answer sting can land clean. The risk notice is deliberately
      absent: it is reachable from the topbar at any point, so it keeps
      whatever was already playing. */
-  var FRONT_SCREENS = { title: 1, hero: 1, about: 1 };
+  var FRONT_SCREENS = { login: 1, title: 1, hero: 1, about: 1 };
   function updateMusic() {
     if (view.screen === 'risk') return;
     Sound.music(FRONT_SCREENS[view.screen] ? 'title' : null);
@@ -581,15 +586,76 @@
 
   /* ----------------------------------------------------------------- screens */
 
+  /* The three founder avatars, as a row of tappable tiles. Shared by the login
+     page (create your founder) and the change-avatar screen. */
+  function heroPicker() {
+    return h('div', { class: 'heroes' }, ['hero1', 'hero2', 'hero3'].map(function (id) {
+      return h('div', {
+        class: 'hero' + (state.hero === id ? ' sel' : ''),
+        onclick: function () { state.hero = id; Sound.play('blip'); render(); }
+      }, [sprite(id, 5)]);
+    }));
+  }
+
+  /* A local, password-free login that doubles as founder creation: pick an
+     avatar and a nickname, both stored in the save file on this device. Shown
+     on first launch and whenever the player logs out; there is no server and no
+     account — it is who the game greets, and the face it shows you as. */
+  function screenLogin() {
+    function submit() {
+      var name = (loginDraft || '').trim();
+      if (!name) { Sound.play('bad'); toast(ui('loginEmpty')); return; }
+      state.player = { name: name };
+      /* Founder chosen here, so a new player skips the old standalone picker
+         and goes straight to the routes once past the risk notice. */
+      state.started = true;
+      loginDraft = name;
+      Sound.play('select');
+      save();
+      go('title');
+    }
+
+    return [
+      h('div', { class: 'logo', 'data-lang': state.lang }, [
+        h('span', { class: 'l1', text: ui('loginTitle') }),
+        h('span', { class: 'tag', text: ui('loginLead') })
+      ]),
+      h('div', { class: 'panel double center' }, [
+        h('div', { class: 'eyebrow', text: ui('chooseHero') }),
+        h('div', { class: 'gap' }),
+        heroPicker(),
+        h('p', { class: 'small', style: 'margin-top:10px', text: ui('heroHint') })
+      ]),
+      h('div', { class: 'panel double login-panel' }, [
+        h('input', {
+          class: 'field', type: 'text', maxlength: '16', autocomplete: 'off',
+          placeholder: ui('loginPlaceholder'), 'aria-label': ui('loginPlaceholder'),
+          value: loginDraft,
+          oninput: function (e) { loginDraft = e.target.value; },
+          onkeydown: function (e) { if (e.key === 'Enter') { e.preventDefault(); submit(); } }
+        })
+      ]),
+      h('button', {
+        class: 'btn primary center', onclick: submit
+      }, [h('strong', { text: ui('loginBtn') })]),
+      h('p', { class: 'small center login-hint', text: ui('loginHint') })
+    ];
+  }
+
   function screenTitle() {
     var r = state.campaign ? runOf(state.campaign) : null;
     var canContinue = state.started && r && !r.finished;
 
     function newGame() {
       Sound.play('select');
+      /* The founder is created on the login page, so starting a game goes
+         straight to route select — the old hero-picker detour is gone, and
+         routing back into it here is what used to trap the player in a loop. */
+      state.started = true;
+      save();
       /* Nobody starts without having seen the risk notice at least once. */
       if (!state.ackRisk) { go('risk'); return; }
-      go(state.started ? 'routes' : 'hero');
+      go('routes');
     }
 
     return [
@@ -602,6 +668,11 @@
         h('div', { class: 'stage' }, [sprite(state.hero, 7)]),
         h('div', { class: 'ground' })
       ]),
+      state.player && state.player.name
+        ? h('div', { class: 'welcome center small',
+            text: (Object.keys(state.runs || {}).length ? ui('welcome') : ui('welcomeNew'))
+              + (state.lang === 'zh' ? '，' : ', ') + state.player.name })
+        : null,
       canContinue
         ? h('button', {
             class: 'btn primary center',
@@ -655,7 +726,9 @@
           state.ackRisk = true;
           Sound.play('select');
           save();
-          go(first ? (state.started ? 'routes' : 'hero') : 'title');
+          /* First read leads into the game (route select); a re-read from the
+             topbar just goes back. Never into the hero picker — see newGame. */
+          go(first ? 'routes' : 'title');
         }
       }, [h('strong', { text: first ? ui('riskAck') : ui('back') })])
     ];
@@ -680,6 +753,18 @@
         class: 'btn center', onclick: function () { Sound.play('blip'); go('risk'); }
       }, [h('strong', { text: '⚠ ' + ui('riskBtn') })]),
       h('button', {
+        class: 'btn center', onclick: function () { Sound.play('blip'); go('hero'); }
+      }, [h('strong', { text: ui('changeAvatar') })]),
+      h('button', {
+        class: 'btn center', onclick: function () {
+          state.player = null;
+          loginDraft = '';
+          Sound.play('back');
+          save();
+          go('login');
+        }
+      }, [h('strong', { text: ui('logout') })]),
+      h('button', {
         class: 'btn center', onclick: function () {
           if (confirm(ui('resetAsk'))) {
             try { localStorage.removeItem(SAVE_KEY); } catch (e) { /* ignore */ }
@@ -695,26 +780,24 @@
     ];
   }
 
+  /* Change-avatar screen, reached from About. Founder creation itself now lives
+     on the login page, so this only swaps the face and returns to the title. */
   function screenHero() {
-    var picker = h('div', { class: 'heroes' }, ['hero1', 'hero2', 'hero3'].map(function (id) {
-      return h('div', {
-        class: 'hero' + (state.hero === id ? ' sel' : ''),
-        onclick: function () { state.hero = id; Sound.play('blip'); render(); }
-      }, [sprite(id, 5)]);
-    }));
-
     return [
       h('div', { class: 'panel double center' }, [
         h('div', { class: 'eyebrow', text: ui('chooseHero') }),
         h('div', { class: 'gap' }),
-        picker,
+        heroPicker(),
         h('p', { class: 'small', style: 'margin-top:10px', text: ui('heroHint') })
       ]),
       h('button', {
         class: 'btn primary center', onclick: function () {
-          state.started = true; Sound.play('select'); save(); go('routes');
+          Sound.play('select'); save(); go('title');
         }
-      }, [h('strong', { text: ui('confirm') })])
+      }, [h('strong', { text: ui('confirm') })]),
+      h('button', {
+        class: 'btn center', onclick: function () { Sound.play('back'); go('title'); }
+      }, [h('strong', { text: ui('back') })])
     ];
   }
 
@@ -945,7 +1028,7 @@
       return openingRow(label, value, extraClass, d);
     }
 
-    if (!reduced) later(0.5, function () { Sound.play('appear'); });
+    if (!reduced) later(0.4, function () { Sound.play('appear'); });
 
     var start = B.START;
     var board = [
@@ -2225,6 +2308,7 @@
   /* ---------------------------------------------------------------- renderer */
 
   var RENDERERS = {
+    login: screenLogin,
     title: screenTitle,
     about: screenAbout,
     hero: screenHero,
@@ -2284,6 +2368,12 @@
   function init() {
     load();
     Sound.setEnabled(state.sound);
+    /* Gate the login page to genuinely fresh saves only. A player who has
+       already begun — including anyone whose save predates the login page —
+       keeps their progress and lands straight on the title with CONTINUE,
+       rather than being bounced through a login they never signed up for. */
+    var loggedIn = state.player && state.player.name;
+    if (!loggedIn && !state.started) view.screen = 'login';
     render();
   }
 
