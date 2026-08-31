@@ -888,6 +888,59 @@ h1, h2, h3 { font-weight: 800; line-height: 1.3; }
   z-index: 1;
 }
 .opening-cast canvas { animation: bob 1.1s steps(2, end) infinite; }
+.opening-airside {
+  position: relative;
+  text-align: center;
+}
+.opening-airside::after {
+  content: "";
+  position: absolute;
+  left: 42%;
+  top: 28%;
+  width: 16px;
+  height: 16px;
+  transform: translate(-50%, -50%);
+  border-radius: 50%;
+  pointer-events: none;
+  z-index: 0;
+  background: radial-gradient(circle, rgba(180, 220, 255, 0.55) 0%, rgba(80, 140, 220, 0.16) 42%, transparent 70%);
+  animation: opening-ray 0.65s ease-out 0.5s both;
+}
+.opening-walk {
+  position: absolute;
+  left: 50%;
+  bottom: 6px;
+  width: 96px;
+  height: 64px;
+  margin-left: -48px;
+  z-index: 2;
+  transform-origin: 50% 100%;
+  animation: foreign-walk 2.2s steps(11) 0.7s both;
+}
+.opening-walk .step {
+  position: absolute;
+  left: 0;
+  top: 0;
+}
+.opening-walk .step-a { animation: walk-toggle 0.28s steps(1) infinite; }
+.opening-walk .step-b { animation: walk-toggle 0.28s steps(1) infinite reverse; }
+.opening-walk.arrived {
+  animation: none;
+  transform: translate(16px, 6px) scale(1);
+}
+.opening-walk.arrived .step-a,
+.opening-walk.arrived .step-b { animation: none; }
+.opening-walk.arrived .step-a { opacity: 1; }
+.opening-walk.arrived .step-b { opacity: 0; }
+@keyframes foreign-walk {
+  from { transform: translate(-78px, -48px) scale(0.55); }
+  40%  { transform: translate(-28px, -18px) scale(0.8); }
+  to   { transform: translate(16px, 6px) scale(1); }
+}
+@keyframes walk-toggle {
+  0%, 49% { opacity: 1; }
+  50%, 100% { opacity: 0; }
+}
 .opening-board .opening-stat {
   display: flex;
   justify-content: space-between;
@@ -917,11 +970,18 @@ h1, h2, h3 { font-weight: 800; line-height: 1.3; }
   .screen { animation: none; }
   .bar > i, .hpbar > i { transition: none; }
   .opening-black { animation: none; opacity: 0; }
-  .opening-garage::after { animation: none; opacity: 0; }
+  .opening-garage::after, .opening-airside::after { animation: none; opacity: 0; }
   .opening-scene, .opening-board .opening-stat, .opening-hr, .opening-go {
     animation: none;
     opacity: 1;
     filter: none;
   }
   .opening-cast canvas { animation: none; }
+  .opening-walk {
+    animation: none;
+    transform: translate(16px, 6px) scale(1);
+  }
+  .opening-walk .step-a, .opening-walk .step-b { animation: none; }
+  .opening-walk .step-a { opacity: 1; }
+  .opening-walk .step-b { opacity: 0; }
 }

@@ -819,7 +819,8 @@
           var r = run();              // materialise the run if it is new
           Sound.play('select');
           save();
-          if (camp.id === 'solo' && !r.openingSeen) go('soloOpen');
+          var openScreen = ROUTE_OPENING[camp.id];
+          if (openScreen && !r.openingSeen) go(openScreen);
           else go('map');
         }
       }, [
@@ -982,6 +983,7 @@
   }
 
   var HERO_SUIT = { hero1: 'hero1suit', hero2: 'hero2suit', hero3: 'hero3suit' };
+  var ROUTE_OPENING = { solo: 'soloOpen', foreign: 'foreignOpen' };
 
   function openingRow(label, value, extraClass, delay) {
     return h('div', {
@@ -1068,6 +1070,95 @@
             sprite(suit, 7),
             sprite('icoCash', 7)
           ])
+        ])
+      ]),
+      h('div', { class: 'panel double opening-board' }, board),
+      goBtn
+    ]);
+  }
+
+  /* First entry into the foreigner route: the chosen founder walks off the
+     plane, suitcase in the left hand and passport in the right. Once per run.
+     The CTA stays inert until the last board line is on screen. */
+  function screenForeignOpen() {
+    var reduced = window.matchMedia &&
+      window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    var timers = [];
+
+    function later(sec, fn) {
+      timers.push(setTimeout(fn, Math.round(sec * 1000)));
+    }
+
+    function finish() {
+      timers.forEach(clearTimeout);
+      timers = [];
+      run().openingSeen = true;
+      Sound.play('select');
+      save();
+      go('map');
+    }
+
+    var stepA = Pixel.elTraveler(state.hero, 0, 4);
+    stepA.classList.add('step', 'step-a');
+    var stepB = Pixel.elTraveler(state.hero, 1, 4);
+    stepB.classList.add('step', 'step-b');
+    var walk = h('div', {
+      class: 'opening-walk' + (reduced ? ' arrived' : '')
+    }, [stepA, stepB]);
+
+    if (!reduced) {
+      later(2.9, function () { walk.classList.add('arrived'); Sound.play('appear'); });
+    }
+
+    var t = reduced ? 0 : 1.35;
+    function beat() {
+      var d = t;
+      t += 0.2;
+      return d;
+    }
+
+    function row(label, value, extraClass, sfx) {
+      var d = beat();
+      if (!reduced && sfx) later(d, function () { Sound.play(sfx); });
+      return openingRow(label, value, extraClass, d);
+    }
+
+    if (!reduced) later(0.4, function () { Sound.play('appear'); });
+
+    var start = B.START;
+    var board = [
+      row(ui('openPassport'), ui('openPassportVal'), null, 'blip'),
+      row(ui('openBag'), ui('openBagVal'), null, 'blip'),
+      row(ui('openVisa'), ui('openVisaVal'), null, 'blip'),
+      row(ui('openStay'), ui('openStayVal'), null, 'blip'),
+      h('div', { class: 'hr opening-hr', style: 'animation-delay:' + beat() + 's' }),
+      row(ui('cash'), String(start.cash), null, 'blip'),
+      row(ui('compliance'), String(start.comp), null, 'blip'),
+      row(ui('reputation'), String(start.rep), null, 'blip'),
+      row(ui('energy'), String(start.energy), null, 'blip'),
+      h('div', { class: 'hr opening-hr', style: 'animation-delay:' + beat() + 's' }),
+      row(ui('openPermit'), ui('openPermitVal'), null, 'blip'),
+      row(ui('openNext'), ui('openNextVal'), 'joke punch', 'select')
+    ];
+
+    var goAt = reduced ? 0 : t - 0.2 + 0.18;
+    var goBtn = h('button', {
+      class: 'btn primary center opening-go',
+      style: reduced ? null : 'animation-delay:' + goAt + 's',
+      onclick: finish
+    }, [h('strong', { text: ui('openAirGo') })]);
+    if (!reduced) {
+      goBtn.disabled = true;
+      later(goAt, function () { goBtn.disabled = false; });
+    }
+
+    return h('div', { class: 'opening' }, [
+      h('div', { class: 'opening-black', 'aria-hidden': 'true' }),
+      h('div', { class: 'opening-scene' }, [
+        h('div', { class: 'opening-airside' }, [
+          h('div', { class: 'opening-sign mono', text: ui('openAirSign') }),
+          h('div', { class: 'stage opening-bg' }, [sprite('arrivals', 8)]),
+          walk
         ])
       ]),
       h('div', { class: 'panel double opening-board' }, board),
@@ -2343,6 +2434,10 @@
     app.innerHTML = '';
     if (view.screen === 'soloOpen') {
       app.appendChild(screenSoloOpen());
+      return;
+    }
+    if (view.screen === 'foreignOpen') {
+      app.appendChild(screenForeignOpen());
       return;
     }
     app.appendChild(topbar());

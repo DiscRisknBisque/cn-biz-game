@@ -167,7 +167,21 @@
     openStaffVal: { zh: '是你', en: 'You' },
     openCounsel:  { zh: '公司法务', en: 'General counsel' },
     openCounselVal:{ zh: '也是你', en: 'Also you' },
-    openGo:       { zh: '走进车库', en: 'INTO THE GARAGE' }
+    openGo:       { zh: '走进车库', en: 'INTO THE GARAGE' },
+    openAirSign:  { zh: '入境', en: 'ARRIVALS' },
+    openPassport: { zh: '护照', en: 'Passport' },
+    openPassportVal:{ zh: '握在右手', en: 'In the right hand' },
+    openBag:      { zh: '行李箱', en: 'Suitcase' },
+    openBagVal:   { zh: '握在左手', en: 'In the left hand' },
+    openVisa:     { zh: '签证类型', en: 'Visa class' },
+    openVisaVal:  { zh: '未知', en: 'Unknown' },
+    openStay:     { zh: '停留事由', en: 'Purpose of stay' },
+    openStayVal:  { zh: '待确认', en: 'To be confirmed' },
+    openPermit:   { zh: '工作许可', en: 'Work permit' },
+    openPermitVal:{ zh: '还没有', en: 'None yet' },
+    openNext:     { zh: '现在能做的', en: 'What you may do' },
+    openNextVal:  { zh: '先别上班', en: 'Do not start work' },
+    openAirGo:    { zh: '走下飞机', en: 'OFF THE PLANE' }
   };
 
   /* When the legal content was last reviewed. Shown on the risk notice, the

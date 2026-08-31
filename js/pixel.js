@@ -811,6 +811,27 @@
       'KKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKK'
     ],
 
+    /* Airport tarmac — 32 wide, same stage as the garage. Stairs drop from
+       the cabin door so the founder can walk off the plane. */
+    arrivals: [
+      'bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb',
+      'bbbWWWbbbbbbbbbbbbbbbbbbWWWbbbbb',
+      'Kbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb',
+      'KRKKKKKKKKKKKKKKKKKbbbbbbbbbbbbb',
+      'KRRWWWWWWWWWWWWWWWWKbbbbbbbbbbbb',
+      '.KWWWnWnWnWnWKKWWWKKbbbbbbbbbbbb',
+      '.KWNNNNNNNNNNNNWWWWKbbbbbbbbbbbb',
+      '.KWWWWWWWWWWWWWWWWWK.Kbbbbbbbbbb',
+      'KKKKKKKKKKKKKKKKKKKK.Kbbbbbbbbbb',
+      'nnnnnnnnnnnnnnKnnnK..KSbbbbbbbbb',
+      'NNNNNNNNNNNNNNnKnK..KSSbbbbbbbbb',
+      'nnnnnnnnnnnnnnnnK..KSSKbbbbbbbbb',
+      'NNNNNNNNNNNNNNNKK.KSSKnnnnnnnnnn',
+      'nnnnnnnnnnnnnnnnnKSSKNNNNNNNNNNN',
+      'NNNNNNNNNNNNNNNNNKKKnnnnnnnnnnnn',
+      'KKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKK'
+    ],
+
     oldpc: [
       '................',
       '....KKKKKKKK....',
@@ -911,17 +932,83 @@
     ]
   };
 
+  /* Walk cycle for the foreign-route opening. H/F/C are hair, face and clothes
+     placeholders, swapped for the chosen founder before paint. Suitcase stays
+     on their left (trailing), passport on their right (leading). */
+  var TRAVELER_FRAMES = [
+    [
+      '........KKKK............',
+      '.......KHHHHK...........',
+      '......KHHHHHHK..........',
+      '......KHFFFFHK..........',
+      '......KFFFFFFK....KK....',
+      '......KFKFFKFK...KRRK...',
+      '......KFFFFFFK...KRYK...',
+      '......KFFKKFFK...KRRK...',
+      '.......KFFFFK.KKKKK.....',
+      '.KKKKKKKCCCCKK..........',
+      'KTTTTTK.KCCCCCK.........',
+      'KTtttTK.KCCCCCK.........',
+      'KTTTTTK.KKCCCKK.........',
+      'KKK.KKK.KN.KNK..........',
+      '.K.K.K..KN..NK..........',
+      '........KK..KK..........'
+    ],
+    [
+      '........KKKK............',
+      '.......KHHHHK...........',
+      '......KHHHHHHK..........',
+      '......KHFFFFHK..........',
+      '......KFFFFFFK...KK.....',
+      '......KFKFFKFK..KRRK....',
+      '......KFFFFFFK..KRYK....',
+      '......KFFKKFFK..KRRK....',
+      '.......KFFFFK..KKKK.....',
+      '..KKKKKKCCCCK.KK........',
+      '.KTTTTTKCCCCCCK.........',
+      '.KTtttTKCCCCCCK.........',
+      '.KTTTTTK.KCCCK..........',
+      '.KKK.KKK.KN.NK..........',
+      '..K.K.K.KN..NK..........',
+      '.........KK.KK..........'
+    ]
+  ];
+
+  var TRAVELER_HERO = {
+    hero1: { H: 'T', F: 'E', C: 'B' },
+    hero2: { H: 'M', F: 'E', C: 'C' },
+    hero3: { H: 'X', F: 'D', C: 'G' }
+  };
+
+  function mapRows(rows, map) {
+    return rows.map(function (row) {
+      var out = '';
+      for (var i = 0; i < row.length; i++) out += map[row[i]] || row[i];
+      return out;
+    });
+  }
+
   /* Warn loudly during development if a sprite row was mis-typed. */
+  function rowProblems(name, rows) {
+    var bad = [];
+    var w = rows[0].length;
+    rows.forEach(function (row, i) {
+      if (row.length !== w) bad.push(name + ' row ' + i + ' is ' + row.length + ', expected ' + w);
+      for (var c = 0; c < row.length; c++) {
+        if (!(row[c] in PALETTE)) bad.push(name + ' row ' + i + ' uses unknown colour "' + row[c] + '"');
+      }
+    });
+    return bad;
+  }
+
   function validate() {
     var bad = [];
     Object.keys(SPRITES).forEach(function (name) {
-      var rows = SPRITES[name];
-      var w = rows[0].length;
-      rows.forEach(function (row, i) {
-        if (row.length !== w) bad.push(name + ' row ' + i + ' is ' + row.length + ', expected ' + w);
-        for (var c = 0; c < row.length; c++) {
-          if (!(row[c] in PALETTE)) bad.push(name + ' row ' + i + ' uses unknown colour "' + row[c] + '"');
-        }
+      bad = bad.concat(rowProblems(name, SPRITES[name]));
+    });
+    Object.keys(TRAVELER_HERO).forEach(function (hero) {
+      TRAVELER_FRAMES.forEach(function (rows, fi) {
+        bad = bad.concat(rowProblems('traveler:' + hero + ':' + fi, mapRows(rows, TRAVELER_HERO[hero])));
       });
     });
     if (bad.length) console.warn('[pixel] sprite problems:\n' + bad.join('\n'));
@@ -991,14 +1078,7 @@
 
   var cache = {};
 
-  /* Render a sprite to an offscreen canvas at 1px-per-cell, then scale on draw.
-     Caching the 1x canvas keeps repeated draws cheap. */
-  function base(name, variant) {
-    var key = name + ':' + (variant || 'normal');
-    if (cache[key]) return cache[key];
-    var rows = SPRITES[name];
-    if (!rows) throw new Error('unknown sprite: ' + name);
-    var pal = paletteFor(variant);
+  function paint1x(rows, pal) {
     var w = rows[0].length, h = rows.length;
     var cv = document.createElement('canvas');
     cv.width = w; cv.height = h;
@@ -1011,22 +1091,49 @@
         ctx.fillRect(x, y, 1, 1);
       }
     }
-    cache[key] = cv;
     return cv;
+  }
+
+  function scaleUp(src, scale, className) {
+    var cv = document.createElement('canvas');
+    cv.width = src.width * scale;
+    cv.height = src.height * scale;
+    cv.className = className || 'sprite';
+    var ctx = cv.getContext('2d');
+    ctx.imageSmoothingEnabled = false;
+    ctx.drawImage(src, 0, 0, cv.width, cv.height);
+    return cv;
+  }
+
+  /* Render a sprite to an offscreen canvas at 1px-per-cell, then scale on draw.
+     Caching the 1x canvas keeps repeated draws cheap. */
+  function base(name, variant) {
+    var key = name + ':' + (variant || 'normal');
+    if (cache[key]) return cache[key];
+    var rows = SPRITES[name];
+    if (!rows) throw new Error('unknown sprite: ' + name);
+    cache[key] = paint1x(rows, paletteFor(variant));
+    return cache[key];
   }
 
   /* Build a <canvas> element showing `name` scaled up by `scale`. */
   function el(name, scale, variant) {
     scale = scale || 6;
-    var src = base(name, variant);
-    var cv = document.createElement('canvas');
-    cv.width = src.width * scale;
-    cv.height = src.height * scale;
-    cv.className = 'sprite' + (variant === 'shiny' ? ' shiny' : '');
-    var ctx = cv.getContext('2d');
-    ctx.imageSmoothingEnabled = false;
-    ctx.drawImage(src, 0, 0, cv.width, cv.height);
-    return cv;
+    return scaleUp(base(name, variant), scale, 'sprite' + (variant === 'shiny' ? ' shiny' : ''));
+  }
+
+  function travelerBase(hero, frame) {
+    hero = TRAVELER_HERO[hero] ? hero : 'hero1';
+    frame = frame === 1 ? 1 : 0;
+    var key = 'traveler:' + hero + ':' + frame;
+    if (cache[key]) return cache[key];
+    cache[key] = paint1x(mapRows(TRAVELER_FRAMES[frame], TRAVELER_HERO[hero]), PALETTE);
+    return cache[key];
+  }
+
+  /* Founder walking off the plane: two frames, suitcase left, passport right. */
+  function elTraveler(hero, frame, scale) {
+    return scaleUp(travelerBase(hero, frame), scale || 4, 'sprite');
   }
 
   function dataURL(name, scale, variant) {
@@ -1044,6 +1151,7 @@
     PALETTE: PALETTE,
     SPRITES: SPRITES,
     el: el,
+    elTraveler: elTraveler,
     mount: mount,
     dataURL: dataURL,
     validate: validate

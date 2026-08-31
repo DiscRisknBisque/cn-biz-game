@@ -89,7 +89,7 @@ var LEGACY_SAVE = {
     await page.waitForFunction(function () {
       var b = document.querySelector('.opening .btn');
       return b && !b.disabled;
-    }, { timeout: 6000 });
+    }, { timeout: 10000 });
     await page.click('.opening .btn');
     await pause(200);
   }
