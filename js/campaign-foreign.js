@@ -598,8 +598,8 @@
             }
           ],
           tip: {
-            zh: '利润汇出的前提：完成年度企业所得税汇算清缴、弥补以前年度亏损、按税后利润的 10% 提取法定公积金（累计达注册资本 50% 后可不再提取）、作出股东会分红决议。向境外股东支付股息，一般代扣代缴 10% 预提所得税；符合条件并适用税收协定的，可能降至 5%。单笔等值 5 万美元以上的对外支付还需办理税务备案。',
-            en: 'Before profits can leave: file and settle the annual corporate income tax return, cover prior-year losses, allocate 10% of after-tax profit to the statutory surplus reserve (you may stop once it reaches 50% of registered capital), and pass a shareholders\' resolution to distribute. Dividends to an overseas shareholder normally bear 10% withholding tax, which a tax treaty may reduce to 5% where the conditions are met. Outbound payments of USD 50,000 or more also require a tax filing.'
+            zh: '利润汇出的前提：完成年度企业所得税汇算清缴、弥补以前年度亏损、按税后利润的 10% 提取法定公积金（累计达注册资本 50% 后可不再提取）、作出股东会分红决议。向境外企业股东支付股息，一般代扣代缴 10% 预提所得税；符合条件并适用税收协定的，可能降至 5%。外籍个人股东从外商投资企业取得股息红利，自 2026 年 9 月 1 日起按 20% 缴纳个人所得税，由企业代扣代缴。单笔等值 5 万美元以上的对外支付还需办理税务备案。',
+            en: 'Before profits can leave: file and settle the annual corporate income tax return, cover prior-year losses, allocate 10% of after-tax profit to the statutory surplus reserve (you may stop once it reaches 50% of registered capital), and pass a shareholders\' resolution to distribute. Dividends to an overseas company shareholder normally bear 10% withholding tax, which a tax treaty may reduce to 5% where the conditions are met. From 1 September 2026, a foreign individual who takes a dividend from a foreign-invested enterprise pays individual income tax at 20%; the enterprise withholds it. Outbound payments of USD 50,000 or more also require a tax filing.'
           },
           law: {
             zh: '《公司法》第210条；《企业所得税法》第3条、第27条及实施条例第91条；国家税务总局、国家外汇管理局2013年第40号公告',
@@ -752,6 +752,57 @@
           law: {
             zh: '《个人所得税法》第1条；《个人所得税法实施条例》第4条；财政部 税务总局2019年第34号公告',
             en: 'Individual Income Tax Law, art. 1; IIT Implementing Regulations, art. 4; MOF/SAT Announcement No. 34 (2019)'
+          }
+        },
+        {
+          risk: ['tax'],
+          volatile: true,
+          prompt: {
+            zh: '公司盈利了，你作为外籍自然人股东想分红。有人说："外籍个人从外资企业取得股息红利一直免税，1994 年的文件还在。"',
+            en: 'The company is profitable. You are a foreign individual shareholder and you want a dividend. Someone says: "Foreign individuals still pay no individual income tax on dividends from a foreign-invested enterprise. The 1994 rule is still in force."'
+          },
+          choices: [
+            {
+              text: {
+                zh: '按旧规免税直接分，外籍股东分红不用缴个税',
+                en: 'Take the dividend tax-free under the old rule. Foreign shareholders do not pay individual income tax on dividends.'
+              },
+              score: 0, fx: { cash: 4, comp: -22, rep: -10, energy: -2 },
+              verdict: {
+                zh: '财税字〔1994〕20 号第二条第（八）项已废止。继续按免税操作，公司未扣缴、个人未申报，都会被追税。',
+                en: 'Caishui [1994] No. 20, art. 2(8) is repealed. If the company does not withhold and you do not file, the tax authority can collect the tax later.'
+              }
+            },
+            {
+              text: {
+                zh: '按企业所得税 10% 预提就行，和境外公司股东一样',
+                en: 'Withhold 10% enterprise income tax, the same as for an overseas company shareholder.'
+              },
+              score: 1, fx: { cash: -4, comp: -8, rep: -2, energy: -4 },
+              verdict: {
+                zh: '10% 预提所得税针对的是境外企业股东。你是外籍自然人，适用的是个人所得税，不是企业所得税预提。',
+                en: 'The 10% withholding tax applies to an overseas company shareholder. You are a foreign individual. The tax is individual income tax, not enterprise income tax withholding.'
+              }
+            },
+            {
+              text: {
+                zh: '自 2026 年 9 月 1 日起按股息红利所得缴 20% 个税，公司支付时代扣代缴',
+                en: 'From 1 September 2026, pay individual income tax at 20% on the dividend. The company withholds it when it pays.'
+              },
+              score: 2, fx: { cash: -8, comp: 18, rep: 6, energy: -4 },
+              verdict: {
+                zh: '对外籍个人从外商投资企业取得的股息红利，按利息、股息、红利所得征收个人所得税，税率 20%。外商投资企业支付时代扣代缴。',
+                en: 'Dividends that a foreign individual takes from a foreign-invested enterprise are individual income tax on interest, dividends and bonuses, at 20%. The enterprise withholds the tax when it pays.'
+              }
+            }
+          ],
+          tip: {
+            zh: '自 2026 年 9 月 1 日起，外籍个人从外商投资企业取得股息红利，按“利息、股息、红利所得”缴纳个人所得税，税率 20%。企业支付所得时扣缴，并于次月 15 日内申报。未扣缴的，个人应在取得所得的次年 6 月 30 日前缴纳。财税字〔1994〕20 号第二条第（八）项同时废止。境外企业股东的股息预提所得税，仍是另一套规则。',
+            en: 'From 1 September 2026, a foreign individual who takes a dividend from a foreign-invested enterprise pays individual income tax at 20% under the interest, dividend and bonus category. The enterprise withholds the tax when it pays, and files by the 15th of the next month. If it does not withhold, the individual must pay by 30 June of the next year. Caishui [1994] No. 20, art. 2(8) is repealed at the same time. Withholding on dividends to an overseas company shareholder is a different rule.'
+          },
+          law: {
+            zh: '财政部 税务总局公告2026年第27号；《个人所得税法》第2条、第3条；废止财税字〔1994〕20号第二条第（八）项',
+            en: 'MOF/SAT Announcement No. 27 (2026); Individual Income Tax Law, arts. 2 & 3; Caishui [1994] No. 20, art. 2(8) repealed'
           }
         }
       ]
@@ -1318,8 +1369,8 @@
     tax: {
       type: { zh: '税务', en: 'TAX' }, danger: 5, rarity: 1,
       weak: {
-        zh: '付款必要发票，按期申报不做长期零申报，个税身份按 183 天和六年规则自己算清楚',
-        en: 'No fapiao, no payment; file on time and never sit on zero-returns; work out your own residence position from the 183-day and six-year rules'
+        zh: '付款必要发票，按期申报不做长期零申报，个税身份按 183 天和六年规则自己算清楚，外籍个人股东分红按 20% 代扣个税',
+        en: 'No fapiao, no payment; file on time and never sit on zero-returns; work out your own residence position from the 183-day and six-year rules; withhold 20% individual income tax on dividends to a foreign individual shareholder'
       }
     },
     labor: {

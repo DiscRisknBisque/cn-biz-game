@@ -435,26 +435,41 @@
       '................'
     ],
 
-    /* 法庭大闯关封面 — the objection pose: one index finger stabbing upward
-       out of a lawyer's blue cuff, bursting a gold star bloom at the tip.
-       Tension and breakthrough in 16x16 (异议あり!). */
+    /* 法庭大闯关封面 — 32x32 comic panel. BAM! burst on top; outstretched
+       pointing arm in a navy suit. Index finger long and fully extended. */
     courtroom: [
-      '...o.......Y.y..',
-      '..y.......y.Y.O.',
-      '.........y.KEEKy',
-      '..........KEEKOo',
-      '..........KEEKy.',
-      '.........KEEK...',
-      '........KEEK....',
-      '........KEEK....',
-      '..KEEEEEEEEEK...',
-      '.KEEEEEEEEEEK...',
-      '.KEeEEEEEEeEK...',
-      '..KEEEEEEEEK....',
-      '...KEEEEEEK.....',
-      '...KWWWWWWK.....',
-      '..KNNNNNNNNK....',
-      '..KKKKKKKKKK....'
+      'YYYYYYYYYKYYYYWYYKYYWWWYYKYYWYYY',
+      'YYYYYYYYYYYYYYYWWWWWWWWWWWWWYYYY',
+      'YYYYYYYYYYYYYWWWWWWWWWWWWWWWWWYK',
+      'YYYYYKYYYYYRRRRWWRRWWRWWRWRWWWWY',
+      'KYYYYYYYYYYRWWRWRWWRWRRRRWRWWWWW',
+      'YYYYYYYYYWWRRRRWRRRRWRWRWWRWWWWW',
+      'YYYYYYYYYYWRWWRWRWWRWRWWRWWWWWWW',
+      'YYOYYYYYYYWRRRRWRWWRWRWWRWRWWWWW',
+      'YYYYYYYYYYWWWWWWWWWWWWWWWWWWWWWW',
+      'YYYYKYYYYYYYYWWWWWWWWWWWWYYYYKYY',
+      'YYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYY',
+      'YYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYK',
+      'YYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYY',
+      'YYYYYYYYYYYYYYYYYYYKKKKYYYYYYYYY',
+      'YKKKKKKKKKKKKKKKKKKEEEEKKKKKKKKY',
+      'KNnnnnnnnnnKKKKKKKEEEEEEEEEEEEeK',
+      'KNNNNNNNNNNNKWWKKEEEEEEEEEEEEEeK',
+      'KNNNNNNNNNNNKWWKEEEEEEEEEEEEeeeK',
+      'KNNNNNNNNNNNKWWKEEEEEEEKKKKKKKKY',
+      'KNNNNNNKKNNNKWWKEEEEEEEEEEEeKYYY',
+      'KNXXXXXKKXXXKWWKEEEEEEEEEEEeKYYY',
+      'KXXXXXXXXXXXXWWKEEEEEEEEeeeKYYYY',
+      'KXXXXXXXXXXXXWWKKEEEEEEEeeeKYYYY',
+      'KXXXXXXXXXXXXKWWKKKeeeeeeKKYYYYY',
+      'YKKKKKKKKKKKKKKWWKKKKKKKKKYYYYYY',
+      'YYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYY',
+      'YYYYYYYYYYYYYYYYYYYYYYYYYYYYKYYY',
+      'YYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYY',
+      'YYKYYYYYYYYYYYYYYYYYYYYYYOYYYYYY',
+      'YYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYY',
+      'YYYYYYYOYYYYYYYYYYYYYYYYYYYYYYYY',
+      'YYYYYYYYYYKYYYYYYYYYYYKYYYYYYYYY'
     ],
 
     /* 双税兽 — corporate tax on the way in, dividend tax on the way out. */
@@ -535,6 +550,27 @@
       '..KKnnnnnnnnKK..',
       '...K.K.K.K.K.K..',
       '................'
+    ],
+
+    /* 资本龙 — original capital Boss for the foreigner opening. S-curve,
+       wings up, a cartoon grin. Not a real person, firm, or brand. */
+    capitaldragon: [
+      '................',
+      '..PP......pp....',
+      '.PPPP....PPpp...',
+      'PPKKPP..PPKKP...',
+      'PKWWKPPPPKWWKP..',
+      'PKKKKPPPPKKKKP..',
+      '.PPPPPPPPPPPP...',
+      '..PPP..PPPPP....',
+      '..PPPP...PPPP...',
+      '.PPPPP....PPP...',
+      'PPPPPPP...PP....',
+      'PPP.PPPP.PP.....',
+      'PP...PPPPP......',
+      'P.....PPP.......',
+      '......PP........',
+      '.......P........'
     ],
 
     /* 穿透兽 — reaches through the company and takes hold of you. The boss. */
@@ -812,23 +848,24 @@
     ],
 
     /* Airport tarmac — 32 wide, same stage as the garage. Stairs drop from
-       the cabin door so the founder can walk off the plane. */
+       the cabin door so the founder can walk off the plane. The nose is an
+       oval so the fuselage reads as an airliner, not a box. */
     arrivals: [
       'bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb',
-      'bbbWWWbbbbbbbbbbbbbbbbbbWWWbbbbb',
+      'bbbWWWbbbbbbbbbbbbbbbbbWWWbbbbbb',
       'Kbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb',
-      'KRKKKKKKKKKKKKKKKKKbbbbbbbbbbbbb',
-      'KRRWWWWWWWWWWWWWWWWKbbbbbbbbbbbb',
-      '.KWWWnWnWnWnWKKWWWKKbbbbbbbbbbbb',
-      '.KWNNNNNNNNNNNNWWWWKbbbbbbbbbbbb',
-      '.KWWWWWWWWWWWWWWWWWK.Kbbbbbbbbbb',
-      'KKKKKKKKKKKKKKKKKKKK.Kbbbbbbbbbb',
-      'nnnnnnnnnnnnnnKnnnK..KSbbbbbbbbb',
-      'NNNNNNNNNNNNNNnKnK..KSSbbbbbbbbb',
-      'nnnnnnnnnnnnnnnnK..KSSKbbbbbbbbb',
-      'NNNNNNNNNNNNNNNKK.KSSKnnnnnnnnnn',
-      'nnnnnnnnnnnnnnnnnKSSKNNNNNNNNNNN',
-      'NNNNNNNNNNNNNNNNNKKKnnnnnnnnnnnn',
+      'KRKKKKKKKKKKKKKKKK.Kbbbbbbbbbbbb',
+      'KRRWWWWWWWWWWWWWKKWKbbbbbbbbbbbb',
+      '.KWWWnWnWnWnWWKKWWWKKbbbbbbbbbbb',
+      '.KWNNNNNNNNNNNKKWWWWWKbbbbbbbbbb',
+      '.KWWWWWWWWWWWWKKWWWKKbbbbbbbbbbb',
+      'KKKKKKKKKKKKKKKKKWK...Kbbbbbbbbb',
+      'nnnnnnnnnnnnnnK....KK..KSbbbbbbb',
+      'NNNNNNNNNNNNNNnK......KSSbbbbbbb',
+      'nnnnnnnnnnnnnnnnK....KSSKbbbbbbb',
+      'NNNNNNNNNNNNNNNKK...KSSKnnnnnnnn',
+      'nnnnnnnnnnnnnnnnn..KSSKNNNNNNNNN',
+      'NNNNNNNNNNNNNNNNN.KKKnnnnnnnnnnn',
       'KKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKK'
     ],
 
@@ -933,43 +970,44 @@
   };
 
   /* Walk cycle for the foreign-route opening. H/F/C are hair, face and clothes
-     placeholders, swapped for the chosen founder before paint. Suitcase stays
-     on their left (trailing), passport on their right (leading). */
+     placeholders, swapped for the chosen founder before paint. A trolley case
+     trails on their left (handle in the left hand); a small passport booklet
+     is in their right. */
   var TRAVELER_FRAMES = [
     [
       '........KKKK............',
       '.......KHHHHK...........',
       '......KHHHHHHK..........',
-      '......KHFFFFHK..........',
-      '......KFFFFFFK....KK....',
-      '......KFKFFKFK...KRRK...',
-      '......KFFFFFFK...KRYK...',
-      '......KFFKKFFK...KRRK...',
-      '.......KFFFFK.KKKKK.....',
-      '.KKKKKKKCCCCKK..........',
-      'KTTTTTK.KCCCCCK.........',
-      'KTtttTK.KCCCCCK.........',
-      'KTTTTTK.KKCCCKK.........',
-      'KKK.KKK.KN.KNK..........',
-      '.K.K.K..KN..NK..........',
+      '.nnn..KHFFFFHK..........',
+      '.n.n..KFFFFFFK....KR....',
+      '.n.n..KFKFFKFK....KY....',
+      '.n.n..KFFFFFFK....KR....',
+      '.n.n..KFFKKFFK.KK.......',
+      '.KTTTK.KFFFFK...........',
+      '.KTtTK.KCCCCK...........',
+      '.KTTTKKKCCCCK...........',
+      '.KTTTK.KCCKK............',
+      '.KTTTK.KN.NK............',
+      '.KK.KK.KN..NK...........',
+      '..K.K..KK..KK...........',
       '........KK..KK..........'
     ],
     [
       '........KKKK............',
       '.......KHHHHK...........',
       '......KHHHHHHK..........',
-      '......KHFFFFHK..........',
-      '......KFFFFFFK...KK.....',
-      '......KFKFFKFK..KRRK....',
-      '......KFFFFFFK..KRYK....',
-      '......KFFKKFFK..KRRK....',
-      '.......KFFFFK..KKKK.....',
-      '..KKKKKKCCCCK.KK........',
-      '.KTTTTTKCCCCCCK.........',
-      '.KTtttTKCCCCCCK.........',
-      '.KTTTTTK.KCCCK..........',
-      '.KKK.KKK.KN.NK..........',
-      '..K.K.K.KN..NK..........',
+      '..nnn.KHFFFFHK..........',
+      '..n.n.KFFFFFFK...KR.....',
+      '..n.n.KFKFFKFK...KY.....',
+      '..n.n.KFFFFFFK...KR.....',
+      '..n.n.KFFKKFFK.KK.......',
+      '..KTTTK.KFFFFK..........',
+      '..KTtTK.KCCCCK..........',
+      '..KTTTKKCCCCK...........',
+      '..KTTTK.KCCKK...........',
+      '..KTTTK.KN.NK...........',
+      '..KK.KK.KN..NK..........',
+      '...K.K..KK..KK..........',
       '.........KK.KK..........'
     ]
   ];

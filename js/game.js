@@ -820,7 +820,8 @@
           Sound.play('select');
           save();
           var openScreen = ROUTE_OPENING[camp.id];
-          if (openScreen && !r.openingSeen) go(openScreen);
+          if (camp.id === 'foreign') go('foreignOpen');
+          else if (openScreen && !r.openingSeen) go(openScreen);
           else go('map');
         }
       }, [
@@ -855,7 +856,7 @@
         }
       }, [
         h('div', { class: 'route-head' }, [
-          sprite(pack.icon || 'commingle', 4),
+          sprite(pack.icon || 'commingle', 3),
           h('div', { class: 'route-txt' }, [
             h('div', { class: 'route-title', text: T(pack.title) }),
             h('div', { class: 'route-sub', text: T(pack.subtitle) })
@@ -1077,93 +1078,48 @@
     ]);
   }
 
-  /* First entry into the foreigner route: the chosen founder walks off the
-     plane, suitcase in the left hand and passport in the right. Once per run.
-     The CTA stays inert until the last board line is on screen. */
+  function applyCutsceneFx(result) {
+    if (!result || result.skipped) return;
+    var fx = {};
+    if (result.capital >= 50000000) fx.energy = -10;
+    else if (result.capital <= 300000) fx.rep = -6;
+    if (result.deal === 'A') {
+      fx.cash = (fx.cash || 0) + 24;
+      fx.comp = (fx.comp || 0) - 16;
+    } else if (result.deal === 'B') {
+      fx.energy = (fx.energy || 0) - 8;
+    } else if (result.deal === 'C') {
+      fx.energy = (fx.energy || 0) - 10;
+      fx.rep = (fx.rep || 0) + 8;
+    }
+    B.applyFx(run().stats, fx);
+  }
+
+  /* Foreigner route chapter open: 45s first play, 7s on return, skip after 3s.
+     Shots and interacts live in CutsceneForeign; this screen only hosts it. */
   function screenForeignOpen() {
     var reduced = window.matchMedia &&
       window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-    var timers = [];
-
-    function later(sec, fn) {
-      timers.push(setTimeout(fn, Math.round(sec * 1000)));
-    }
-
-    function finish() {
-      timers.forEach(clearTimeout);
-      timers = [];
-      run().openingSeen = true;
-      Sound.play('select');
-      save();
-      go('map');
-    }
-
-    var stepA = Pixel.elTraveler(state.hero, 0, 4);
-    stepA.classList.add('step', 'step-a');
-    var stepB = Pixel.elTraveler(state.hero, 1, 4);
-    stepB.classList.add('step', 'step-b');
-    var walk = h('div', {
-      class: 'opening-walk' + (reduced ? ' arrived' : '')
-    }, [stepA, stepB]);
-
-    if (!reduced) {
-      later(2.9, function () { walk.classList.add('arrived'); Sound.play('appear'); });
-    }
-
-    var t = reduced ? 0 : 1.35;
-    function beat() {
-      var d = t;
-      t += 0.2;
-      return d;
-    }
-
-    function row(label, value, extraClass, sfx) {
-      var d = beat();
-      if (!reduced && sfx) later(d, function () { Sound.play(sfx); });
-      return openingRow(label, value, extraClass, d);
-    }
-
-    if (!reduced) later(0.4, function () { Sound.play('appear'); });
-
-    var start = B.START;
-    var board = [
-      row(ui('openPassport'), ui('openPassportVal'), null, 'blip'),
-      row(ui('openBag'), ui('openBagVal'), null, 'blip'),
-      row(ui('openVisa'), ui('openVisaVal'), null, 'blip'),
-      row(ui('openStay'), ui('openStayVal'), null, 'blip'),
-      h('div', { class: 'hr opening-hr', style: 'animation-delay:' + beat() + 's' }),
-      row(ui('cash'), String(start.cash), null, 'blip'),
-      row(ui('compliance'), String(start.comp), null, 'blip'),
-      row(ui('reputation'), String(start.rep), null, 'blip'),
-      row(ui('energy'), String(start.energy), null, 'blip'),
-      h('div', { class: 'hr opening-hr', style: 'animation-delay:' + beat() + 's' }),
-      row(ui('openPermit'), ui('openPermitVal'), null, 'blip'),
-      row(ui('openNext'), ui('openNextVal'), 'joke punch', 'select')
-    ];
-
-    var goAt = reduced ? 0 : t - 0.2 + 0.18;
-    var goBtn = h('button', {
-      class: 'btn primary center opening-go',
-      style: reduced ? null : 'animation-delay:' + goAt + 's',
-      onclick: finish
-    }, [h('strong', { text: ui('openAirGo') })]);
-    if (!reduced) {
-      goBtn.disabled = true;
-      later(goAt, function () { goBtn.disabled = false; });
-    }
-
-    return h('div', { class: 'opening' }, [
-      h('div', { class: 'opening-black', 'aria-hidden': 'true' }),
-      h('div', { class: 'opening-scene' }, [
-        h('div', { class: 'opening-airside' }, [
-          h('div', { class: 'opening-sign mono', text: ui('openAirSign') }),
-          h('div', { class: 'stage opening-bg' }, [sprite('arrivals', 8)]),
-          walk
-        ])
-      ]),
-      h('div', { class: 'panel double opening-board' }, board),
-      goBtn
-    ]);
+    var first = !run().openingSeen;
+    var host = h('div', { class: 'opening' });
+    global.CutsceneForeign.mount(host, {
+      lang: state.lang,
+      hero: state.hero,
+      mode: reduced ? 'reduced' : (first ? 'full' : 'fast'),
+      Pixel: Pixel,
+      Sound: Sound,
+      skipAfter: 3,
+      onDone: function (result) {
+        if (first) {
+          applyCutsceneFx(result);
+          toast(ui('cutsceneLaw'));
+        }
+        run().openingSeen = true;
+        save();
+        go('map');
+      }
+    });
+    return host;
   }
 
   function screenIntro() {

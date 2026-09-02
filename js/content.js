@@ -170,24 +170,26 @@
     openGo:       { zh: '走进车库', en: 'INTO THE GARAGE' },
     openAirSign:  { zh: '入境', en: 'ARRIVALS' },
     openPassport: { zh: '护照', en: 'Passport' },
-    openPassportVal:{ zh: '握在右手', en: 'In the right hand' },
+    openPassportVal:{ zh: '+1', en: '+1' },
     openBag:      { zh: '行李箱', en: 'Suitcase' },
-    openBagVal:   { zh: '握在左手', en: 'In the left hand' },
+    openBagVal:   { zh: '+1', en: '+1' },
     openVisa:     { zh: '签证类型', en: 'Visa class' },
     openVisaVal:  { zh: '未知', en: 'Unknown' },
     openStay:     { zh: '停留事由', en: 'Purpose of stay' },
     openStayVal:  { zh: '待确认', en: 'To be confirmed' },
     openPermit:   { zh: '工作许可', en: 'Work permit' },
-    openPermitVal:{ zh: '还没有', en: 'None yet' },
-    openNext:     { zh: '现在能做的', en: 'What you may do' },
-    openNextVal:  { zh: '先别上班', en: 'Do not start work' },
-    openAirGo:    { zh: '走下飞机', en: 'OFF THE PLANE' }
+    openPermitVal:{ zh: '没有', en: 'None' },
+    openAirGo:    { zh: '走下飞机', en: 'OFF THE PLANE' },
+    cutsceneLaw:  {
+      zh: '本段是创业流程地图，不是全国统一清单。准入、登记、外汇、税务和工作居留因行业、城市和结构而不同。',
+      en: 'This is a process map, not a national checklist. Access, filing, FX, tax and work status move with industry, city and structure.'
+    }
   };
 
   /* When the legal content was last reviewed. Shown on the risk notice, the
      about screen and the result, because in this subject matter a game with no
      date on it is worse than no game. */
-  var AS_OF = { zh: '2026 年 8 月', en: 'August 2026' };
+  var AS_OF = { zh: '2026 年 9 月', en: 'September 2026' };
 
   /* What kind of trouble a scene is actually about. Tagging every scene this
      way is the single most useful thing the game does beyond the tips: it tells

@@ -965,6 +965,252 @@ h1, h2, h3 { font-weight: 800; line-height: 1.3; }
   to { opacity: 1; transform: none; }
 }
 
+/* --- foreigner route cutscene -------------------------------------------- */
+
+.opening.cutscene {
+  gap: 8px;
+  padding-top: calc(var(--pad) + 36px);
+  background: #0b0914;
+  color: #fbf3df;
+}
+.cutscene-skip {
+  position: absolute;
+  top: calc(8px + env(safe-area-inset-top));
+  right: 10px;
+  z-index: 6;
+  width: auto;
+  padding: 8px 12px;
+  font-size: 12px;
+  background: var(--gold);
+}
+.cutscene-skip:disabled {
+  opacity: 0;
+  pointer-events: none;
+}
+.cutscene-stage {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  image-rendering: pixelated;
+}
+.cutscene-caption {
+  min-height: 4.4em;
+  text-align: center;
+  font-weight: 800;
+  line-height: 1.45;
+}
+.cutscene-caption p { margin: 0; }
+.cs-earth {
+  image-rendering: pixelated;
+  image-rendering: crisp-edges;
+  width: 180px;
+  height: 180px;
+}
+.cs-hall {
+  position: relative;
+  text-align: center;
+}
+.cs-sign {
+  display: inline-block;
+  background: var(--gold);
+  color: var(--ink);
+  padding: 4px 10px;
+  font-size: 12px;
+  letter-spacing: 2px;
+  box-shadow: 2px 2px 0 #000;
+}
+.cs-sign-sub {
+  font-size: 12px;
+  margin: 4px 0 8px;
+  color: #cfd6e6;
+}
+.cs-walk {
+  position: absolute;
+  left: 50%;
+  bottom: 6px;
+  width: 96px;
+  height: 64px;
+  margin-left: -48px;
+  z-index: 2;
+  animation: foreign-walk 2.2s steps(11) 0.2s both;
+}
+.cs-walk .step { position: absolute; left: 0; top: 0; }
+.cs-walk .step-a { animation: walk-toggle 0.28s steps(1) infinite; }
+.cs-walk .step-b { animation: walk-toggle 0.28s steps(1) infinite reverse; }
+.cs-chapter { text-align: center; }
+.cs-chapter-t { font-weight: 800; font-size: 18px; }
+.cs-chapter-s { font-size: 12px; color: #cfd6e6; }
+.cs-doors {
+  display: flex;
+  gap: 6px;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+.cs-door {
+  width: 72px;
+  padding: 8px 4px;
+  background: #2a2440;
+  box-shadow: 3px 3px 0 #000;
+  text-align: center;
+  font-size: 11px;
+  animation: opening-pop 0.2s steps(2) both;
+}
+.cs-lock { font-size: 16px; margin-bottom: 4px; }
+.cs-cast {
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  gap: 6px;
+  margin-top: 8px;
+}
+.cs-chop-jump { animation: cs-jump 0.7s steps(4) 0.4s both; }
+@keyframes cs-jump {
+  from { transform: translate(-24px, 18px); }
+  40% { transform: translate(-8px, -10px); }
+  to { transform: translate(0, 0); }
+}
+.cs-plate {
+  background: var(--red);
+  color: #fff;
+  padding: 4px 8px;
+  font-size: 12px;
+  font-weight: 800;
+  box-shadow: 2px 2px 0 #000;
+}
+.cs-gate-title {
+  font-size: 11px;
+  letter-spacing: 1px;
+  background: var(--red);
+  color: #fff;
+  padding: 4px 8px;
+}
+.cs-gate { position: relative; }
+.cs-scan { margin-top: 8px; opacity: 0.55; }
+.cs-scan.pass { opacity: 1; }
+.cs-map {
+  display: flex;
+  gap: 8px;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+.cs-city {
+  font: inherit;
+  font-weight: 800;
+  padding: 10px 14px;
+  background: var(--blue);
+  color: #fff;
+  border: 0;
+  box-shadow: 3px 3px 0 #000;
+  animation: opening-pop 0.18s steps(2) both;
+}
+.cs-cards { display: flex; gap: 6px; flex-wrap: wrap; justify-content: center; }
+.cs-card {
+  background: #2a2440;
+  padding: 6px 8px;
+  font-size: 12px;
+  box-shadow: 2px 2px 0 #000;
+}
+.cs-capital { text-align: center; width: 100%; }
+.cs-label { font-size: 12px; color: #cfd6e6; }
+.cs-num { font-size: 18px; margin: 6px 0; }
+.cs-slider { width: min(280px, 90%); accent-color: var(--gold); }
+.cs-feed { display: flex; flex-wrap: wrap; gap: 6px; justify-content: center; }
+.cs-feed-card {
+  background: #fff;
+  color: #241f31;
+  padding: 6px 8px;
+  font-size: 12px;
+  font-weight: 800;
+  animation: opening-pop 0.18s steps(2) both;
+}
+.cs-chop-rise { animation: opening-pop 0.3s steps(3) both; }
+.cs-chop-rise.stamp { filter: contrast(1.2); }
+.cs-mini-gates { display: flex; gap: 6px; }
+.cs-mini {
+  background: #2a2440;
+  padding: 8px 6px;
+  font-size: 11px;
+  animation: opening-pop 0.18s steps(2) both;
+}
+.cs-hp {
+  width: min(260px, 90%);
+  height: 10px;
+  background: #2a2440;
+  box-shadow: 0 0 0 2px #000;
+  overflow: hidden;
+}
+.cs-hp > i {
+  display: block;
+  height: 100%;
+  width: 0;
+  background: var(--green);
+  transition: width 0.4s steps(8);
+}
+.cs-hp.rev > i { background: var(--gold); }
+.cs-hp.cash > i { background: var(--green); }
+.cs-hp.tax > i { background: var(--red); }
+.cs-bar-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: min(280px, 92%);
+  font-size: 12px;
+  font-weight: 800;
+}
+.cs-bar-row .cs-hp { flex: 1; }
+.cs-status { text-align: center; font-weight: 800; }
+.cs-ok { color: var(--green); }
+.cs-bad { color: var(--red); }
+.cs-poster { text-align: center; }
+.cs-poster-cast {
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  gap: 4px;
+  margin-top: -28px;
+  position: relative;
+  z-index: 1;
+}
+.cs-road {
+  display: flex;
+  justify-content: space-between;
+  width: min(240px, 80%);
+  margin: 8px auto 0;
+}
+.cs-road canvas { animation: opening-pop 0.2s steps(2) both; }
+.cs-growth {
+  width: min(220px, 70%);
+  height: 24px;
+  margin: 8px auto 0;
+  background:
+    repeating-linear-gradient(90deg, var(--green) 0 8px, transparent 8px 16px);
+  clip-path: polygon(0 70%, 18% 55%, 36% 78%, 54% 40%, 72% 52%, 100% 8%, 100% 100%, 0 100%);
+  image-rendering: pixelated;
+}
+.cs-sky { animation: opening-pop 0.3s steps(3) both; }
+.cs-quest { font-weight: 800; font-size: 16px; text-align: center; }
+.cs-quest-s { font-size: 12px; color: #cfd6e6; text-align: center; }
+.cs-choices {
+  display: grid;
+  gap: 8px;
+  width: 100%;
+}
+.cs-choices .btn.punchy { animation: cs-nudge 0.6s steps(2) infinite; }
+@keyframes cs-nudge {
+  0%, 60% { transform: translateY(0); }
+  61%, 100% { transform: translateY(-3px); }
+}
+.cs-hint {
+  font-size: 11px;
+  line-height: 1.45;
+  color: #b3aacb;
+  text-align: left;
+}
+
 @media (prefers-reduced-motion: reduce) {
   .stage canvas, .type::after, .stage.sparkle::before { animation: none; }
   .screen { animation: none; }
@@ -984,4 +1230,10 @@ h1, h2, h3 { font-weight: 800; line-height: 1.3; }
   .opening-walk .step-a, .opening-walk .step-b { animation: none; }
   .opening-walk .step-a { opacity: 1; }
   .opening-walk .step-b { opacity: 0; }
+  .cs-walk, .cs-walk .step-a, .cs-walk .step-b,
+  .cs-door, .cs-city, .cs-feed-card, .cs-mini, .cs-chop-jump, .cs-chop-rise,
+  .cs-sky, .cs-road canvas, .cs-choices .btn.punchy {
+    animation: none;
+  }
+  .cs-hp > i { transition: none; }
 }
